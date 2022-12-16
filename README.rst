@@ -1,3 +1,22 @@
+
+
+git clone https://github.com/openstack/liberasurecode.git
+cd liberasurecode
+./autogen.sh
+./configure
+make
+make test
+sudo make install
+
+python3 -m venv venv
+source venv/bin/activate
+pip install swift
+pip install -r requirements.txt -r doc/requirements.txt
+sphinx-build -b html doc/source doc/build/html
+
+Note that the last command does not have
+[`-W`](https://www.sphinx-doc.org/en/master/man/sphinx-build.html#cmdoption-sphinx-build-W) option enabled
+
 ===============
 OpenStack Swift
 ===============
