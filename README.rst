@@ -1,21 +1,47 @@
+==================================================================================
+Deploying `Swift (fork) Docs <https://github.com/QubitPi/swift>`__ to GitHub Pages
+==================================================================================
 
+Install system-wide dependency just **once**::
 
-git clone https://github.com/openstack/liberasurecode.git
-cd liberasurecode
-./autogen.sh
-./configure
-make
-make test
-sudo make install
+    git clone https://github.com/openstack/liberasurecode.git
+    cd liberasurecode
+    ./autogen.sh
+    ./configure
+    make
+    make test
+    sudo make install
 
-python3 -m venv venv
-source venv/bin/activate
-pip install swift
-pip install -r requirements.txt -r doc/requirements.txt
-sphinx-build -b html doc/source doc/build/html
+`Activate <https://realpython.com/python-virtual-environments-a-primer/>`__ Python
+`virtual environment <https://realpython.com/intro-to-pyenv/>`__::
 
-Note that the last command does not have
-[`-W`](https://www.sphinx-doc.org/en/master/man/sphinx-build.html#cmdoption-sphinx-build-W) option enabled
+    git clone git@github.com:QubitPi/swift.git
+    cd swift/
+    virtualenv -p python3.7.9 venv
+    source venv/bin/activate
+
+Build documentation::
+
+    pip install swift
+    pip install -r requirements.txt -r doc/requirements.txt
+    sphinx-build -b html doc/source doc/build/html
+
+.. note::
+
+    Note that the last command does not have
+    `-W <https://www.sphinx-doc.org/en/master/man/sphinx-build.html#cmdoption-sphinx-build-W>`__ option enabled. The
+    upstream, however, does build with this option.
+
+Turn the build into GitHub Pages deployable::
+
+    rm -rf docs
+    mv doc/build/html docs
+    touch docs/.nojekyll
+
+.. note::
+
+    The ``doc/source/conf.py`` has been modified by adding ``html_baseurl = '/swift/'``
+
 
 ===============
 OpenStack Swift
