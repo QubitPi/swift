@@ -1,2 +1,0 @@
-# docs redirects are defined here
-redirectmatch 301 ^/swift/([^/]+)/team.html$ https://github.com/openstack/swift/blob/master/AUTHORS

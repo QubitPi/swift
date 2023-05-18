@@ -1,0 +1,757 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Troubleshoot Object Storage &#8212; Swift 0.1.0.dev10164 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/basic.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="canonical" href="/openstack-swift/admin/objectstorage-troubleshoot.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Object Storage Install Guide" href="../install/index.html" />
+    <link rel="prev" title="Object Storage monitoring" href="objectstorage-monitoring.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Bootstrap CSS -->
+<link href="../_static/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Fonts -->
+<link href="../_static/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="../_static/css/combined.css" rel="stylesheet">
+
+<!-- Search CSS -->
+<link href="../_static/css/search.css" rel="stylesheet">
+
+<!-- Pygments CSS -->
+<link href="../_static/pygments.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-17511903-1', 'auto');
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+  </head><body>
+
+<!-- SOURCE_FILE: https://opendev.org/openstack/swift/src/doc/source/admin/objectstorage-troubleshoot.rst -->
+
+<script>
+    (function (window, document) {
+        var loader = function () {
+            var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+            script.src = "https://search.openstack.org/widget/embed.min.js?t="+Date.now();
+            tag.parentNode.insertBefore(script, tag);
+        };
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document);
+</script>
+
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse" type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="brand-wrapper">
+        <a class="navbar-brand" href="https://www.openstack.org/"></a>
+      </div>
+      <div class="search-icon show"><i class="fa fa-search"></i> Search</div></div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <div class="search-container tiny">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</div>
+      <ul class="nav navbar-nav navbar-main show">
+        <li class="search-container-mobile">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</li>
+        <li> <!--Software -->
+          <a href="https://www.openstack.org/software/" class="drop" id="dropdownMenuSoftware">Software <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSoftware">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/">Overview</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/openstack-components">OpenStack Components</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/sdks">SDKs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/deployment-tools">Deployment Tools</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/assets/software/projectmap/openstack-map.pdf" target="_blank">OpenStack Map</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/sample-configs/">Sample Configs</a></li>
+          </ul>
+        </li>
+        <li> <!-- Use Cases -->
+          <a href="https://www.openstack.org/use-cases/" class="drop" id="dropdownMenuUsers">Use Cases <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuUsers">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/">Users in Production</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/bare-metal/">Ironic Bare Metal</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/edge-computing/">Edge Computing</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/telecoms-and-nfv/">Telecom & NFV</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/science/">Science and HPC</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/containers/">Containers</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/enterprise/">Enterprise</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/surveys/landing">User Survey</a></li>
+          </ul>
+        </li>
+        <li> <!-- Events -->
+          <a href="https://www.openstack.org/events/" class="drop" id="dropdownMenuEvents">Events <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/summit/">Open Infrastructure Summits</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/ptg/">Project Teams Gathering</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/opendev-2020/">OpenDev</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/community-events/">Community Events</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/openstackdays">OpenStack & OpenInfra Days</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/videos/">Summit Videos</a></li>
+          </ul>
+        </li>
+        <li><!-- Community -->
+          <a href="https://www.openstack.org/community/" class="drop" id="dropdownMenuCommunity">Community <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuCommunity">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/">Welcome! Start Here</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/tech-committee">OpenStack Technical Committee</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/speakers/">Speakers Bureau</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://wiki.openstack.org">OpenStack Wiki</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/coa/">Get Certified (COA)</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/jobs/">Jobs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketing/">Marketing Resources</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/news/">Community News</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://superuser.openstack.org">Superuser Magazine</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/supporting-organizations/">OpenInfra Foundation Supporting Organizations</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">Open Infrastructure Foundation (OpenInfra Foundation)</a></li>
+          </ul>
+        </li>
+        <li><!-- Marketplace -->
+          <a href="https://www.openstack.orgmarketplace/" class="drop" id="dropdownMenuLearn">Marketplace <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/training/">Training</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/distros/">Distros & Appliances</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/public-clouds/">Public Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/hosted-private-clouds/">Hosted Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/remotely-managed-private-clouds/">Remotely Managed Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/consulting/">Consulting & Integrators</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/drivers/">Drivers</a></li>
+          </ul>
+        </li>
+        <li><!-- Blog -->
+          <a href="https://www.openstack.org/blog/">Blog</a>
+        </li>
+        <li><!-- Docs -->
+          <a href="http://docs.openstack.org/">Docs</a>
+        </li>
+        <li> <!-- Join -->
+            <li class="join-nav-section">
+              <a href="https://openinfra.dev/join/" id="dropdownMenuJoin">Join <i class="fa fa-caret-down"></i></a>
+              <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuJoin" style="display: none;">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sign up for Foundation Membership</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sponsor the Foundation</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">More about the Foundation</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="https://www.openstack.org/Security/login/?BackURL=/home/" class="sign-in-btn">Log In</a>
+            </li>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- /.container -->
+</nav>
+
+    <div class="container docs-book-wrapper">
+      <div class="row">
+        <div class="col-lg-9 col-md-8 col-sm-8 col-lg-push-3 col-md-push-4 col-sm-push-4">
+<div class="row docs-title">
+  <div class="col-lg-8">
+      <h1>Troubleshoot Object Storage</h1>
+    
+  </div>
+  <div class="docs-actions">
+    
+    <a href="objectstorage-monitoring.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Object Storage monitoring"></i></a>
+    
+    
+    <a href="../install/index.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Object Storage Install Guide"></i></a>
+    
+    <a id="pdfLink1" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+    
+    <a id="logABugLink1" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+    
+  </div>
+</div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="docs-body" role="main">
+
+  <section id="troubleshoot-object-storage">
+<h1>Troubleshoot Object Storage<a class="headerlink" href="#troubleshoot-object-storage" title="Permalink to this heading">¶</a></h1>
+<p>For Object Storage, everything is logged in <code class="docutils literal notranslate"><span class="pre">/var/log/syslog</span></code> (or
+<code class="docutils literal notranslate"><span class="pre">messages</span></code> on some distros). Several settings enable further
+customization of logging, such as <code class="docutils literal notranslate"><span class="pre">log_name</span></code>, <code class="docutils literal notranslate"><span class="pre">log_facility</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">log_level</span></code>, within the object server configuration files.</p>
+<section id="drive-failure">
+<h2>Drive failure<a class="headerlink" href="#drive-failure" title="Permalink to this heading">¶</a></h2>
+<section id="problem">
+<h3>Problem<a class="headerlink" href="#problem" title="Permalink to this heading">¶</a></h3>
+<p>Drive failure can prevent Object Storage performing replication.</p>
+</section>
+<section id="solution">
+<h3>Solution<a class="headerlink" href="#solution" title="Permalink to this heading">¶</a></h3>
+<p>In the event that a drive has failed, the first step is to make sure the
+drive is unmounted. This will make it easier for Object Storage to work
+around the failure until it has been resolved. If the drive is going to
+be replaced immediately, then it is just best to replace the drive,
+format it, remount it, and let replication fill it up.</p>
+<p>If you cannot replace the drive immediately, then it is best to leave it
+unmounted, and remove the drive from the ring. This will allow all the
+replicas that were on that drive to be replicated elsewhere until the
+drive is replaced. Once the drive is replaced, it can be re-added to the
+ring.</p>
+<p>You can look at error messages in the <code class="docutils literal notranslate"><span class="pre">/var/log/kern.log</span></code> file for
+hints of drive failure.</p>
+</section>
+</section>
+<section id="server-failure">
+<h2>Server failure<a class="headerlink" href="#server-failure" title="Permalink to this heading">¶</a></h2>
+<section id="id1">
+<h3>Problem<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h3>
+<p>The server is potentially offline, and may have failed, or require a
+reboot.</p>
+</section>
+<section id="id2">
+<h3>Solution<a class="headerlink" href="#id2" title="Permalink to this heading">¶</a></h3>
+<p>If a server is having hardware issues, it is a good idea to make sure
+the Object Storage services are not running. This will allow Object
+Storage to work around the failure while you troubleshoot.</p>
+<p>If the server just needs a reboot, or a small amount of work that should
+only last a couple of hours, then it is probably best to let Object
+Storage work around the failure and get the machine fixed and back
+online. When the machine comes back online, replication will make sure
+that anything that is missing during the downtime will get updated.</p>
+<p>If the server has more serious issues, then it is probably best to
+remove all of the server’s devices from the ring. Once the server has
+been repaired and is back online, the server’s devices can be added back
+into the ring. It is important that the devices are reformatted before
+putting them back into the ring as it is likely to be responsible for a
+different set of partitions than before.</p>
+</section>
+</section>
+<section id="detect-failed-drives">
+<h2>Detect failed drives<a class="headerlink" href="#detect-failed-drives" title="Permalink to this heading">¶</a></h2>
+<section id="id3">
+<h3>Problem<a class="headerlink" href="#id3" title="Permalink to this heading">¶</a></h3>
+<p>When drives fail, it can be difficult to detect that a drive has failed,
+and the details of the failure.</p>
+</section>
+<section id="id4">
+<h3>Solution<a class="headerlink" href="#id4" title="Permalink to this heading">¶</a></h3>
+<p>It has been our experience that when a drive is about to fail, error
+messages appear in the <code class="docutils literal notranslate"><span class="pre">/var/log/kern.log</span></code> file. There is a script called
+<code class="docutils literal notranslate"><span class="pre">swift-drive-audit</span></code> that can be run via cron to watch for bad drives. If
+errors are detected, it will unmount the bad drive, so that Object
+Storage can work around it. The script takes a configuration file with
+the following settings:</p>
+<table class="docutils align-default" id="id7">
+<caption><span class="caption-text"><strong>Description of configuration options for [drive-audit] in drive-audit.conf</strong></span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Configuration option = Default value</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">device_dir</span> <span class="pre">=</span> <span class="pre">/srv/node</span></code></p></td>
+<td><p>Directory devices are mounted under</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">error_limit</span> <span class="pre">=</span> <span class="pre">1</span></code></p></td>
+<td><p>Number of errors to find before a device is unmounted</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">log_address</span> <span class="pre">=</span> <span class="pre">/dev/log</span></code></p></td>
+<td><p>Location where syslog sends the logs to</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">log_facility</span> <span class="pre">=</span> <span class="pre">LOG_LOCAL0</span></code></p></td>
+<td><p>Syslog log facility</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">log_file_pattern</span> <span class="pre">=</span> <span class="pre">/var/log/kern.*[!.][!g][!z]</span></code></p></td>
+<td><p>Location of the log file with globbing pattern to check against device
+errors locate device blocks with errors in the log file</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">log_level</span> <span class="pre">=</span> <span class="pre">INFO</span></code></p></td>
+<td><p>Logging level</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">log_max_line_length</span> <span class="pre">=</span> <span class="pre">0</span></code></p></td>
+<td><p>Caps the length of log lines to the value given; no limit if set to 0,
+the default.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">log_to_console</span> <span class="pre">=</span> <span class="pre">False</span></code></p></td>
+<td><p>No help text available for this option.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">minutes</span> <span class="pre">=</span> <span class="pre">60</span></code></p></td>
+<td><p>Number of minutes to look back in <code class="docutils literal notranslate"><span class="pre">/var/log/kern.log</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">recon_cache_path</span> <span class="pre">=</span> <span class="pre">/var/cache/swift</span></code></p></td>
+<td><p>Directory where stats for a few items will be stored</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">regex_pattern_1</span> <span class="pre">=</span> <span class="pre">\berror\b.*\b(dm-[0-9]{1,2}\d?)\b</span></code></p></td>
+<td><p>No help text available for this option.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">unmount_failed_device</span> <span class="pre">=</span> <span class="pre">True</span></code></p></td>
+<td><p>No help text available for this option.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This script has only been tested on Ubuntu 10.04; use with caution on
+other operating systems in production.</p>
+</div>
+</section>
+</section>
+<section id="emergency-recovery-of-ring-builder-files">
+<h2>Emergency recovery of ring builder files<a class="headerlink" href="#emergency-recovery-of-ring-builder-files" title="Permalink to this heading">¶</a></h2>
+<section id="id5">
+<h3>Problem<a class="headerlink" href="#id5" title="Permalink to this heading">¶</a></h3>
+<p>An emergency might prevent a successful backup from restoring the
+cluster to operational status.</p>
+</section>
+<section id="id6">
+<h3>Solution<a class="headerlink" href="#id6" title="Permalink to this heading">¶</a></h3>
+<p>You should always keep a backup of swift ring builder files. However, if
+an emergency occurs, this procedure may assist in returning your cluster
+to an operational state.</p>
+<p>Using existing swift tools, there is no way to recover a builder file
+from a <code class="docutils literal notranslate"><span class="pre">ring.gz</span></code> file. However, if you have a knowledge of Python, it
+is possible to construct a builder file that is pretty close to the one
+you have lost.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This procedure is a last-resort for emergency circumstances. It
+requires knowledge of the swift python code and may not succeed.</p>
+</div>
+<ol class="arabic">
+<li><p>Load the ring and a new ringbuilder object in a Python REPL:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">swift.common.ring</span> <span class="kn">import</span> <span class="n">RingData</span><span class="p">,</span> <span class="n">RingBuilder</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ring</span> <span class="o">=</span> <span class="n">RingData</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;/path/to/account.ring.gz&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>Start copying the data we have in the ring into the builder:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">math</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">partitions</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="o">.</span><span class="n">_replica2part2dev_id</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">replicas</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="o">.</span><span class="n">_replica2part2dev_id</span><span class="p">)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span> <span class="o">=</span> <span class="n">RingBuilder</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">partitions</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">replicas</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span><span class="o">.</span><span class="n">devs</span> <span class="o">=</span> <span class="n">ring</span><span class="o">.</span><span class="n">devs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span><span class="o">.</span><span class="n">_replica2part2dev</span> <span class="o">=</span> <span class="n">ring</span><span class="o">.</span><span class="n">_replica2part2dev_id</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span><span class="o">.</span><span class="n">_last_part_moves_epoch</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span><span class="o">.</span><span class="n">_last_part_moves</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">partitions</span><span class="p">)))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span><span class="o">.</span><span class="n">_set_parts_wanted</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">builder</span><span class="o">.</span><span class="n">_iter_devs</span><span class="p">():</span>
+<span class="go">            d[&#39;parts&#39;] = 0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">p2d</span> <span class="ow">in</span> <span class="n">builder</span><span class="o">.</span><span class="n">_replica2part2dev</span><span class="p">:</span>
+<span class="go">            for dev_id in p2d:</span>
+<span class="go">                builder.devs[dev_id][&#39;parts&#39;] += 1</span>
+
+<span class="go">This is the extent of the recoverable fields.</span>
+</pre></div>
+</div>
+</li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">min_part_hours</span></code> you either have to remember what the value you
+used was, or just make up a new one:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span><span class="o">.</span><span class="n">change_min_part_hours</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span> <span class="c1"># or whatever you want it to be</span>
+</pre></div>
+</div>
+</li>
+<li><p>Validate the builder. If this raises an exception, check your
+previous code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p>After it validates, save the builder and create a new <code class="docutils literal notranslate"><span class="pre">account.builder</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">builder</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;account.builder&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">),</span> <span class="n">protocol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">exit</span> <span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p>You should now have a file called <code class="docutils literal notranslate"><span class="pre">account.builder</span></code> in the current
+working directory. Run
+<strong class="command">swift-ring-builder account.builder write_ring</strong> and compare the new
+<code class="docutils literal notranslate"><span class="pre">account.ring.gz</span></code> to the <code class="docutils literal notranslate"><span class="pre">account.ring.gz</span></code> that you started
+from. They probably are not byte-for-byte identical, but if you load them
+in a REPL and their <code class="docutils literal notranslate"><span class="pre">_replica2part2dev_id</span></code> and <code class="docutils literal notranslate"><span class="pre">devs</span></code> attributes are
+the same (or nearly so), then you are in good shape.</p></li>
+<li><p>Repeat the procedure for <code class="docutils literal notranslate"><span class="pre">container.ring.gz</span></code> and
+<code class="docutils literal notranslate"><span class="pre">object.ring.gz</span></code>, and you might get usable builder files.</p></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+              </div>
+            </div>
+          </div>
+          <div class="docs-actions">
+          
+            <a href="objectstorage-monitoring.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Object Storage monitoring"></i></a>
+          
+          
+            <a href="../install/index.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Object Storage Install Guide"></i></a>
+          
+          <a id="pdfLink2" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+          
+            <a id="logABugLink3" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+          
+          </div>
+          <div class="row docs-byline bottom">
+            <div class="docs-updated">this page last updated: 2018-10-07 23:13:54</div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-8 docs-license">
+<a href="https://creativecommons.org/licenses/by/3.0/">
+ <img src="../_static/images/docs/license.png" alt="Creative Commons Attribution 3.0 License"/>
+</a>
+<p>
+ Except where otherwise noted, this document is licensed under
+ <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons
+ Attribution 3.0 License</a>. See all <a href="https://www.openstack.org/legal">
+ OpenStack Legal Documents</a>.
+</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 docs-actions-wrapper">
+            <!-- ID buglinkbottom added so that pre-filled doc bugs
+                 are sent to Launchpad projects related to the
+                 document -->
+              <a href="#" id="logABugLink2" class="docs-footer-actions"><i class="fa fa-bug"></i> found an error? report a bug</a>
+            </div>
+          </div>
+        </div>
+<div class="col-lg-3 col-md-4 col-sm-4 col-lg-pull-9 col-md-pull-8 col-sm-pull-8 docs-sidebar">
+  <div class="btn-group docs-sidebar-releases">
+    <button onclick="location.href='/'" class="btn docs-sidebar-home" data-toggle="tooltip" data-placement="top" title="OpenStack Docs Home"><i class="fa fa-arrow-circle-o-left"></i></button>
+<button href="#" type="button" data-toggle="dropdown" class="btn docs-sidebar-release-select">OpenStack Documentation<i class="fa fa-caret-down"></i></button>
+    <ul class="dropdown-menu docs-sidebar-dropdown" role="menu" aria-labelledby="dLabel">
+      <li role="presentation" class="dropdown-header">Guides</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#install-guides">Install Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#user-guides">User Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#configuration-guides">Configuration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#ops-and-admin-guides">Operations and Administration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#api-guides">API Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#contributor-guides">Contributor Guides</a></li>
+      <li role="presentation" class="dropdown-header">Languages</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/de/">Deutsch (German)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/fr/">Français (French)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/id/">Bahasa Indonesia (Indonesian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/it/">Italiano (Italian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ja/">日本語 (Japanese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ko_KR/">한국어 (Korean)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/pt_BR/">Português (Portuguese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/tr_TR/">Türkçe (Türkiye)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/zh_CN/">简体中文 (Simplified Chinese)</a></li>
+    </ul>
+  </div>
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="table-of-contents">
+      <a href="../index.html" class="docs-sidebar-section-title"><h4>Swift 0.1.0.dev10164</h4></a>
+      <ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_architecture.html">Swift Architectural Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_ring.html">The Rings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_policies.html">Storage Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_reaper.html">The Account Reaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_auth.html">The Auth System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_acl.html">Access Control Lists (ACLs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ratelimit.html">Rate Limiting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_large_objects.html">Large Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_global_cluster.html">Global Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_container_sync.html">Container to Container Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_expiring_objects.html">Expiring Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cors.html">CORS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crossdomain.html">Cross-domain Policy File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_erasure_code.html">Erasure Code Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_encryption.html">Object Encryption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_backing_store.html">Using Swift as Backing Store for Service Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_container_sharding.html">Container Sharding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ring_background.html">Building a Consistent Hashing Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ring_partpower.html">Modifying Ring Partition Power</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../associated_projects.html">Associated Projects</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html">Contributing to OpenStack Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html#swift-design-principles">Swift Design Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html#recommended-workflow">Recommended workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html#notes-on-testing">Notes on Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html#ideas">Ideas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html#community">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/review_guidelines.html">Review Guidelines</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development_guidelines.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_saio.html">SAIO (Swift All In One)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_contribution_swift.html">First Contribution to Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../policies_saio.html">Adding Storage Policies to an Existing SAIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_auth.html">Auth Server and Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_middleware.html">Middleware and Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_ondisk_backends.html">Pluggable On-Disk Back-end APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_watchers.html">Auditor Watchers</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../deployment_guide.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apache_deployment_guide.html">Apache Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../admin_guide.html">Administrator’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../replication_network.html">Dedicated replication network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logs.html">Logs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ops_runbook/index.html">Swift Ops Runbook</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">OpenStack Swift Administrator Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-intro.html">Introduction to Object Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-features.html">Features and benefits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-characteristics.html">Object Storage characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-components.html">Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-ringbuilder.html">Ring-builder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-arch.html">Cluster architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-replication.html">Replication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-large-objects.html">Large object support</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-auditors.html">Object Auditor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-EC.html">Erasure coding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-account-reaper.html">Account reaper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-tenant-specific-image-storage.html">Configure project-specific image locations with Object Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="objectstorage-monitoring.html">Object Storage monitoring</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Troubleshoot Object Storage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Object Storage Install Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config/index.html">Configuration Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/discoverability.html">Discoverability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/container_quotas.html">Container quotas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/object_versioning.html">Object versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/large_objects.html">Large objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/temporary_url_middleware.html">Temporary URL middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/form_post_middleware.html">Form POST middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/use_content-encoding_metadata.html">Use Content-Encoding metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/use_the_content-disposition_metadata.html">Use the Content-Disposition metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/pseudo-hierarchical-folders-directories.html">Pseudo-hierarchical folders and directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/pagination.html">Page through large lists of containers or objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/serialized-response-formats.html">Serialized response formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/static-website.html">Create static website</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/object-expiration.html">Object expiration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/bulk-delete.html">Bulk delete</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../s3_compat.html">S3/Swift REST API Comparison Matrix</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ring.html">Partitioned Consistent Hash Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../proxy.html">Proxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../account.html">Account</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../container.html">Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../db.html">Account DB and Container DB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../object.html">Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../middleware.html">Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audit_watchers.html">Object Audit Watchers</a></li>
+</ul>
+
+    </div>
+
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="local-table-of-contents">
+      <h4 class="docs-sidebar-section-title">Page Contents</h4>
+      <ul>
+<li><a class="reference internal" href="#">Troubleshoot Object Storage</a><ul>
+<li><a class="reference internal" href="#drive-failure">Drive failure</a><ul>
+<li><a class="reference internal" href="#problem">Problem</a></li>
+<li><a class="reference internal" href="#solution">Solution</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#server-failure">Server failure</a><ul>
+<li><a class="reference internal" href="#id1">Problem</a></li>
+<li><a class="reference internal" href="#id2">Solution</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#detect-failed-drives">Detect failed drives</a><ul>
+<li><a class="reference internal" href="#id3">Problem</a></li>
+<li><a class="reference internal" href="#id4">Solution</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#emergency-recovery-of-ring-builder-files">Emergency recovery of ring builder files</a><ul>
+<li><a class="reference internal" href="#id5">Problem</a></li>
+<li><a class="reference internal" href="#id6">Solution</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  </div>
+</div>
+      </div>
+    </div>
+<footer>
+  <div class="container">
+    <div class="row footer-links">
+      <div class="col-lg-2 col-sm-2">
+        <h3>OpenStack</h3>
+        <ul>
+          <li><a href="https://openstack.org/projects/">Projects</a></li>
+          <li><a href="https://www.openstack.org/software/security/">OpenStack Security</a></li>
+          <li><a href="https://openstack.org/projects/openstack-faq/">Common Questions</a></li>
+          <li><a href="https://openstack.org/blog/">Blog</a></li>g
+          <li><a href="https://openstack.org/news/">News</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Community</h3>
+        <ul>
+          <li><a href="https://openstack.org/community/">User Groups</a></li>
+          <li><a href="https://openstack.org/community/events/">Events</a></li>
+          <li><a href="https://openstack.org/community/jobs/">Jobs</a></li>
+          <li><a href="https://openstack.org/foundation/companies/">Companies</a></li>
+          <li><a href="https://docs.openstack.org/contributors">Contribute</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="https://docs.openstack.org">OpenStack Manuals</a></li>
+          <li><a href="https://openstack.org/software/start/">Getting Started</a></li>
+          <li><a href="https://developer.openstack.org">API Documentation</a></li>
+          <li><a href="https://wiki.openstack.org">Wiki</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Branding & Legal</h3>
+        <ul>
+          <li><a href="https://openstack.org/brand/">Logos & Guidelines</a></li>
+          <li><a href="https://openstack.org/brand/openstack-trademark-policy/">Trademark Policy</a></li>
+          <li><a href="https://openstack.org/privacy/">Privacy Policy</a></li>
+          <li><a href="https://wiki.openstack.org/wiki/How_To_Contribute#Contributor_License_Agreement">OpenStack CLA</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-sm-4">
+        <h3>Stay In Touch</h3>
+        <a href="https://twitter.com/OpenStack" target="_blank" class="social-icons footer-twitter"></a>
+        <a href="https://www.facebook.com/openstack" target="_blank" class="social-icons footer-facebook"></a>
+        <a href="https://www.linkedin.com/company/openstack" target="_blank" class="social-icons footer-linkedin"></a>
+        <a href="https://www.youtube.com/user/OpenStackFoundation" target="_blank" class="social-icons footer-youtube"></a>
+        <p class="fine-print">
+          The OpenStack project is provided under the
+          <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>. Openstack.org is powered by
+          <a href="https://rackspace.com" target="_blank">Rackspace Cloud Computing</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- jQuery -->
+<script type="text/javascript" src="../_static/js/jquery-3.2.1.min.js"></script>
+
+<!-- Bootstrap JavaScript -->
+<script type="text/javascript" src="../_static/js/bootstrap.min.js"></script>
+
+<!-- The rest of the JS -->
+<script type="text/javascript" src="../_static/js/navigation.js"></script>
+
+<!-- Docs JS -->
+<script type="text/javascript" src="../_static/js/docs.js"></script>
+
+<!-- standard sphinx include libraries, which allow search highlighting -->
+<script type="text/javascript" src="../_static/underscore.js"></script>
+<script type="text/javascript" src="../_static/doctools.js"></script>
+<script type="text/javascript" src="../_static/searchtools.js"></script>
+<script type="text/javascript" src="../_static/language_data.js"></script>
+
+<script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+      URL_ROOT:    './',
+      VERSION:     '0.1.0.dev10164',
+      COLLAPSE_INDEX: false,
+      FILE_SUFFIX: '.html',
+      LINK_SUFFIX: '.html',
+      SOURCELINK_SUFFIX: '.txt',
+      HAS_SOURCE:  true
+    };
+</script>
+
+<!-- Javascript for page -->
+<script language="JavaScript">
+  /* Build a description of this page including SHA, source location on git
+   * repo, build time and the project's launchpad bug tag. Set the HREF of the
+   * bug buttons
+   */
+    var lineFeed = "%0A";
+    var gitURL = "Source: Can't derive source file URL";
+
+    /* there have been cases where "pagename" wasn't set; better check for it */
+    /* "giturl" is the URL of the source file on Git and is auto-generated by
+     * openstackdocstheme.
+     *
+     * "pagename" is a standard sphinx parameter containing the name of
+     * the source file, without extension.
+     */
+
+    var sourceFile = "admin/objectstorage-troubleshoot" + ".rst";
+    gitURL = "Source: https://opendev.org/openstack/swift/src/doc/source" + "/" + sourceFile;
+
+    /* gitsha, project and bug_tag rely on variables in conf.py */
+    var gitSha = "SHA: c7afe681fd119752e66a8e9032e8782641fec3ff";
+    var repositoryName = "openstack/swift";
+    var bugProject = "swift";
+    var bugTitle = "Troubleshoot Object Storage in Swift";
+    var fieldTags = "";
+    var useStoryboard = "";
+
+    /* "last_updated" is the build date and time. It relies on the
+       conf.py variable "html_last_updated_fmt", which should include
+       year/month/day as well as hours and minutes                   */
+    var buildstring = "Release: 0.1.0.dev10164 on 2018-10-07 23:13:54";
+
+    var fieldComment = encodeURI(buildstring) +
+                       lineFeed + encodeURI(gitSha) +
+                       lineFeed + encodeURI(gitURL) ;
+
+    logABug(bugTitle, bugProject, fieldComment, fieldTags, repositoryName, useStoryboard);
+    var currentSourceFile = "admin/objectstorage-troubleshoot";
+    var pdfFileName = "doc-swift.pdf";
+    pdfLink(currentSourceFile, pdfFileName);
+</script>
+
+
+  </body>
+</html>

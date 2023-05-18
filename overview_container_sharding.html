@@ -1,0 +1,1351 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Container Sharding &#8212; Swift 0.1.0.dev10164 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/basic.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="canonical" href="/openstack-swift/overview_container_sharding.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Building a Consistent Hashing Ring" href="ring_background.html" />
+    <link rel="prev" title="Using Swift as Backing Store for Service Data" href="overview_backing_store.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Bootstrap CSS -->
+<link href="_static/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Fonts -->
+<link href="_static/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="_static/css/combined.css" rel="stylesheet">
+
+<!-- Search CSS -->
+<link href="_static/css/search.css" rel="stylesheet">
+
+<!-- Pygments CSS -->
+<link href="_static/pygments.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-17511903-1', 'auto');
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+  </head><body>
+
+<!-- SOURCE_FILE: https://opendev.org/openstack/swift/src/doc/source/overview_container_sharding.rst -->
+
+<script>
+    (function (window, document) {
+        var loader = function () {
+            var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+            script.src = "https://search.openstack.org/widget/embed.min.js?t="+Date.now();
+            tag.parentNode.insertBefore(script, tag);
+        };
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document);
+</script>
+
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse" type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="brand-wrapper">
+        <a class="navbar-brand" href="https://www.openstack.org/"></a>
+      </div>
+      <div class="search-icon show"><i class="fa fa-search"></i> Search</div></div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <div class="search-container tiny">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</div>
+      <ul class="nav navbar-nav navbar-main show">
+        <li class="search-container-mobile">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</li>
+        <li> <!--Software -->
+          <a href="https://www.openstack.org/software/" class="drop" id="dropdownMenuSoftware">Software <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSoftware">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/">Overview</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/openstack-components">OpenStack Components</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/sdks">SDKs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/deployment-tools">Deployment Tools</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/assets/software/projectmap/openstack-map.pdf" target="_blank">OpenStack Map</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/sample-configs/">Sample Configs</a></li>
+          </ul>
+        </li>
+        <li> <!-- Use Cases -->
+          <a href="https://www.openstack.org/use-cases/" class="drop" id="dropdownMenuUsers">Use Cases <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuUsers">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/">Users in Production</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/bare-metal/">Ironic Bare Metal</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/edge-computing/">Edge Computing</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/telecoms-and-nfv/">Telecom & NFV</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/science/">Science and HPC</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/containers/">Containers</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/enterprise/">Enterprise</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/surveys/landing">User Survey</a></li>
+          </ul>
+        </li>
+        <li> <!-- Events -->
+          <a href="https://www.openstack.org/events/" class="drop" id="dropdownMenuEvents">Events <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/summit/">Open Infrastructure Summits</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/ptg/">Project Teams Gathering</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/opendev-2020/">OpenDev</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/community-events/">Community Events</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/openstackdays">OpenStack & OpenInfra Days</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/videos/">Summit Videos</a></li>
+          </ul>
+        </li>
+        <li><!-- Community -->
+          <a href="https://www.openstack.org/community/" class="drop" id="dropdownMenuCommunity">Community <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuCommunity">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/">Welcome! Start Here</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/tech-committee">OpenStack Technical Committee</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/speakers/">Speakers Bureau</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://wiki.openstack.org">OpenStack Wiki</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/coa/">Get Certified (COA)</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/jobs/">Jobs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketing/">Marketing Resources</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/news/">Community News</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://superuser.openstack.org">Superuser Magazine</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/supporting-organizations/">OpenInfra Foundation Supporting Organizations</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">Open Infrastructure Foundation (OpenInfra Foundation)</a></li>
+          </ul>
+        </li>
+        <li><!-- Marketplace -->
+          <a href="https://www.openstack.orgmarketplace/" class="drop" id="dropdownMenuLearn">Marketplace <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/training/">Training</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/distros/">Distros & Appliances</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/public-clouds/">Public Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/hosted-private-clouds/">Hosted Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/remotely-managed-private-clouds/">Remotely Managed Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/consulting/">Consulting & Integrators</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/drivers/">Drivers</a></li>
+          </ul>
+        </li>
+        <li><!-- Blog -->
+          <a href="https://www.openstack.org/blog/">Blog</a>
+        </li>
+        <li><!-- Docs -->
+          <a href="http://docs.openstack.org/">Docs</a>
+        </li>
+        <li> <!-- Join -->
+            <li class="join-nav-section">
+              <a href="https://openinfra.dev/join/" id="dropdownMenuJoin">Join <i class="fa fa-caret-down"></i></a>
+              <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuJoin" style="display: none;">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sign up for Foundation Membership</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sponsor the Foundation</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">More about the Foundation</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="https://www.openstack.org/Security/login/?BackURL=/home/" class="sign-in-btn">Log In</a>
+            </li>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- /.container -->
+</nav>
+
+    <div class="container docs-book-wrapper">
+      <div class="row">
+        <div class="col-lg-9 col-md-8 col-sm-8 col-lg-push-3 col-md-push-4 col-sm-push-4">
+<div class="row docs-title">
+  <div class="col-lg-8">
+      <h1>Container Sharding</h1>
+    
+  </div>
+  <div class="docs-actions">
+    
+    <a href="overview_backing_store.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Using Swift as Backing Store for Service Data"></i></a>
+    
+    
+    <a href="ring_background.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Building a Consistent Hashing Ring"></i></a>
+    
+    <a id="pdfLink1" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+    
+    <a id="logABugLink1" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+    
+  </div>
+</div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="docs-body" role="main">
+
+  <section id="container-sharding">
+<span id="sharding-doc"></span><h1>Container Sharding<a class="headerlink" href="#container-sharding" title="Permalink to this heading">¶</a></h1>
+<p>Container sharding is an operator controlled feature that may be used to shard
+very large container databases into a number of smaller shard containers</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is strongly recommended that operators gain experience of sharding
+containers in a non-production cluster before using in production.</p>
+<p>The sharding process involves moving all sharding container database
+records via the container replication engine; the time taken to complete
+sharding is dependent upon the existing cluster load and the performance of
+the container database being sharded.</p>
+<p>There is currently no documented process for reversing the sharding
+process once sharding has been enabled.</p>
+</div>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Permalink to this heading">¶</a></h2>
+<p>The metadata for each container in Swift is stored in an SQLite database. This
+metadata includes: information about the container such as its name,
+modification time and current object count; user metadata that may been written
+to the container by clients; a record of every object in the container. The
+container database object records are used to generate container listings in
+response to container GET requests; each object record stores the object’s
+name, size, hash and content-type as well as associated timestamps.</p>
+<p>As the number of objects in a container increases then the number of object
+records in the container database increases. Eventually the container database
+performance starts to degrade and the time taken to update an object record
+increases. This can result in object updates timing out, with a corresponding
+increase in the backlog of pending <a class="reference internal" href="overview_architecture.html#architecture-updaters"><span class="std std-ref">asynchronous updates</span></a> on object servers. Container databases are typically
+replicated on several nodes and any database performance degradation can also
+result in longer <a class="reference internal" href="overview_replication.html"><span class="doc">container replication</span></a> times.</p>
+<p>The point at which container database performance starts to degrade depends
+upon the choice of hardware in the container ring. Anecdotal evidence suggests
+that containers with tens of millions of object records have noticeably
+degraded performance.</p>
+<p>This performance degradation can be avoided by ensuring that clients use an
+object naming scheme that disperses objects across a number of containers
+thereby distributing load across a number of container databases. However, that
+is not always desirable nor is it under the control of the cluster operator.</p>
+<p>Swift’s container sharding feature provides the operator with a mechanism to
+distribute the load on a single client-visible container across multiple,
+hidden, shard containers, each of which stores a subset of the container’s
+object records. Clients are unaware of container sharding; clients continue to
+use the same API to access a container that, if sharded, maps to a number of
+shard containers within the Swift cluster.</p>
+</section>
+<section id="deployment-and-operation">
+<h2>Deployment and operation<a class="headerlink" href="#deployment-and-operation" title="Permalink to this heading">¶</a></h2>
+<section id="upgrade-considerations">
+<h3>Upgrade Considerations<a class="headerlink" href="#upgrade-considerations" title="Permalink to this heading">¶</a></h3>
+<p>It is essential that all servers in a Swift cluster have been upgraded to
+support the container sharding feature before attempting to shard a container.</p>
+</section>
+<section id="identifying-containers-in-need-of-sharding">
+<h3>Identifying containers in need of sharding<a class="headerlink" href="#identifying-containers-in-need-of-sharding" title="Permalink to this heading">¶</a></h3>
+<p>Container sharding is currently initiated by the <code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code>
+CLI tool <a class="reference internal" href="#swift-manage-shard-ranges"><span class="std std-ref">described below</span></a>. Operators must
+first identify containers that are candidates for sharding. To assist with
+this, the <a class="reference internal" href="#sharder-daemon"><span class="std std-ref">container-sharder daemon</span></a> inspects the size of containers that it visits
+and writes a list of sharding candidates to recon cache. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;sharding_candidates&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;found&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTH_test&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="s2">&quot;c1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;file_size&quot;</span><span class="p">:</span> <span class="mi">497763328</span><span class="p">,</span>
+            <span class="s2">&quot;meta_timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;1525346445.31161&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;node_index&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;object_count&quot;</span><span class="p">:</span> <span class="mi">3349028</span><span class="p">,</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">path_to_db</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;root&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTH_test/c1&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>A container is considered to be a sharding candidate if its object count is
+greater than or equal to the <code class="docutils literal notranslate"><span class="pre">shard_container_threshold</span></code> option.
+The number of candidates reported is limited to a number configured by the
+<code class="docutils literal notranslate"><span class="pre">recon_candidates_limit</span></code> option such that only the largest candidate
+containers are included in the <code class="docutils literal notranslate"><span class="pre">sharding_candidates</span></code> data.</p>
+</section>
+<section id="module-swift.cli.manage_shard_ranges">
+<span id="swift-manage-shard-ranges-cli-tool"></span><span id="swift-manage-shard-ranges"></span><h3><code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code> CLI tool<a class="headerlink" href="#module-swift.cli.manage_shard_ranges" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code> tool provides commands for initiating
+sharding of a container. <code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code> operates directly on a
+container database file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code> must only be used on one replica of a
+container database to avoid inconsistent results. The modifications made by
+<code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code> will be automatically copied to other
+replicas of the container database via normal replication processes.</p>
+</div>
+<p>There are three steps in the process of initiating sharding, each of which may
+be performed in isolation or, as shown below, using a single command.</p>
+<ol class="arabic">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">find</span></code> sub-command scans the container database to identify how many
+shard containers will be required and which objects they will manage. Each
+shard container manages a range of the object namespace defined by a
+<code class="docutils literal notranslate"><span class="pre">lower</span></code> and <code class="docutils literal notranslate"><span class="pre">upper</span></code> bound. The maximum number of objects to be allocated
+to each shard container is specified on the command line. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ swift-manage-shard-ranges &lt;path_to_db&gt; find 500000
+Loaded db broker for AUTH_test/c1.
+[
+  {
+    &quot;index&quot;: 0,
+    &quot;lower&quot;: &quot;&quot;,
+    &quot;object_count&quot;: 500000,
+    &quot;upper&quot;: &quot;o_01086834&quot;
+  },
+  {
+    &quot;index&quot;: 1,
+    &quot;lower&quot;: &quot;o_01086834&quot;,
+    &quot;object_count&quot;: 500000,
+    &quot;upper&quot;: &quot;o_01586834&quot;
+  },
+  {
+    &quot;index&quot;: 2,
+    &quot;lower&quot;: &quot;o_01586834&quot;,
+    &quot;object_count&quot;: 500000,
+    &quot;upper&quot;: &quot;o_02087570&quot;
+  },
+  {
+    &quot;index&quot;: 3,
+    &quot;lower&quot;: &quot;o_02087570&quot;,
+    &quot;object_count&quot;: 500000,
+    &quot;upper&quot;: &quot;o_02587572&quot;
+  },
+  {
+    &quot;index&quot;: 4,
+    &quot;lower&quot;: &quot;o_02587572&quot;,
+    &quot;object_count&quot;: 500000,
+    &quot;upper&quot;: &quot;o_03087572&quot;
+  },
+  {
+    &quot;index&quot;: 5,
+    &quot;lower&quot;: &quot;o_03087572&quot;,
+    &quot;object_count&quot;: 500000,
+    &quot;upper&quot;: &quot;o_03587572&quot;
+  },
+  {
+    &quot;index&quot;: 6,
+    &quot;lower&quot;: &quot;o_03587572&quot;,
+    &quot;object_count&quot;: 349194,
+    &quot;upper&quot;: &quot;&quot;
+  }
+]
+Found 7 ranges in 4.37222s (total object count 3349194)
+</pre></div>
+</div>
+<p>This command returns a list of shard ranges each of which describes the
+namespace to be managed by a shard container. No other action is taken by
+this command and the container database is unchanged. The output may be
+redirected to a file for subsequent retrieval by the <code class="docutils literal notranslate"><span class="pre">replace</span></code> command.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ swift-manage-shard-ranges &lt;path_to_db&gt; find 500000 &gt; my_shard_ranges
+Loaded db broker for AUTH_test/c1.
+Found 7 ranges in 2.448s (total object count 3349194)
+</pre></div>
+</div>
+</li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">replace</span></code> sub-command deletes any shard ranges that might already be
+in the container database and inserts shard ranges from a given file. The
+file contents should be in the format generated by the <code class="docutils literal notranslate"><span class="pre">find</span></code> sub-command.
+For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ swift-manage-shard-ranges &lt;path_to_db&gt; replace my_shard_ranges
+Loaded db broker for AUTH_test/c1.
+No shard ranges found to delete.
+Injected 7 shard ranges.
+Run container-replicator to replicate them to other nodes.
+Use the enable sub-command to enable sharding.
+</pre></div>
+</div>
+<p>The container database is modified to store the shard ranges, but the
+container will not start sharding until sharding is enabled. The <code class="docutils literal notranslate"><span class="pre">info</span></code>
+sub-command may be used to inspect the state of the container database at
+any point, and the <code class="docutils literal notranslate"><span class="pre">show</span></code> sub-command may be used to display the inserted
+shard ranges.</p>
+<p>Shard ranges stored in the container database may be replaced using the
+<code class="docutils literal notranslate"><span class="pre">replace</span></code> sub-command. This will first delete all existing shard ranges
+before storing new shard ranges. Shard ranges may also be deleted from the
+container database using the <code class="docutils literal notranslate"><span class="pre">delete</span></code> sub-command.</p>
+<p>Shard ranges should not be replaced or deleted using
+<code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code> once the next step of enabling sharding has
+been taken.</p>
+</li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">enable</span></code> sub-command enables the container for sharding. The sharder
+daemon and/or container replicator daemon will replicate shard ranges to
+other replicas of the container DB and the sharder daemon will proceed to
+shard the container. This process may take some time depending on the size
+of the container, the number of shard ranges and the underlying hardware.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Once the <code class="docutils literal notranslate"><span class="pre">enable</span></code> sub-command has been used there is no supported
+mechanism to revert sharding. Do not use <code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code>
+to make any further changes to the shard ranges in the container DB.</p>
+</div>
+<p>For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ swift-manage-shard-ranges &lt;path_to_db&gt; enable
+Loaded db broker for AUTH_test/c1.
+Container moved to state &#39;sharding&#39; with epoch 1525345093.22908.
+Run container-sharder on all nodes to shard the container.
+</pre></div>
+</div>
+<p>This does not shard the container - sharding is performed by the
+<a class="reference internal" href="#sharder-daemon"><span class="std std-ref">container-sharder daemon</span></a> - but sets the necessary state in the database for the
+daemon to subsequently start the sharding process.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">epoch</span></code> value displayed in the output is the time at which sharding
+was enabled. When the <a class="reference internal" href="#sharder-daemon"><span class="std std-ref">container-sharder daemon</span></a> starts sharding this container
+it creates a new container database file using the epoch in the filename to
+distinguish it from the retiring DB that is being sharded.</p>
+</li>
+</ol>
+<p>All three steps may be performed with one sub-command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ swift-manage-shard-ranges &lt;path_to_db&gt; find_and_replace 500000 --enable --force
+Loaded db broker for AUTH_test/c1.
+No shard ranges found to delete.
+Injected 7 shard ranges.
+Run container-replicator to replicate them to other nodes.
+Container moved to state &#39;sharding&#39; with epoch 1525345669.46153.
+Run container-sharder on all nodes to shard the container.
+</pre></div>
+</div>
+<dl class="py exception">
+<dt class="sig sig-object py" id="swift.cli.manage_shard_ranges.GapsFoundException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">swift.cli.manage_shard_ranges.</span></span><span class="sig-name descname"><span class="pre">GapsFoundException</span></span><a class="headerlink" href="#swift.cli.manage_shard_ranges.GapsFoundException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#swift.cli.manage_shard_ranges.ManageShardRangesException" title="swift.cli.manage_shard_ranges.ManageShardRangesException"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManageShardRangesException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="swift.cli.manage_shard_ranges.InvalidSolutionException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">swift.cli.manage_shard_ranges.</span></span><span class="sig-name descname"><span class="pre">InvalidSolutionException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acceptor_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlapping_donors</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.cli.manage_shard_ranges.InvalidSolutionException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#swift.cli.manage_shard_ranges.ManageShardRangesException" title="swift.cli.manage_shard_ranges.ManageShardRangesException"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManageShardRangesException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="swift.cli.manage_shard_ranges.InvalidStateException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">swift.cli.manage_shard_ranges.</span></span><span class="sig-name descname"><span class="pre">InvalidStateException</span></span><a class="headerlink" href="#swift.cli.manage_shard_ranges.InvalidStateException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#swift.cli.manage_shard_ranges.ManageShardRangesException" title="swift.cli.manage_shard_ranges.ManageShardRangesException"><code class="xref py py-class docutils literal notranslate"><span class="pre">ManageShardRangesException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="swift.cli.manage_shard_ranges.ManageShardRangesException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">swift.cli.manage_shard_ranges.</span></span><span class="sig-name descname"><span class="pre">ManageShardRangesException</span></span><a class="headerlink" href="#swift.cli.manage_shard_ranges.ManageShardRangesException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="swift.cli.manage_shard_ranges.wrap_for_argparse">
+<span class="sig-prename descclassname"><span class="pre">swift.cli.manage_shard_ranges.</span></span><span class="sig-name descname"><span class="pre">wrap_for_argparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.cli.manage_shard_ranges.wrap_for_argparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrap the given <code class="docutils literal notranslate"><span class="pre">func</span></code> to catch any <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> and raise an
+<code class="docutils literal notranslate"><span class="pre">argparse.ArgumentTypeError</span></code> instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – a function.</p></li>
+<li><p><strong>msg</strong> – an optional message to use with any exception that is used; if
+not given then the string representation of the ValueError will be
+used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a function wrapper.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="container-sharder-daemon">
+<span id="sharder-daemon"></span><h3><code class="docutils literal notranslate"><span class="pre">container-sharder</span></code> daemon<a class="headerlink" href="#container-sharder-daemon" title="Permalink to this heading">¶</a></h3>
+<p>Once sharding has been enabled for a container, the act of sharding is
+performed by the <a class="reference internal" href="container.html#container-sharder"><span class="std std-ref">Container Sharder</span></a>.  The <a class="reference internal" href="container.html#container-sharder"><span class="std std-ref">Container Sharder</span></a> daemon
+must be running on all container servers. The <code class="docutils literal notranslate"><span class="pre">container-sharder</span></code> daemon
+periodically visits each container database to perform any container sharding
+tasks that are required.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">container-sharder</span></code> daemon requires a <code class="docutils literal notranslate"><span class="pre">[container-sharder]</span></code> config
+section to exist in the container server configuration file; a sample config
+section is shown in the <cite>container-server.conf-sample</cite> file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">auto_shard</span></code> option is currently <strong>NOT</strong> recommended for production
+systems and should be set to <code class="docutils literal notranslate"><span class="pre">false</span></code> (the default value).</p>
+<p>Several of the <code class="docutils literal notranslate"><span class="pre">[container-sharder]</span></code> config options are only significant
+when the <code class="docutils literal notranslate"><span class="pre">auto_shard</span></code> option is enabled. This option enables the
+<code class="docutils literal notranslate"><span class="pre">container-sharder</span></code> daemon to automatically identify containers that are
+candidates for sharding and initiate the sharding process, instead of using
+the <code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code> tool.</p>
+</div>
+<p>The container sharder uses an internal client and therefore requires an
+internal client configuration file to exist. By default the internal-client
+configuration file is expected to be found at
+<cite>/etc/swift/internal-client.conf</cite>. An alternative location for the
+configuration file may be specified using the <code class="docutils literal notranslate"><span class="pre">internal_client_conf_path</span></code>
+option in the <code class="docutils literal notranslate"><span class="pre">[container-sharder]</span></code> config section.</p>
+<p>The content of the internal-client configuration file should be the same as the
+<cite>internal-client.conf-sample</cite> file. In particular, the internal-client
+configuration should have:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">account_autocreate</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>in the <code class="docutils literal notranslate"><span class="pre">[proxy-server]</span></code> section.</p>
+<p>A container database may require several visits by the <code class="docutils literal notranslate"><span class="pre">container-sharder</span></code>
+daemon before it is fully sharded. On each visit the <code class="docutils literal notranslate"><span class="pre">container-sharder</span></code>
+daemon will move a subset of object records to new shard containers by cleaving
+new shard container databases from the original. By default, two shards are
+processed per visit; this number may be configured by the <code class="docutils literal notranslate"><span class="pre">cleave_batch_size</span></code>
+option.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">container-sharder</span></code> daemon periodically writes progress data for
+containers that are being sharded to recon cache. For example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;sharding_in_progress&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;account&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTH_test&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;active&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;cleaved&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;container&quot;</span><span class="p">:</span> <span class="s2">&quot;c1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;db_state&quot;</span><span class="p">:</span> <span class="s2">&quot;sharding&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span>
+            <span class="s2">&quot;file_size&quot;</span><span class="p">:</span> <span class="mi">26624</span><span class="p">,</span>
+            <span class="s2">&quot;found&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;meta_timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;1525349617.46235&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;node_index&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;object_count&quot;</span><span class="p">:</span> <span class="mi">3349030</span><span class="p">,</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">path_to_db</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="s2">&quot;root&quot;</span><span class="p">:</span> <span class="s2">&quot;AUTH_test/c1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="s2">&quot;sharding&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This example indicates that from a total of 7 shard ranges, 2 have been cleaved
+whereas 5 remain in created state waiting to be cleaved.</p>
+<p>Shard containers are created in an internal account and not visible to clients.
+By default, shard containers for an account <code class="docutils literal notranslate"><span class="pre">AUTH_test</span></code> are created in the
+internal account <code class="docutils literal notranslate"><span class="pre">.shards_AUTH_test</span></code>.</p>
+<p>Once a container has started sharding, object updates to that container may be
+redirected to the shard container. The <code class="docutils literal notranslate"><span class="pre">container-sharder</span></code> daemon is also
+responsible for sending updates of a shard’s object count and bytes_used to the
+original container so that aggegrate object count and bytes used values can be
+returned in responses to client requests.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">container-sharder</span></code> daemon must continue to run on all container
+servers in order for shards object stats updates to be generated.</p>
+</div>
+</section>
+</section>
+<section id="under-the-hood">
+<h2>Under the hood<a class="headerlink" href="#under-the-hood" title="Permalink to this heading">¶</a></h2>
+<section id="terminology">
+<h3>Terminology<a class="headerlink" href="#terminology" title="Permalink to this heading">¶</a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Root container</p></td>
+<td><p>The original container that lives in the
+user’s account. It holds references to its
+shard containers.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Retiring DB</p></td>
+<td><p>The original database file that is to be sharded.</p></td>
+</tr>
+<tr class="row-even"><td><p>Fresh DB</p></td>
+<td><p>A database file that will replace the retiring
+database.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Epoch</p></td>
+<td><p>A timestamp at which the fresh DB is created; the
+epoch value is embedded in the fresh DB filename.</p></td>
+</tr>
+<tr class="row-even"><td><p>Shard range</p></td>
+<td><p>A range of the object namespace defined by a lower
+bound and upper bound.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Shard container</p></td>
+<td><p>A container that holds object records for a shard
+range. Shard containers exist in a hidden account
+mirroring the user’s account.</p></td>
+</tr>
+<tr class="row-even"><td><p>Parent container</p></td>
+<td><p>The container from which a shard container has been
+cleaved. When first sharding a root container each
+shard’s parent container will be the root container.
+When sharding a shard container each shard’s parent
+container will be the sharding shard container.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Misplaced objects</p></td>
+<td><p>Items that don’t belong in a container’s shard
+range. These will be moved to their correct
+location by the container-sharder.</p></td>
+</tr>
+<tr class="row-even"><td><p>Cleaving</p></td>
+<td><p>The act of moving object records within a shard
+range to a shard container database.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Shrinking</p></td>
+<td><p>The act of merging a small shard container into
+another shard container in order to delete the
+small shard container.</p></td>
+</tr>
+<tr class="row-even"><td><p>Donor</p></td>
+<td><p>The shard range that is shrinking away.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Acceptor</p></td>
+<td><p>The shard range into which a donor is merged.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="finding-shard-ranges">
+<h3>Finding shard ranges<a class="headerlink" href="#finding-shard-ranges" title="Permalink to this heading">¶</a></h3>
+<p>The end goal of sharding a container is to replace the original container
+database which has grown very large with a number of shard container databases,
+each of which is responsible for storing a range of the entire object
+namespace. The first step towards achieving this is to identify an appropriate
+set of contiguous object namespaces, known as shard ranges, each of which
+contains a similar sized portion of the container’s current object content.</p>
+<p>Shard ranges cannot simply be selected by sharding the namespace uniformly,
+because object names are not guaranteed to be distributed uniformly. If the
+container were naively sharded into two shard ranges, one containing all
+object names up to <cite>m</cite> and the other containing all object names beyond <cite>m</cite>,
+then if all object names actually start with <cite>o</cite> the outcome would be an
+extremely unbalanced pair of shard containers.</p>
+<p>It is also too simplistic to assume that every container that requires sharding
+can be sharded into two. This might be the goal in the ideal world, but in
+practice there will be containers that have grown very large and should be
+sharded into many shards. Furthermore, the time required to find the exact
+mid-point of the existing object names in a large SQLite database would
+increase with container size.</p>
+<p>For these reasons, shard ranges of size <cite>N</cite> are found by searching for the
+<cite>Nth</cite> object in the database table, sorted by object name, and then searching
+for the <cite>(2 * N)th</cite> object, and so on until all objects have been searched. For
+a container that has exactly <cite>2N</cite> objects, the end result is the same as
+sharding the container at the midpoint of its object names. In practice
+sharding would typically be enabled for containers with great than <cite>2N</cite> objects
+and more than two shard ranges will be found, the last one probably containing
+less than <cite>N</cite> objects. With containers having large multiples of <cite>N</cite> objects,
+shard ranges can be identified in batches which enables more scalable solution.</p>
+<p>To illustrate this process, consider a very large container in a user account
+<code class="docutils literal notranslate"><span class="pre">acct</span></code> that is a candidate for sharding:</p>
+<img alt="_images/sharding_unsharded.svg" src="_images/sharding_unsharded.svg" /><p>The <a class="reference internal" href="#swift-manage-shard-ranges"><span class="std std-ref">swift-manage-shard-ranges CLI tool</span></a> tool <code class="docutils literal notranslate"><span class="pre">find</span></code> sub-command searches the
+object table for the <cite>Nth</cite> object whose name will become the upper bound of the
+first shard range, and the lower bound of the second shard range. The lower
+bound of the first shard range is the empty string.</p>
+<p>For the purposes of this example the first upper bound is <cite>cat</cite>:</p>
+<img alt="_images/sharding_scan_basic.svg" src="_images/sharding_scan_basic.svg" /><p><a class="reference internal" href="#swift-manage-shard-ranges"><span class="std std-ref">swift-manage-shard-ranges CLI tool</span></a> continues to search the container to find
+further shard ranges, with the final upper bound also being the empty string.</p>
+</section>
+<section id="enabling-sharding">
+<h3>Enabling sharding<a class="headerlink" href="#enabling-sharding" title="Permalink to this heading">¶</a></h3>
+<p>Once shard ranges have been found the <a class="reference internal" href="#swift-manage-shard-ranges"><span class="std std-ref">swift-manage-shard-ranges CLI tool</span></a>
+<code class="docutils literal notranslate"><span class="pre">replace</span></code> sub-command is used to insert them into the <cite>shard_ranges</cite> table
+of the container database. In addition to its lower and upper bounds, each
+shard range is given a unique name.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">enable</span></code> sub-command then creates some final state required to initiate
+sharding the container, including a special shard range record referred to as
+the container’s <cite>own_shard_range</cite> whose name is equal to the container’s path.
+This is used to keep a record of the object namespace that the container
+covers, which for user containers is always the entire namespace. Sharding of
+the container will only begin when its own shard range’s state has been set to
+<code class="docutils literal notranslate"><span class="pre">SHARDING</span></code>.</p>
+</section>
+<section id="the-shardrange-class">
+<h3>The <a class="reference internal" href="misc.html#swift.common.utils.ShardRange" title="swift.common.utils.ShardRange"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardRange</span></code></a> class<a class="headerlink" href="#the-shardrange-class" title="Permalink to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="misc.html#swift.common.utils.ShardRange" title="swift.common.utils.ShardRange"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardRange</span></code></a> class provides methods for
+interactng with the attributes and state of a shard range. The class
+encapsulates the following properties:</p>
+<ul class="simple">
+<li><p>The name of the shard range which is also the name of the shard container
+used to hold object records in its namespace.</p></li>
+<li><p>Lower and upper bounds which define the object namespace of the shard range.</p></li>
+<li><p>A deleted flag.</p></li>
+<li><p>A timestamp at which the bounds and deleted flag were last modified.</p></li>
+<li><p>The object stats for the shard range i.e. object count and bytes used.</p></li>
+<li><p>A timestamp at which the object stats were last modified.</p></li>
+<li><p>The state of the shard range, and an epoch, which is the timestamp used in
+the shard container’s database file name.</p></li>
+<li><p>A timestamp at which the state and epoch were last modified.</p></li>
+</ul>
+<p>A shard range progresses through the following states:</p>
+<ul class="simple">
+<li><p>FOUND: the shard range has been identified in the container that is to be
+sharded but no resources have been created for it.</p></li>
+<li><p>CREATED: a shard container has been created to store the contents of the
+shard range.</p></li>
+<li><p>CLEAVED: the sharding container’s contents for the shard range have been
+copied to the shard container from <em>at least one replica</em> of the sharding
+container.</p></li>
+<li><p>ACTIVE: a sharding container’s constituent shard ranges are moved to this
+state when all shard ranges in the sharding container have been cleaved.</p></li>
+<li><p>SHRINKING: the shard range has been enabled for shrinking; or</p></li>
+<li><p>SHARDING: the shard range has been enabled for sharding into further
+sub-shards.</p></li>
+<li><p>SHARDED: the shard range has completed sharding or shrinking; the container
+will typically now have a number of constituent ACTIVE shard ranges.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Shard range state represents the most advanced state of the shard range on
+any replica of the container. For example, a shard range in CLEAVED state
+may not have completed cleaving on all replicas but has cleaved on at least
+one replica.</p>
+</div>
+</section>
+<section id="fresh-and-retiring-database-files">
+<h3>Fresh and retiring database files<a class="headerlink" href="#fresh-and-retiring-database-files" title="Permalink to this heading">¶</a></h3>
+<p>As alluded to earlier, writing to a large container causes increased latency
+for the container servers. Once sharding has been initiated on a container it
+is desirable to stop writing to the large database; ultimately it will be
+unlinked. This is primarily achieved by redirecting object updates to new shard
+containers as they are created (see <a class="reference internal" href="#redirecting-updates"><span class="std std-ref">Redirecting object updates</span></a> below), but some
+object updates may still need to be accepted by the root container and other
+container metadata must still be modifiable.</p>
+<p>To render the large <cite>retiring</cite> database effectively read-only, when the
+<a class="reference internal" href="#sharder-daemon"><span class="std std-ref">container-sharder daemon</span></a> finds a container with a set of shard range records,
+including an <cite>own_shard_range</cite>, it first creates a fresh database file which
+will ultimately replace the existing <cite>retiring</cite> database. For a retiring DB
+whose filename is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="nb">hash</span><span class="o">&gt;.</span><span class="n">db</span>
+</pre></div>
+</div>
+<p>the fresh database file name is of the form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="nb">hash</span><span class="o">&gt;</span><span class="n">_</span><span class="o">&lt;</span><span class="n">epoch</span><span class="o">&gt;.</span><span class="n">db</span>
+</pre></div>
+</div>
+<p>where <cite>epoch</cite> is a timestamp stored in the container’s <cite>own_shard_range</cite>.</p>
+<p>The fresh DB has a copy of the shard ranges table from the retiring DB and all
+other container metadata apart from the object records. Once a fresh DB file
+has been created it is used to store any new object updates and no more object
+records are written to the retiring DB file.</p>
+<p>Once the sharding process has completed, the retiring DB file will be unlinked
+leaving only the fresh DB file in the container’s directory. There are
+therefore three states that the container DB directory may be in during the
+sharding process: UNSHARDED, SHARDING and SHARDED.</p>
+<img alt="_images/sharding_db_states.svg" src="_images/sharding_db_states.svg" /><p>If the container ever shrink to the point that is has no shards then the fresh
+DB starts to store object records, behaving the same as an unsharded container.
+This is known as the COLLAPSED state.</p>
+<p>In summary, the DB states that any container replica may be in are:</p>
+<ul class="simple">
+<li><p>UNSHARDED - In this state there is just one standard container database. All
+containers are originally in this state.</p></li>
+<li><p>SHARDING - There are now two databases, the retiring database and a fresh
+database. The fresh database stores any metadata, container level stats,
+an object holding table, and a table that stores shard ranges.</p></li>
+<li><p>SHARDED - There is only one database, the fresh database, which has one or
+more shard ranges in addition to its own shard range. The retiring database
+has been unlinked.</p></li>
+<li><p>COLLAPSED - There is only one database, the fresh database, which has only
+its own shard range and store object records.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>DB state is unique to each replica of a container and is not necessarily
+synchronised with shard range state.</p>
+</div>
+</section>
+<section id="creating-shard-containers">
+<h3>Creating shard containers<a class="headerlink" href="#creating-shard-containers" title="Permalink to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="#sharder-daemon"><span class="std std-ref">container-sharder daemon</span></a> next creates a shard container for each shard range
+using the shard range name as the name of the shard container:</p>
+<img alt="_images/sharding_cleave_basic.svg" src="_images/sharding_cleave_basic.svg" /><p>Each shard container has an <cite>own_shard_range</cite> record which has the
+lower and upper bounds of the object namespace for which it is responsible, and
+a reference to the sharding user container, which is referred to as the
+<cite>root_container</cite>. Unlike the <cite>root_container</cite>, the shard container’s
+<cite>own_shard_range</cite> does not cover the entire namepsace.</p>
+<p>A shard range name takes the form <code class="docutils literal notranslate"><span class="pre">&lt;shard_a&gt;/&lt;shard_c&gt;</span></code> where <cite>&lt;shard_a&gt;</cite>
+is a hidden account and <cite>&lt;shard_c&gt;</cite> is a container name that is derived from
+the root container.</p>
+<p>The account name <cite>&lt;shard_a&gt;</cite> used for shard containers is formed by prefixing
+the user account with the string <code class="docutils literal notranslate"><span class="pre">.shards_</span></code>. This avoids namespace collisions
+and also keeps all the shard containers out of view from users of the account.</p>
+<p>The container name for each shard container has the form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">root</span> <span class="n">container</span> <span class="n">name</span><span class="o">&gt;-&lt;</span><span class="nb">hash</span> <span class="n">of</span> <span class="n">parent</span> <span class="n">container</span><span class="o">&gt;-&lt;</span><span class="n">timestamp</span><span class="o">&gt;-&lt;</span><span class="n">shard</span> <span class="n">index</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>where <cite>root container name</cite> is the name of the user container to which the
+contents of the shard container belong, <cite>parent container</cite> is the name of the
+container from which the shard is being cleaved, <cite>timestamp</cite> is the time at
+which the shard range was created and <cite>shard index</cite> is the position of the
+shard range in the name-ordered list of shard ranges for the <cite>parent
+container</cite>.</p>
+<p>When sharding a user container the parent container name will be the same as
+the root container. However, if a <em>shard container</em> grows to a size that it
+requires sharding, then the parent container name for its shards will be the
+name of the sharding shard container.</p>
+<p>For example, consider a user container with path <code class="docutils literal notranslate"><span class="pre">AUTH_user/c</span></code> which is
+sharded into two shard containers whose name will be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span><span class="n">shards_AUTH_user</span><span class="o">/</span><span class="n">c</span><span class="o">-&lt;</span><span class="nb">hash</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">&gt;-</span><span class="mf">1234512345.12345</span><span class="o">-</span><span class="mi">0</span>
+<span class="o">.</span><span class="n">shards_AUTH_user</span><span class="o">/</span><span class="n">c</span><span class="o">-&lt;</span><span class="nb">hash</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">&gt;-</span><span class="mf">1234512345.12345</span><span class="o">-</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>If the first shard container is subsequently sharded into a further two shard
+containers then they will be named:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">.</span><span class="n">shards_AUTH_user</span><span class="o">/</span><span class="n">c</span><span class="o">-&lt;</span><span class="nb">hash</span><span class="p">(</span><span class="n">c</span><span class="o">-&lt;</span><span class="nb">hash</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">&gt;-</span><span class="mf">1234567890.12345</span><span class="o">-</span><span class="mi">0</span><span class="p">)</span><span class="o">&gt;-</span><span class="mf">1234567890.12345</span><span class="o">-</span><span class="mi">0</span>
+<span class="o">.</span><span class="n">shards_AUTH_user</span><span class="o">/</span><span class="n">c</span><span class="o">-&lt;</span><span class="nb">hash</span><span class="p">(</span><span class="n">c</span><span class="o">-&lt;</span><span class="nb">hash</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">&gt;-</span><span class="mf">1234567890.12345</span><span class="o">-</span><span class="mi">0</span><span class="p">)</span><span class="o">&gt;-</span><span class="mf">1234567890.12345</span><span class="o">-</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>This naming scheme guarantees that shards, and shards of shards, each have a
+unique name of bounded length.</p>
+</section>
+<section id="cleaving-shard-containers">
+<h3>Cleaving shard containers<a class="headerlink" href="#cleaving-shard-containers" title="Permalink to this heading">¶</a></h3>
+<p>Having created empty shard containers the sharder daemon will proceed to cleave
+objects from the retiring database to each shard range. Cleaving occurs in
+batches of two (by default) shard ranges, so if a container has more than two
+shard ranges then the daemon must visit it multiple times to complete cleaving.</p>
+<p>To cleave a shard range the daemon creates a shard database for the shard
+container on a local device. This device may be one of the shard container’s
+primary nodes but often it will not. Object records from the corresponding
+shard range namespace are then copied from the retiring DB to this shard DB.</p>
+<p>Swift’s container replication mechanism is then used to replicate the shard DB
+to its primary nodes. Checks are made to ensure that the new shard container DB
+has been replicated to a sufficient number of its primary nodes before it is
+considered to have been successfully cleaved. By default the daemon requires
+successful replication of a new shard broker to at least a quorum of the
+container rings replica count, but this requirement can be tuned using the
+<code class="docutils literal notranslate"><span class="pre">shard_replication_quorum</span></code> option.</p>
+<p>Once a shard range has been successfully cleaved from a retiring database the
+daemon transitions its state to <code class="docutils literal notranslate"><span class="pre">CLEAVED</span></code>. It should be noted that this state
+transition occurs as soon as any one of the retiring DB replicas has cleaved
+the shard range, and therefore does not imply that all retiring DB replicas
+have cleaved that range. The significance of the state transition is that the
+shard container is now considered suitable for contributing to object listings,
+since its contents are present on a quorum of its primary nodes and are the
+same as at least one of the retiring DBs for that namespace.</p>
+<p>Once a shard range is in the <code class="docutils literal notranslate"><span class="pre">CLEAVED</span></code> state, the requirement for
+‘successful’ cleaving of other instances of the retirng DB may optionally be
+relaxed since it is not so imperative that their contents are replicated
+<em>immediately</em> to their primary nodes. The <code class="docutils literal notranslate"><span class="pre">existing_shard_replication_quorum</span></code>
+option can be used to reduce the quorum required for a cleaved shard range to
+be considered successfully replicated by the sharder daemon.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Once cleaved, shard container DBs will continue to be replicated by the
+normal <cite>container-replicator</cite> daemon so that they will eventually be fully
+replicated to all primary nodes regardless of any replication quorum options
+used by the sharder daemon.</p>
+</div>
+<p>The cleaving progress of each replica of a retiring DB must be
+tracked independently of the shard range state. This is done using a per-DB
+CleavingContext object that maintains a cleaving cursor for the retiring DB
+that it is associated with. The cleaving cursor is simply the upper bound of
+the last shard range to have been cleaved <em>from that particular retiring DB</em>.</p>
+<p>Each CleavingContext is stored in the sharding container’s sysmeta under a key
+that is the <code class="docutils literal notranslate"><span class="pre">id</span></code> of the retiring DB. Since all container DB files have a
+unique <code class="docutils literal notranslate"><span class="pre">id</span></code>, this guarantees that each retiring DB will have a unique
+CleavingContext. Furthermore, if the retiring DB file is changed, for example
+by an rsync_then_merge replication operation which might change the contents of
+the DB’s object table, then it will get a new unique CleavingContext.</p>
+<p>A CleavingContext maintains other state that is used to ensure that a retiring
+DB is only considered to be fully cleaved, and ready to be deleted, if <em>all</em> of
+its object rows have been cleaved to a shard range.</p>
+<p>Once all shard ranges have been cleaved from the retiring DB it is deleted. The
+container is now represented by the fresh DB which has a table of shard range
+records that point to the shard containers that store the container’s object
+records.</p>
+</section>
+<section id="redirecting-object-updates">
+<span id="redirecting-updates"></span><h3>Redirecting object updates<a class="headerlink" href="#redirecting-object-updates" title="Permalink to this heading">¶</a></h3>
+<p>Once a shard container exists, object updates arising from new client requests
+and async pending files are directed to the shard container instead of the root
+container. This takes load off of the root container.</p>
+<p>For a sharded (or partially sharded) container, when the proxy receives a new
+object request it issues a GET request to the container for data describing a
+shard container to which the object update should be sent. The proxy then
+annotates the object request with the shard container location so that the
+object server will forward object updates to the shard container. If those
+updates fail then the async pending file that is written on the object server
+contains the shard container location.</p>
+<p>When the object updater processes async pending files for previously failed
+object updates, it may not find a shard container location. In this case the
+updater sends the update to the <cite>root container</cite>, which returns a redirection
+response with the shard container location.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Object updates are directed to shard containers as soon as they exist, even
+if the retiring DB object records have not yet been cleaved to the shard
+container. This prevents further writes to the retiring DB and also avoids
+the fresh DB being polluted by new object updates. The goal is to
+ultimately have all object records in the shard containers and none in the
+root container.</p>
+</div>
+</section>
+<section id="building-container-listings">
+<h3>Building container listings<a class="headerlink" href="#building-container-listings" title="Permalink to this heading">¶</a></h3>
+<p>Listing requests for a sharded container are handled by querying the shard
+containers for components of the listing. The proxy forwards the client listing
+request to the root container, as it would for an unsharded container, but the
+container server responds with a list of shard ranges rather than objects. The
+proxy then queries each shard container in namespace order for their listing,
+until either the listing length limit is reached or all shard ranges have been
+listed.</p>
+<p>While a container is still in the process of sharding, only <em>cleaved</em> shard
+ranges are used when building a container listing. Shard ranges that have not
+yet cleaved will not have any object records from the root container. The root
+container continues to provide listings for the uncleaved part of its
+namespace.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New object updates are redirected to shard containers that have not yet been
+cleaved. These updates will not therefore be included in container listings
+until their shard range has been cleaved.</p>
+</div>
+</section>
+<section id="example-request-redirection">
+<h3>Example request redirection<a class="headerlink" href="#example-request-redirection" title="Permalink to this heading">¶</a></h3>
+<p>As an example, consider a sharding container in which 3 shard ranges have been
+found ending in cat, giraffe and igloo. Their respective shard containers have
+been created so update requests for objects up to “igloo” are redirected to the
+appropriate shard container. The root DB continues to handle listing requests
+and update requests for any object name beyond “igloo”.</p>
+<img alt="_images/sharding_scan_load.svg" src="_images/sharding_scan_load.svg" /><p>The sharder daemon cleaves objects from the retiring DB to the shard range DBs;
+it also moves any misplaced objects from the root container’s fresh DB to the
+shard DB. Cleaving progress is represented by the blue line. Once the first
+shard range has been cleaved listing requests for that namespace are directed
+to the shard container. The root container still provides listings for the
+remainder of the namespace.</p>
+<img alt="_images/sharding_cleave1_load.svg" src="_images/sharding_cleave1_load.svg" /><p>The process continues: the sharder cleaves the next range and a new range is
+found with upper bound of “linux”. Now the root container only needs to handle
+listing requests up to “giraffe” and update requests for objects whose name is
+greater than “linux”. Load will continue to diminish on the root DB and be
+dispersed across the shard DBs.</p>
+<img alt="_images/sharding_cleave2_load.svg" src="_images/sharding_cleave2_load.svg" /></section>
+<section id="container-replication">
+<h3>Container replication<a class="headerlink" href="#container-replication" title="Permalink to this heading">¶</a></h3>
+<p>Shard range records are replicated between container DB replicas in much the
+same way as object records are for unsharded containers. However, the usual
+replication of object records between replicas of a container is halted as soon
+as a container is capable of being sharded. Instead, object records are moved
+to their new locations in shard containers. This avoids unnecessary replication
+traffic between container replicas.</p>
+<p>To facilitate this, shard ranges are both ‘pushed’ and ‘pulled’ during
+replication, prior to any attempt to replicate objects. This means that the
+node initiating replication learns about shard ranges from the destination node
+early during the replication process and is able to skip object replication if
+it discovers that it has shard ranges and is able to shard.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When the destination DB for container replication is missing then the
+‘complete_rsync’ replication mechanism is still used and in this case only
+both object records and shard range records are copied to the destination
+node.</p>
+</div>
+</section>
+<section id="container-deletion">
+<h3>Container deletion<a class="headerlink" href="#container-deletion" title="Permalink to this heading">¶</a></h3>
+<p>Sharded containers may be deleted by a <code class="docutils literal notranslate"><span class="pre">DELETE</span></code> request just like an
+unsharded container. A sharded container must be empty before it can be deleted
+which implies that all of its shard containers must have reported that they are
+empty.</p>
+<p>Shard containers are <em>not</em> immediately deleted when their root container is
+deleted; the shard containers remain undeleted so that they are able to
+continue to receive object updates that might arrive after the root container
+has been deleted. Shard containers continue to update their deleted root
+container with their object stats. If a shard container does receive object
+updates that cause it to no longer be empty then the root container will no
+longer be considered deleted once that shard container sends an object stats
+update.</p>
+</section>
+<section id="sharding-a-shard-container">
+<h3>Sharding a shard container<a class="headerlink" href="#sharding-a-shard-container" title="Permalink to this heading">¶</a></h3>
+<p>A shard container may grow to a size that requires it to be sharded.
+<code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code> may be used to identify shard ranges within a
+shard container and enable sharding in the same way as for a root container.
+When a shard is sharding it notifies the root container of its shard ranges so
+that the root container can start to redirect object updates to the new
+‘sub-shards’. When the shard has completed sharding the root is aware of all
+the new sub-shards and the sharding shard deletes its shard range record in the
+root container shard ranges table. At this point the root container is aware of
+all the new sub-shards which collectively cover the namespace of the
+now-deleted shard.</p>
+<p>There is no hierarchy of shards beyond the root container and its immediate
+shards. When a shard shards, its sub-shards are effectively re-parented with
+the root container.</p>
+</section>
+<section id="shrinking-a-shard-container">
+<h3>Shrinking a shard container<a class="headerlink" href="#shrinking-a-shard-container" title="Permalink to this heading">¶</a></h3>
+<p>A shard container’s contents may reduce to a point where the shard container is
+no longer required. If this happens then the shard container may be shrunk into
+another shard range. Shrinking is achieved in a similar way to sharding: an
+‘acceptor’ shard range is written to the shrinking shard container’s shard
+ranges table; unlike sharding, where shard ranges each cover a subset of the
+sharding container’s namespace, the acceptor shard range is a superset of the
+shrinking shard range.</p>
+<p>Once given an acceptor shard range the shrinking shard will cleave itself to
+its acceptor, and then delete itself from the root container shard ranges
+table.</p>
+</section>
+</section>
+</section>
+
+
+              </div>
+            </div>
+          </div>
+          <div class="docs-actions">
+          
+            <a href="overview_backing_store.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Using Swift as Backing Store for Service Data"></i></a>
+          
+          
+            <a href="ring_background.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Building a Consistent Hashing Ring"></i></a>
+          
+          <a id="pdfLink2" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+          
+            <a id="logABugLink3" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+          
+          </div>
+          <div class="row docs-byline bottom">
+            <div class="docs-updated">this page last updated: 2021-10-19 12:53:04</div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-8 docs-license">
+<a href="https://creativecommons.org/licenses/by/3.0/">
+ <img src="_static/images/docs/license.png" alt="Creative Commons Attribution 3.0 License"/>
+</a>
+<p>
+ Except where otherwise noted, this document is licensed under
+ <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons
+ Attribution 3.0 License</a>. See all <a href="https://www.openstack.org/legal">
+ OpenStack Legal Documents</a>.
+</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 docs-actions-wrapper">
+            <!-- ID buglinkbottom added so that pre-filled doc bugs
+                 are sent to Launchpad projects related to the
+                 document -->
+              <a href="#" id="logABugLink2" class="docs-footer-actions"><i class="fa fa-bug"></i> found an error? report a bug</a>
+            </div>
+          </div>
+        </div>
+<div class="col-lg-3 col-md-4 col-sm-4 col-lg-pull-9 col-md-pull-8 col-sm-pull-8 docs-sidebar">
+  <div class="btn-group docs-sidebar-releases">
+    <button onclick="location.href='/'" class="btn docs-sidebar-home" data-toggle="tooltip" data-placement="top" title="OpenStack Docs Home"><i class="fa fa-arrow-circle-o-left"></i></button>
+<button href="#" type="button" data-toggle="dropdown" class="btn docs-sidebar-release-select">OpenStack Documentation<i class="fa fa-caret-down"></i></button>
+    <ul class="dropdown-menu docs-sidebar-dropdown" role="menu" aria-labelledby="dLabel">
+      <li role="presentation" class="dropdown-header">Guides</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#install-guides">Install Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#user-guides">User Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#configuration-guides">Configuration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#ops-and-admin-guides">Operations and Administration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#api-guides">API Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#contributor-guides">Contributor Guides</a></li>
+      <li role="presentation" class="dropdown-header">Languages</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/de/">Deutsch (German)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/fr/">Français (French)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/id/">Bahasa Indonesia (Indonesian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/it/">Italiano (Italian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ja/">日本語 (Japanese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ko_KR/">한국어 (Korean)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/pt_BR/">Português (Portuguese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/tr_TR/">Türkçe (Türkiye)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/zh_CN/">简体中文 (Simplified Chinese)</a></li>
+    </ul>
+  </div>
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="table-of-contents">
+      <a href="index.html" class="docs-sidebar-section-title"><h4>Swift 0.1.0.dev10164</h4></a>
+      <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_architecture.html">Swift Architectural Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_ring.html">The Rings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_policies.html">Storage Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_reaper.html">The Account Reaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_auth.html">The Auth System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_acl.html">Access Control Lists (ACLs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ratelimit.html">Rate Limiting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_large_objects.html">Large Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_global_cluster.html">Global Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sync.html">Container to Container Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_expiring_objects.html">Expiring Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cors.html">CORS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crossdomain.html">Cross-domain Policy File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_erasure_code.html">Erasure Code Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_encryption.html">Object Encryption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_backing_store.html">Using Swift as Backing Store for Service Data</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Container Sharding</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#background">Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deployment-and-operation">Deployment and operation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#under-the-hood">Under the hood</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ring_background.html">Building a Consistent Hashing Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ring_partpower.html">Modifying Ring Partition Power</a></li>
+<li class="toctree-l1"><a class="reference internal" href="associated_projects.html">Associated Projects</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html">Contributing to OpenStack Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#swift-design-principles">Swift Design Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#recommended-workflow">Recommended workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#notes-on-testing">Notes on Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#ideas">Ideas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#community">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/review_guidelines.html">Review Guidelines</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development_guidelines.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_saio.html">SAIO (Swift All In One)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="first_contribution_swift.html">First Contribution to Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policies_saio.html">Adding Storage Policies to an Existing SAIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_auth.html">Auth Server and Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_middleware.html">Middleware and Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_ondisk_backends.html">Pluggable On-Disk Back-end APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_watchers.html">Auditor Watchers</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="deployment_guide.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apache_deployment_guide.html">Apache Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin_guide.html">Administrator’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication_network.html">Dedicated replication network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logs.html">Logs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ops_runbook/index.html">Swift Ops Runbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin/index.html">OpenStack Swift Administrator Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Object Storage Install Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config/index.html">Configuration Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/discoverability.html">Discoverability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/container_quotas.html">Container quotas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object_versioning.html">Object versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/large_objects.html">Large objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/temporary_url_middleware.html">Temporary URL middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/form_post_middleware.html">Form POST middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_content-encoding_metadata.html">Use Content-Encoding metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_the_content-disposition_metadata.html">Use the Content-Disposition metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pseudo-hierarchical-folders-directories.html">Pseudo-hierarchical folders and directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pagination.html">Page through large lists of containers or objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/serialized-response-formats.html">Serialized response formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/static-website.html">Create static website</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object-expiration.html">Object expiration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/bulk-delete.html">Bulk delete</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="s3_compat.html">S3/Swift REST API Comparison Matrix</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ring.html">Partitioned Consistent Hash Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxy.html">Proxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="account.html">Account</a></li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="db.html">Account DB and Container DB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object.html">Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audit_watchers.html">Object Audit Watchers</a></li>
+</ul>
+
+    </div>
+
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="local-table-of-contents">
+      <h4 class="docs-sidebar-section-title">Page Contents</h4>
+      <ul>
+<li><a class="reference internal" href="#">Container Sharding</a><ul>
+<li><a class="reference internal" href="#background">Background</a></li>
+<li><a class="reference internal" href="#deployment-and-operation">Deployment and operation</a><ul>
+<li><a class="reference internal" href="#upgrade-considerations">Upgrade Considerations</a></li>
+<li><a class="reference internal" href="#identifying-containers-in-need-of-sharding">Identifying containers in need of sharding</a></li>
+<li><a class="reference internal" href="#module-swift.cli.manage_shard_ranges"><code class="docutils literal notranslate"><span class="pre">swift-manage-shard-ranges</span></code> CLI tool</a><ul>
+<li><a class="reference internal" href="#swift.cli.manage_shard_ranges.GapsFoundException"><code class="docutils literal notranslate"><span class="pre">GapsFoundException</span></code></a></li>
+<li><a class="reference internal" href="#swift.cli.manage_shard_ranges.InvalidSolutionException"><code class="docutils literal notranslate"><span class="pre">InvalidSolutionException</span></code></a></li>
+<li><a class="reference internal" href="#swift.cli.manage_shard_ranges.InvalidStateException"><code class="docutils literal notranslate"><span class="pre">InvalidStateException</span></code></a></li>
+<li><a class="reference internal" href="#swift.cli.manage_shard_ranges.ManageShardRangesException"><code class="docutils literal notranslate"><span class="pre">ManageShardRangesException</span></code></a></li>
+<li><a class="reference internal" href="#swift.cli.manage_shard_ranges.wrap_for_argparse"><code class="docutils literal notranslate"><span class="pre">wrap_for_argparse()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#container-sharder-daemon"><code class="docutils literal notranslate"><span class="pre">container-sharder</span></code> daemon</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#under-the-hood">Under the hood</a><ul>
+<li><a class="reference internal" href="#terminology">Terminology</a></li>
+<li><a class="reference internal" href="#finding-shard-ranges">Finding shard ranges</a></li>
+<li><a class="reference internal" href="#enabling-sharding">Enabling sharding</a></li>
+<li><a class="reference internal" href="#the-shardrange-class">The <code class="xref py py-class docutils literal notranslate"><span class="pre">ShardRange</span></code> class</a></li>
+<li><a class="reference internal" href="#fresh-and-retiring-database-files">Fresh and retiring database files</a></li>
+<li><a class="reference internal" href="#creating-shard-containers">Creating shard containers</a></li>
+<li><a class="reference internal" href="#cleaving-shard-containers">Cleaving shard containers</a></li>
+<li><a class="reference internal" href="#redirecting-object-updates">Redirecting object updates</a></li>
+<li><a class="reference internal" href="#building-container-listings">Building container listings</a></li>
+<li><a class="reference internal" href="#example-request-redirection">Example request redirection</a></li>
+<li><a class="reference internal" href="#container-replication">Container replication</a></li>
+<li><a class="reference internal" href="#container-deletion">Container deletion</a></li>
+<li><a class="reference internal" href="#sharding-a-shard-container">Sharding a shard container</a></li>
+<li><a class="reference internal" href="#shrinking-a-shard-container">Shrinking a shard container</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  </div>
+</div>
+      </div>
+    </div>
+<footer>
+  <div class="container">
+    <div class="row footer-links">
+      <div class="col-lg-2 col-sm-2">
+        <h3>OpenStack</h3>
+        <ul>
+          <li><a href="https://openstack.org/projects/">Projects</a></li>
+          <li><a href="https://www.openstack.org/software/security/">OpenStack Security</a></li>
+          <li><a href="https://openstack.org/projects/openstack-faq/">Common Questions</a></li>
+          <li><a href="https://openstack.org/blog/">Blog</a></li>g
+          <li><a href="https://openstack.org/news/">News</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Community</h3>
+        <ul>
+          <li><a href="https://openstack.org/community/">User Groups</a></li>
+          <li><a href="https://openstack.org/community/events/">Events</a></li>
+          <li><a href="https://openstack.org/community/jobs/">Jobs</a></li>
+          <li><a href="https://openstack.org/foundation/companies/">Companies</a></li>
+          <li><a href="https://docs.openstack.org/contributors">Contribute</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="https://docs.openstack.org">OpenStack Manuals</a></li>
+          <li><a href="https://openstack.org/software/start/">Getting Started</a></li>
+          <li><a href="https://developer.openstack.org">API Documentation</a></li>
+          <li><a href="https://wiki.openstack.org">Wiki</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Branding & Legal</h3>
+        <ul>
+          <li><a href="https://openstack.org/brand/">Logos & Guidelines</a></li>
+          <li><a href="https://openstack.org/brand/openstack-trademark-policy/">Trademark Policy</a></li>
+          <li><a href="https://openstack.org/privacy/">Privacy Policy</a></li>
+          <li><a href="https://wiki.openstack.org/wiki/How_To_Contribute#Contributor_License_Agreement">OpenStack CLA</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-sm-4">
+        <h3>Stay In Touch</h3>
+        <a href="https://twitter.com/OpenStack" target="_blank" class="social-icons footer-twitter"></a>
+        <a href="https://www.facebook.com/openstack" target="_blank" class="social-icons footer-facebook"></a>
+        <a href="https://www.linkedin.com/company/openstack" target="_blank" class="social-icons footer-linkedin"></a>
+        <a href="https://www.youtube.com/user/OpenStackFoundation" target="_blank" class="social-icons footer-youtube"></a>
+        <p class="fine-print">
+          The OpenStack project is provided under the
+          <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>. Openstack.org is powered by
+          <a href="https://rackspace.com" target="_blank">Rackspace Cloud Computing</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- jQuery -->
+<script type="text/javascript" src="_static/js/jquery-3.2.1.min.js"></script>
+
+<!-- Bootstrap JavaScript -->
+<script type="text/javascript" src="_static/js/bootstrap.min.js"></script>
+
+<!-- The rest of the JS -->
+<script type="text/javascript" src="_static/js/navigation.js"></script>
+
+<!-- Docs JS -->
+<script type="text/javascript" src="_static/js/docs.js"></script>
+
+<!-- standard sphinx include libraries, which allow search highlighting -->
+<script type="text/javascript" src="_static/underscore.js"></script>
+<script type="text/javascript" src="_static/doctools.js"></script>
+<script type="text/javascript" src="_static/searchtools.js"></script>
+<script type="text/javascript" src="_static/language_data.js"></script>
+
+<script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+      URL_ROOT:    './',
+      VERSION:     '0.1.0.dev10164',
+      COLLAPSE_INDEX: false,
+      FILE_SUFFIX: '.html',
+      LINK_SUFFIX: '.html',
+      SOURCELINK_SUFFIX: '.txt',
+      HAS_SOURCE:  true
+    };
+</script>
+
+<!-- Javascript for page -->
+<script language="JavaScript">
+  /* Build a description of this page including SHA, source location on git
+   * repo, build time and the project's launchpad bug tag. Set the HREF of the
+   * bug buttons
+   */
+    var lineFeed = "%0A";
+    var gitURL = "Source: Can't derive source file URL";
+
+    /* there have been cases where "pagename" wasn't set; better check for it */
+    /* "giturl" is the URL of the source file on Git and is auto-generated by
+     * openstackdocstheme.
+     *
+     * "pagename" is a standard sphinx parameter containing the name of
+     * the source file, without extension.
+     */
+
+    var sourceFile = "overview_container_sharding" + ".rst";
+    gitURL = "Source: https://opendev.org/openstack/swift/src/doc/source" + "/" + sourceFile;
+
+    /* gitsha, project and bug_tag rely on variables in conf.py */
+    var gitSha = "SHA: c7afe681fd119752e66a8e9032e8782641fec3ff";
+    var repositoryName = "openstack/swift";
+    var bugProject = "swift";
+    var bugTitle = "Container Sharding in Swift";
+    var fieldTags = "";
+    var useStoryboard = "";
+
+    /* "last_updated" is the build date and time. It relies on the
+       conf.py variable "html_last_updated_fmt", which should include
+       year/month/day as well as hours and minutes                   */
+    var buildstring = "Release: 0.1.0.dev10164 on 2021-10-19 12:53:04";
+
+    var fieldComment = encodeURI(buildstring) +
+                       lineFeed + encodeURI(gitSha) +
+                       lineFeed + encodeURI(gitURL) ;
+
+    logABug(bugTitle, bugProject, fieldComment, fieldTags, repositoryName, useStoryboard);
+    var currentSourceFile = "overview_container_sharding";
+    var pdfFileName = "doc-swift.pdf";
+    pdfLink(currentSourceFile, pdfFileName);
+</script>
+
+
+  </body>
+</html>

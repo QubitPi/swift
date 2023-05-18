@@ -1,0 +1,839 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Logs &#8212; Swift 0.1.0.dev10164 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/basic.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="canonical" href="/openstack-swift/logs.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Swift Ops Runbook" href="ops_runbook/index.html" />
+    <link rel="prev" title="Dedicated replication network" href="replication_network.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Bootstrap CSS -->
+<link href="_static/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Fonts -->
+<link href="_static/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="_static/css/combined.css" rel="stylesheet">
+
+<!-- Search CSS -->
+<link href="_static/css/search.css" rel="stylesheet">
+
+<!-- Pygments CSS -->
+<link href="_static/pygments.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-17511903-1', 'auto');
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+  </head><body>
+
+<!-- SOURCE_FILE: https://opendev.org/openstack/swift/src/doc/source/logs.rst -->
+
+<script>
+    (function (window, document) {
+        var loader = function () {
+            var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+            script.src = "https://search.openstack.org/widget/embed.min.js?t="+Date.now();
+            tag.parentNode.insertBefore(script, tag);
+        };
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document);
+</script>
+
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse" type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="brand-wrapper">
+        <a class="navbar-brand" href="https://www.openstack.org/"></a>
+      </div>
+      <div class="search-icon show"><i class="fa fa-search"></i> Search</div></div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <div class="search-container tiny">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</div>
+      <ul class="nav navbar-nav navbar-main show">
+        <li class="search-container-mobile">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</li>
+        <li> <!--Software -->
+          <a href="https://www.openstack.org/software/" class="drop" id="dropdownMenuSoftware">Software <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSoftware">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/">Overview</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/openstack-components">OpenStack Components</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/sdks">SDKs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/deployment-tools">Deployment Tools</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/assets/software/projectmap/openstack-map.pdf" target="_blank">OpenStack Map</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/sample-configs/">Sample Configs</a></li>
+          </ul>
+        </li>
+        <li> <!-- Use Cases -->
+          <a href="https://www.openstack.org/use-cases/" class="drop" id="dropdownMenuUsers">Use Cases <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuUsers">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/">Users in Production</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/bare-metal/">Ironic Bare Metal</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/edge-computing/">Edge Computing</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/telecoms-and-nfv/">Telecom & NFV</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/science/">Science and HPC</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/containers/">Containers</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/enterprise/">Enterprise</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/surveys/landing">User Survey</a></li>
+          </ul>
+        </li>
+        <li> <!-- Events -->
+          <a href="https://www.openstack.org/events/" class="drop" id="dropdownMenuEvents">Events <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/summit/">Open Infrastructure Summits</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/ptg/">Project Teams Gathering</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/opendev-2020/">OpenDev</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/community-events/">Community Events</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/openstackdays">OpenStack & OpenInfra Days</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/videos/">Summit Videos</a></li>
+          </ul>
+        </li>
+        <li><!-- Community -->
+          <a href="https://www.openstack.org/community/" class="drop" id="dropdownMenuCommunity">Community <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuCommunity">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/">Welcome! Start Here</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/tech-committee">OpenStack Technical Committee</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/speakers/">Speakers Bureau</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://wiki.openstack.org">OpenStack Wiki</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/coa/">Get Certified (COA)</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/jobs/">Jobs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketing/">Marketing Resources</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/news/">Community News</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://superuser.openstack.org">Superuser Magazine</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/supporting-organizations/">OpenInfra Foundation Supporting Organizations</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">Open Infrastructure Foundation (OpenInfra Foundation)</a></li>
+          </ul>
+        </li>
+        <li><!-- Marketplace -->
+          <a href="https://www.openstack.orgmarketplace/" class="drop" id="dropdownMenuLearn">Marketplace <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/training/">Training</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/distros/">Distros & Appliances</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/public-clouds/">Public Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/hosted-private-clouds/">Hosted Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/remotely-managed-private-clouds/">Remotely Managed Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/consulting/">Consulting & Integrators</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/drivers/">Drivers</a></li>
+          </ul>
+        </li>
+        <li><!-- Blog -->
+          <a href="https://www.openstack.org/blog/">Blog</a>
+        </li>
+        <li><!-- Docs -->
+          <a href="http://docs.openstack.org/">Docs</a>
+        </li>
+        <li> <!-- Join -->
+            <li class="join-nav-section">
+              <a href="https://openinfra.dev/join/" id="dropdownMenuJoin">Join <i class="fa fa-caret-down"></i></a>
+              <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuJoin" style="display: none;">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sign up for Foundation Membership</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sponsor the Foundation</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">More about the Foundation</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="https://www.openstack.org/Security/login/?BackURL=/home/" class="sign-in-btn">Log In</a>
+            </li>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- /.container -->
+</nav>
+
+    <div class="container docs-book-wrapper">
+      <div class="row">
+        <div class="col-lg-9 col-md-8 col-sm-8 col-lg-push-3 col-md-push-4 col-sm-push-4">
+<div class="row docs-title">
+  <div class="col-lg-8">
+      <h1>Logs</h1>
+    
+  </div>
+  <div class="docs-actions">
+    
+    <a href="replication_network.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Dedicated replication network"></i></a>
+    
+    
+    <a href="ops_runbook/index.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Swift Ops Runbook"></i></a>
+    
+    <a id="pdfLink1" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+    
+    <a id="logABugLink1" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+    
+  </div>
+</div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="docs-body" role="main">
+
+  <section id="logs">
+<h1>Logs<a class="headerlink" href="#logs" title="Permalink to this heading">¶</a></h1>
+<p>Swift has quite verbose logging, and the generated logs can be used for
+cluster monitoring, utilization calculations, audit records, and more. As an
+overview, Swift’s logs are sent to syslog and organized by log level and
+syslog facility. All log lines related to the same request have the same
+transaction id. This page documents the log formats used in the system.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, Swift will log full log lines. However, with the
+<code class="docutils literal notranslate"><span class="pre">log_max_line_length</span></code> setting and depending on your logging server
+software, lines may be truncated or shortened. With <code class="docutils literal notranslate"><span class="pre">log_max_line_length</span> <span class="pre">&lt;</span>
+<span class="pre">7</span></code>, the log line will be truncated. With <code class="docutils literal notranslate"><span class="pre">log_max_line_length</span> <span class="pre">&gt;=</span> <span class="pre">7</span></code>, the
+log line will be “shortened”: about half the max length followed by “ … ”
+followed by the other half the max length. Unless you use exceptionally
+short values, you are unlikely to run across this with the following
+documented log lines, but you may see it with debugging and error log
+lines.</p>
+</div>
+<section id="proxy-logs">
+<h2>Proxy Logs<a class="headerlink" href="#proxy-logs" title="Permalink to this heading">¶</a></h2>
+<p>The proxy logs contain the record of all external API requests made to the
+proxy server. Swift’s proxy servers log requests using a custom format
+designed to provide robust information and simple processing. It is possible
+to change this format with  the <code class="docutils literal notranslate"><span class="pre">log_msg_template</span></code> config parameter.
+The default log format is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">client_ip</span><span class="p">}</span> <span class="p">{</span><span class="n">remote_addr</span><span class="p">}</span> <span class="p">{</span><span class="n">end_time</span><span class="o">.</span><span class="n">datetime</span><span class="p">}</span> <span class="p">{</span><span class="n">method</span><span class="p">}</span> <span class="p">{</span><span class="n">path</span><span class="p">}</span> <span class="p">{</span><span class="n">protocol</span><span class="p">}</span>
+    <span class="p">{</span><span class="n">status_int</span><span class="p">}</span> <span class="p">{</span><span class="n">referer</span><span class="p">}</span> <span class="p">{</span><span class="n">user_agent</span><span class="p">}</span> <span class="p">{</span><span class="n">auth_token</span><span class="p">}</span> <span class="p">{</span><span class="n">bytes_recvd</span><span class="p">}</span>
+    <span class="p">{</span><span class="n">bytes_sent</span><span class="p">}</span> <span class="p">{</span><span class="n">client_etag</span><span class="p">}</span> <span class="p">{</span><span class="n">transaction_id</span><span class="p">}</span> <span class="p">{</span><span class="n">headers</span><span class="p">}</span> <span class="p">{</span><span class="n">request_time</span><span class="p">}</span>
+    <span class="p">{</span><span class="n">source</span><span class="p">}</span> <span class="p">{</span><span class="n">log_info</span><span class="p">}</span> <span class="p">{</span><span class="n">start_time</span><span class="p">}</span> <span class="p">{</span><span class="n">end_time</span><span class="p">}</span> <span class="p">{</span><span class="n">policy_index</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Some keywords, signaled by the (anonymizable) flag, can be anonymized by
+using the transformer ‘anonymized’. The data are applied the hashing method of
+<cite>log_anonymization_method</cite> and an optional salt <cite>log_anonymization_salt</cite>.</p>
+<p>Some keywords, signaled by the (timestamp) flag, can be converted to standard
+dates formats using the matching transformers: ‘datetime’, ‘asctime’ or
+‘iso8601’. Other transformers for timestamps are ‘s’, ‘ms’, ‘us’ and ‘ns’ for
+seconds, milliseconds, microseconds and nanoseconds. Python’s strftime
+directives can also be used as tranformers (a, A, b, B, c, d, H, I, j, m, M, p,
+S, U, w, W, x, X, y, Y, Z).</p>
+<dl class="simple">
+<dt>Example {client_ip.anonymized} {remote_addr.anonymized} {start_time.iso8601}</dt><dd><p>{end_time.H}:{end_time.M} {method} acc:{account} cnt:{container}
+obj:{object.anonymized}</p>
+</dd>
+</dl>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>Log Field</strong></p></td>
+<td><p><strong>Value</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>client_ip</p></td>
+<td><p>Swift’s guess at the end-client IP, taken from various
+headers in the request. (anonymizable)</p></td>
+</tr>
+<tr class="row-odd"><td><p>remote_addr</p></td>
+<td><p>The IP address of the other end of the TCP connection.
+(anonymizable)</p></td>
+</tr>
+<tr class="row-even"><td><p>end_time</p></td>
+<td><p>Timestamp of the request. (timestamp)</p></td>
+</tr>
+<tr class="row-odd"><td><p>method</p></td>
+<td><p>The HTTP verb in the request.</p></td>
+</tr>
+<tr class="row-even"><td><p>domain</p></td>
+<td><p>The domain in the request. (anonymizable)</p></td>
+</tr>
+<tr class="row-odd"><td><p>path</p></td>
+<td><p>The path portion of the request. (anonymizable)</p></td>
+</tr>
+<tr class="row-even"><td><p>protocol</p></td>
+<td><p>The transport protocol used (currently one of http or
+https).</p></td>
+</tr>
+<tr class="row-odd"><td><p>status_int</p></td>
+<td><p>The response code for the request.</p></td>
+</tr>
+<tr class="row-even"><td><p>referer</p></td>
+<td><p>The value of the HTTP Referer header. (anonymizable)</p></td>
+</tr>
+<tr class="row-odd"><td><p>user_agent</p></td>
+<td><p>The value of the HTTP User-Agent header. (anonymizable)</p></td>
+</tr>
+<tr class="row-even"><td><p>auth_token</p></td>
+<td><p>The value of the auth token. This may be truncated or
+otherwise obscured.</p></td>
+</tr>
+<tr class="row-odd"><td><p>bytes_recvd</p></td>
+<td><p>The number of bytes read from the client for this request.</p></td>
+</tr>
+<tr class="row-even"><td><p>bytes_sent</p></td>
+<td><p>The number of bytes sent to the client in the body of the
+response. This is how many bytes were yielded to the WSGI
+server.</p></td>
+</tr>
+<tr class="row-odd"><td><p>client_etag</p></td>
+<td><p>The etag header value given by the client. (anonymizable)</p></td>
+</tr>
+<tr class="row-even"><td><p>transaction_id</p></td>
+<td><p>The transaction id of the request.</p></td>
+</tr>
+<tr class="row-odd"><td><p>headers</p></td>
+<td><p>The headers given in the request. (anonymizable)</p></td>
+</tr>
+<tr class="row-even"><td><p>request_time</p></td>
+<td><p>The duration of the request.</p></td>
+</tr>
+<tr class="row-odd"><td><p>source</p></td>
+<td><p>The “source” of the request. This may be set for requests
+that are generated in order to fulfill client requests,
+e.g. bulk uploads.</p></td>
+</tr>
+<tr class="row-even"><td><p>log_info</p></td>
+<td><p>Various info that may be useful for diagnostics, e.g. the
+value of any x-delete-at header.</p></td>
+</tr>
+<tr class="row-odd"><td><p>start_time</p></td>
+<td><p>High-resolution timestamp from the start of the request.
+(timestamp)</p></td>
+</tr>
+<tr class="row-even"><td><p>end_time</p></td>
+<td><p>High-resolution timestamp from the end of the request.
+(timestamp)</p></td>
+</tr>
+<tr class="row-odd"><td><p>ttfb</p></td>
+<td><p>Duration between the request and the first bytes is sent.</p></td>
+</tr>
+<tr class="row-even"><td><p>policy_index</p></td>
+<td><p>The value of the storage policy index.</p></td>
+</tr>
+<tr class="row-odd"><td><p>account</p></td>
+<td><p>The account part extracted from the path of the request.
+(anonymizable)</p></td>
+</tr>
+<tr class="row-even"><td><p>container</p></td>
+<td><p>The container part extracted from the path of the request.
+(anonymizable)</p></td>
+</tr>
+<tr class="row-odd"><td><p>object</p></td>
+<td><p>The object part extracted from the path of the request.
+(anonymizable)</p></td>
+</tr>
+<tr class="row-even"><td><p>pid</p></td>
+<td><p>PID of the process emitting the log line.</p></td>
+</tr>
+<tr class="row-odd"><td><p>wire_status_int</p></td>
+<td><p>The status sent to the client, which may be different than
+the logged response code if there was an error during the
+body of the request or a disconnect.</p></td>
+</tr>
+</tbody>
+</table>
+<p>In one log line, all of the above fields are space-separated and url-encoded.
+If any value is empty, it will be logged as a “-”. This allows for simple
+parsing by splitting each line on whitespace. New values may be placed at the
+end of the log line from time to time, but the order of the existing values
+will not change. Swift log processing utilities should look for the first N
+fields they require (e.g. in Python using something like
+<code class="docutils literal notranslate"><span class="pre">log_line.split()[:14]</span></code> to get up through the transaction id).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Some log fields (like the request path) are already url quoted, so the
+logged value will be double-quoted. For example, if a client uploads an
+object name with a <code class="docutils literal notranslate"><span class="pre">:</span></code> in it, it will be url-quoted as <code class="docutils literal notranslate"><span class="pre">%3A</span></code>. The log
+module will then quote this value as <code class="docutils literal notranslate"><span class="pre">%253A</span></code>.</p>
+</div>
+<section id="swift-source">
+<h3>Swift Source<a class="headerlink" href="#swift-source" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">source</span></code> value in the proxy logs is used to identify the originator of a
+request in the system. For example, if the client initiates a bulk upload, the
+proxy server may end up doing many requests. The initial bulk upload request
+will be logged as normal, but all of the internal “child requests” will have a
+source value indicating they came from the bulk functionality.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>Logged Source Value</strong></p></td>
+<td><p><strong>Originator of the Request</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>FP</p></td>
+<td><p><a class="reference internal" href="middleware.html#formpost"><span class="std std-ref">FormPost</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SLO</p></td>
+<td><p><a class="reference internal" href="overview_large_objects.html#static-large-objects"><span class="std std-ref">Static Large Objects</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SW</p></td>
+<td><p><a class="reference internal" href="middleware.html#staticweb"><span class="std std-ref">StaticWeb</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>TU</p></td>
+<td><p><a class="reference internal" href="middleware.html#tempurl"><span class="std std-ref">TempURL</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>BD</p></td>
+<td><p><a class="reference internal" href="middleware.html#bulk"><span class="std std-ref">Bulk Operations (Delete and Archive Auto Extraction)</span></a> (delete)</p></td>
+</tr>
+<tr class="row-odd"><td><p>EA</p></td>
+<td><p><a class="reference internal" href="middleware.html#bulk"><span class="std std-ref">Bulk Operations (Delete and Archive Auto Extraction)</span></a> (extract)</p></td>
+</tr>
+<tr class="row-even"><td><p>AQ</p></td>
+<td><p><a class="reference internal" href="middleware.html#account-quotas"><span class="std std-ref">Account Quotas</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>CQ</p></td>
+<td><p><a class="reference internal" href="middleware.html#container-quotas"><span class="std std-ref">Container Quotas</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>CS</p></td>
+<td><p><a class="reference internal" href="middleware.html#container-sync"><span class="std std-ref">Container Sync Middleware</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>TA</p></td>
+<td><p><a class="reference internal" href="middleware.html#common-tempauth"><span class="std std-ref">TempAuth</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>DLO</p></td>
+<td><p><a class="reference internal" href="overview_large_objects.html#dynamic-large-objects"><span class="std std-ref">Dynamic Large Objects</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>LE</p></td>
+<td><p><a class="reference internal" href="middleware.html#list-endpoints"><span class="std std-ref">List Endpoints</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>KS</p></td>
+<td><p><a class="reference internal" href="middleware.html#keystoneauth"><span class="std std-ref">KeystoneAuth</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>RL</p></td>
+<td><p><a class="reference internal" href="ratelimit.html#ratelimit"><span class="std std-ref">Rate Limiting</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>RO</p></td>
+<td><p><a class="reference internal" href="middleware.html#read-only"><span class="std std-ref">Read Only</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>VW</p></td>
+<td><p><a class="reference internal" href="middleware.html#versioned-writes"><span class="std std-ref">Versioned Writes</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SSC</p></td>
+<td><p><a class="reference internal" href="middleware.html#copy"><span class="std std-ref">Server Side Copy</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>SYM</p></td>
+<td><p><a class="reference internal" href="middleware.html#symlink"><span class="std std-ref">Symlink</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>SH</p></td>
+<td><p><a class="reference internal" href="overview_container_sharding.html#sharding-doc"><span class="std std-ref">Container Sharding</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>S3</p></td>
+<td><p><a class="reference internal" href="middleware.html#s3api"><span class="std std-ref">AWS S3 Api</span></a></p></td>
+</tr>
+<tr class="row-even"><td><p>OV</p></td>
+<td><p><a class="reference internal" href="middleware.html#object-versioning"><span class="std std-ref">Object Versioning</span></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>EQ</p></td>
+<td><p><a class="reference internal" href="middleware.html#etag-quoter"><span class="std std-ref">Etag Quoter</span></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="storage-node-logs">
+<h2>Storage Node Logs<a class="headerlink" href="#storage-node-logs" title="Permalink to this heading">¶</a></h2>
+<p>Swift’s account, container, and object server processes each log requests
+that they receive, if they have been configured to do so with the
+<code class="docutils literal notranslate"><span class="pre">log_requests</span></code> config parameter (which defaults to true). The format for
+these log lines is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">remote_addr</span> <span class="o">-</span> <span class="o">-</span> <span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="s2">&quot;request_method request_path&quot;</span> <span class="n">status_int</span>
+    <span class="n">content_length</span> <span class="s2">&quot;referer&quot;</span> <span class="s2">&quot;transaction_id&quot;</span> <span class="s2">&quot;user_agent&quot;</span> <span class="n">request_time</span>
+    <span class="n">additional_info</span> <span class="n">server_pid</span> <span class="n">policy_index</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><strong>Log Field</strong></p></td>
+<td><p><strong>Value</strong></p></td>
+</tr>
+<tr class="row-even"><td><p>remote_addr</p></td>
+<td><p>The IP address of the other end of the TCP connection.</p></td>
+</tr>
+<tr class="row-odd"><td><p>datetime</p></td>
+<td><p>Timestamp of the request, in
+“day/month/year:hour:minute:second +0000” format.</p></td>
+</tr>
+<tr class="row-even"><td><p>request_method</p></td>
+<td><p>The HTTP verb in the request.</p></td>
+</tr>
+<tr class="row-odd"><td><p>request_path</p></td>
+<td><p>The path portion of the request.</p></td>
+</tr>
+<tr class="row-even"><td><p>status_int</p></td>
+<td><p>The response code for the request.</p></td>
+</tr>
+<tr class="row-odd"><td><p>content_length</p></td>
+<td><p>The value of the Content-Length header in the response.</p></td>
+</tr>
+<tr class="row-even"><td><p>referer</p></td>
+<td><p>The value of the HTTP Referer header.</p></td>
+</tr>
+<tr class="row-odd"><td><p>transaction_id</p></td>
+<td><p>The transaction id of the request.</p></td>
+</tr>
+<tr class="row-even"><td><p>user_agent</p></td>
+<td><p>The value of the HTTP User-Agent header. Swift services
+report a user-agent string of the service name followed by
+the process ID, such as <code class="docutils literal notranslate"><span class="pre">&quot;proxy-server</span> <span class="pre">&lt;pid</span> <span class="pre">of</span> <span class="pre">the</span>
+<span class="pre">proxy&gt;&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;object-updater</span> <span class="pre">&lt;pid</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">object</span>
+<span class="pre">updater&gt;&quot;</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>request_time</p></td>
+<td><p>The time between request received and response started.
+<strong>Note</strong>: This includes transfer time on PUT, but not GET.</p></td>
+</tr>
+<tr class="row-even"><td><p>additional_info</p></td>
+<td><p>Additional useful information.</p></td>
+</tr>
+<tr class="row-odd"><td><p>server_pid</p></td>
+<td><p>The process id of the server</p></td>
+</tr>
+<tr class="row-even"><td><p>policy_index</p></td>
+<td><p>The value of the storage policy index.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+              </div>
+            </div>
+          </div>
+          <div class="docs-actions">
+          
+            <a href="replication_network.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Dedicated replication network"></i></a>
+          
+          
+            <a href="ops_runbook/index.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Swift Ops Runbook"></i></a>
+          
+          <a id="pdfLink2" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+          
+            <a id="logABugLink3" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+          
+          </div>
+          <div class="row docs-byline bottom">
+            <div class="docs-updated">this page last updated: 2022-06-20 18:13:33</div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-8 docs-license">
+<a href="https://creativecommons.org/licenses/by/3.0/">
+ <img src="_static/images/docs/license.png" alt="Creative Commons Attribution 3.0 License"/>
+</a>
+<p>
+ Except where otherwise noted, this document is licensed under
+ <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons
+ Attribution 3.0 License</a>. See all <a href="https://www.openstack.org/legal">
+ OpenStack Legal Documents</a>.
+</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 docs-actions-wrapper">
+            <!-- ID buglinkbottom added so that pre-filled doc bugs
+                 are sent to Launchpad projects related to the
+                 document -->
+              <a href="#" id="logABugLink2" class="docs-footer-actions"><i class="fa fa-bug"></i> found an error? report a bug</a>
+            </div>
+          </div>
+        </div>
+<div class="col-lg-3 col-md-4 col-sm-4 col-lg-pull-9 col-md-pull-8 col-sm-pull-8 docs-sidebar">
+  <div class="btn-group docs-sidebar-releases">
+    <button onclick="location.href='/'" class="btn docs-sidebar-home" data-toggle="tooltip" data-placement="top" title="OpenStack Docs Home"><i class="fa fa-arrow-circle-o-left"></i></button>
+<button href="#" type="button" data-toggle="dropdown" class="btn docs-sidebar-release-select">OpenStack Documentation<i class="fa fa-caret-down"></i></button>
+    <ul class="dropdown-menu docs-sidebar-dropdown" role="menu" aria-labelledby="dLabel">
+      <li role="presentation" class="dropdown-header">Guides</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#install-guides">Install Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#user-guides">User Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#configuration-guides">Configuration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#ops-and-admin-guides">Operations and Administration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#api-guides">API Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#contributor-guides">Contributor Guides</a></li>
+      <li role="presentation" class="dropdown-header">Languages</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/de/">Deutsch (German)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/fr/">Français (French)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/id/">Bahasa Indonesia (Indonesian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/it/">Italiano (Italian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ja/">日本語 (Japanese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ko_KR/">한국어 (Korean)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/pt_BR/">Português (Portuguese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/tr_TR/">Türkçe (Türkiye)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/zh_CN/">简体中文 (Simplified Chinese)</a></li>
+    </ul>
+  </div>
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="table-of-contents">
+      <a href="index.html" class="docs-sidebar-section-title"><h4>Swift 0.1.0.dev10164</h4></a>
+      <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_architecture.html">Swift Architectural Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_ring.html">The Rings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_policies.html">Storage Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_reaper.html">The Account Reaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_auth.html">The Auth System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_acl.html">Access Control Lists (ACLs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ratelimit.html">Rate Limiting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_large_objects.html">Large Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_global_cluster.html">Global Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sync.html">Container to Container Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_expiring_objects.html">Expiring Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cors.html">CORS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crossdomain.html">Cross-domain Policy File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_erasure_code.html">Erasure Code Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_encryption.html">Object Encryption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_backing_store.html">Using Swift as Backing Store for Service Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sharding.html">Container Sharding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ring_background.html">Building a Consistent Hashing Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ring_partpower.html">Modifying Ring Partition Power</a></li>
+<li class="toctree-l1"><a class="reference internal" href="associated_projects.html">Associated Projects</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html">Contributing to OpenStack Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#swift-design-principles">Swift Design Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#recommended-workflow">Recommended workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#notes-on-testing">Notes on Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#ideas">Ideas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#community">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/review_guidelines.html">Review Guidelines</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development_guidelines.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_saio.html">SAIO (Swift All In One)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="first_contribution_swift.html">First Contribution to Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policies_saio.html">Adding Storage Policies to an Existing SAIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_auth.html">Auth Server and Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_middleware.html">Middleware and Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_ondisk_backends.html">Pluggable On-Disk Back-end APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_watchers.html">Auditor Watchers</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deployment_guide.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apache_deployment_guide.html">Apache Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin_guide.html">Administrator’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication_network.html">Dedicated replication network</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Logs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#proxy-logs">Proxy Logs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#storage-node-logs">Storage Node Logs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ops_runbook/index.html">Swift Ops Runbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin/index.html">OpenStack Swift Administrator Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Object Storage Install Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config/index.html">Configuration Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/discoverability.html">Discoverability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/container_quotas.html">Container quotas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object_versioning.html">Object versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/large_objects.html">Large objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/temporary_url_middleware.html">Temporary URL middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/form_post_middleware.html">Form POST middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_content-encoding_metadata.html">Use Content-Encoding metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_the_content-disposition_metadata.html">Use the Content-Disposition metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pseudo-hierarchical-folders-directories.html">Pseudo-hierarchical folders and directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pagination.html">Page through large lists of containers or objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/serialized-response-formats.html">Serialized response formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/static-website.html">Create static website</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object-expiration.html">Object expiration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/bulk-delete.html">Bulk delete</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="s3_compat.html">S3/Swift REST API Comparison Matrix</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ring.html">Partitioned Consistent Hash Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxy.html">Proxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="account.html">Account</a></li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="db.html">Account DB and Container DB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object.html">Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audit_watchers.html">Object Audit Watchers</a></li>
+</ul>
+
+    </div>
+
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="local-table-of-contents">
+      <h4 class="docs-sidebar-section-title">Page Contents</h4>
+      <ul>
+<li><a class="reference internal" href="#">Logs</a><ul>
+<li><a class="reference internal" href="#proxy-logs">Proxy Logs</a><ul>
+<li><a class="reference internal" href="#swift-source">Swift Source</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#storage-node-logs">Storage Node Logs</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  </div>
+</div>
+      </div>
+    </div>
+<footer>
+  <div class="container">
+    <div class="row footer-links">
+      <div class="col-lg-2 col-sm-2">
+        <h3>OpenStack</h3>
+        <ul>
+          <li><a href="https://openstack.org/projects/">Projects</a></li>
+          <li><a href="https://www.openstack.org/software/security/">OpenStack Security</a></li>
+          <li><a href="https://openstack.org/projects/openstack-faq/">Common Questions</a></li>
+          <li><a href="https://openstack.org/blog/">Blog</a></li>g
+          <li><a href="https://openstack.org/news/">News</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Community</h3>
+        <ul>
+          <li><a href="https://openstack.org/community/">User Groups</a></li>
+          <li><a href="https://openstack.org/community/events/">Events</a></li>
+          <li><a href="https://openstack.org/community/jobs/">Jobs</a></li>
+          <li><a href="https://openstack.org/foundation/companies/">Companies</a></li>
+          <li><a href="https://docs.openstack.org/contributors">Contribute</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="https://docs.openstack.org">OpenStack Manuals</a></li>
+          <li><a href="https://openstack.org/software/start/">Getting Started</a></li>
+          <li><a href="https://developer.openstack.org">API Documentation</a></li>
+          <li><a href="https://wiki.openstack.org">Wiki</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Branding & Legal</h3>
+        <ul>
+          <li><a href="https://openstack.org/brand/">Logos & Guidelines</a></li>
+          <li><a href="https://openstack.org/brand/openstack-trademark-policy/">Trademark Policy</a></li>
+          <li><a href="https://openstack.org/privacy/">Privacy Policy</a></li>
+          <li><a href="https://wiki.openstack.org/wiki/How_To_Contribute#Contributor_License_Agreement">OpenStack CLA</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-sm-4">
+        <h3>Stay In Touch</h3>
+        <a href="https://twitter.com/OpenStack" target="_blank" class="social-icons footer-twitter"></a>
+        <a href="https://www.facebook.com/openstack" target="_blank" class="social-icons footer-facebook"></a>
+        <a href="https://www.linkedin.com/company/openstack" target="_blank" class="social-icons footer-linkedin"></a>
+        <a href="https://www.youtube.com/user/OpenStackFoundation" target="_blank" class="social-icons footer-youtube"></a>
+        <p class="fine-print">
+          The OpenStack project is provided under the
+          <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>. Openstack.org is powered by
+          <a href="https://rackspace.com" target="_blank">Rackspace Cloud Computing</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- jQuery -->
+<script type="text/javascript" src="_static/js/jquery-3.2.1.min.js"></script>
+
+<!-- Bootstrap JavaScript -->
+<script type="text/javascript" src="_static/js/bootstrap.min.js"></script>
+
+<!-- The rest of the JS -->
+<script type="text/javascript" src="_static/js/navigation.js"></script>
+
+<!-- Docs JS -->
+<script type="text/javascript" src="_static/js/docs.js"></script>
+
+<!-- standard sphinx include libraries, which allow search highlighting -->
+<script type="text/javascript" src="_static/underscore.js"></script>
+<script type="text/javascript" src="_static/doctools.js"></script>
+<script type="text/javascript" src="_static/searchtools.js"></script>
+<script type="text/javascript" src="_static/language_data.js"></script>
+
+<script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+      URL_ROOT:    './',
+      VERSION:     '0.1.0.dev10164',
+      COLLAPSE_INDEX: false,
+      FILE_SUFFIX: '.html',
+      LINK_SUFFIX: '.html',
+      SOURCELINK_SUFFIX: '.txt',
+      HAS_SOURCE:  true
+    };
+</script>
+
+<!-- Javascript for page -->
+<script language="JavaScript">
+  /* Build a description of this page including SHA, source location on git
+   * repo, build time and the project's launchpad bug tag. Set the HREF of the
+   * bug buttons
+   */
+    var lineFeed = "%0A";
+    var gitURL = "Source: Can't derive source file URL";
+
+    /* there have been cases where "pagename" wasn't set; better check for it */
+    /* "giturl" is the URL of the source file on Git and is auto-generated by
+     * openstackdocstheme.
+     *
+     * "pagename" is a standard sphinx parameter containing the name of
+     * the source file, without extension.
+     */
+
+    var sourceFile = "logs" + ".rst";
+    gitURL = "Source: https://opendev.org/openstack/swift/src/doc/source" + "/" + sourceFile;
+
+    /* gitsha, project and bug_tag rely on variables in conf.py */
+    var gitSha = "SHA: c7afe681fd119752e66a8e9032e8782641fec3ff";
+    var repositoryName = "openstack/swift";
+    var bugProject = "swift";
+    var bugTitle = "Logs in Swift";
+    var fieldTags = "";
+    var useStoryboard = "";
+
+    /* "last_updated" is the build date and time. It relies on the
+       conf.py variable "html_last_updated_fmt", which should include
+       year/month/day as well as hours and minutes                   */
+    var buildstring = "Release: 0.1.0.dev10164 on 2022-06-20 18:13:33";
+
+    var fieldComment = encodeURI(buildstring) +
+                       lineFeed + encodeURI(gitSha) +
+                       lineFeed + encodeURI(gitURL) ;
+
+    logABug(bugTitle, bugProject, fieldComment, fieldTags, repositoryName, useStoryboard);
+    var currentSourceFile = "logs";
+    var pdfFileName = "doc-swift.pdf";
+    pdfLink(currentSourceFile, pdfFileName);
+</script>
+
+
+  </body>
+</html>

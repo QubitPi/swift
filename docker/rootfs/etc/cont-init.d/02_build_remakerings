@@ -1,3 +1,0 @@
-#!/usr/bin/with-contenv sh
-
-exec s6-setuidgid swift /etc/swift_build/prepare_rings

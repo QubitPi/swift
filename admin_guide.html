@@ -1,0 +1,2312 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Administrator’s Guide &#8212; Swift 0.1.0.dev10164 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/basic.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="canonical" href="/openstack-swift/admin_guide.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Dedicated replication network" href="replication_network.html" />
+    <link rel="prev" title="Apache Deployment Guide" href="apache_deployment_guide.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Bootstrap CSS -->
+<link href="_static/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Fonts -->
+<link href="_static/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="_static/css/combined.css" rel="stylesheet">
+
+<!-- Search CSS -->
+<link href="_static/css/search.css" rel="stylesheet">
+
+<!-- Pygments CSS -->
+<link href="_static/pygments.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-17511903-1', 'auto');
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+  </head><body>
+
+<!-- SOURCE_FILE: https://opendev.org/openstack/swift/src/doc/source/admin_guide.rst -->
+
+<script>
+    (function (window, document) {
+        var loader = function () {
+            var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+            script.src = "https://search.openstack.org/widget/embed.min.js?t="+Date.now();
+            tag.parentNode.insertBefore(script, tag);
+        };
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document);
+</script>
+
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse" type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="brand-wrapper">
+        <a class="navbar-brand" href="https://www.openstack.org/"></a>
+      </div>
+      <div class="search-icon show"><i class="fa fa-search"></i> Search</div></div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <div class="search-container tiny">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</div>
+      <ul class="nav navbar-nav navbar-main show">
+        <li class="search-container-mobile">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</li>
+        <li> <!--Software -->
+          <a href="https://www.openstack.org/software/" class="drop" id="dropdownMenuSoftware">Software <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSoftware">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/">Overview</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/openstack-components">OpenStack Components</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/sdks">SDKs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/deployment-tools">Deployment Tools</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/assets/software/projectmap/openstack-map.pdf" target="_blank">OpenStack Map</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/sample-configs/">Sample Configs</a></li>
+          </ul>
+        </li>
+        <li> <!-- Use Cases -->
+          <a href="https://www.openstack.org/use-cases/" class="drop" id="dropdownMenuUsers">Use Cases <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuUsers">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/">Users in Production</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/bare-metal/">Ironic Bare Metal</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/edge-computing/">Edge Computing</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/telecoms-and-nfv/">Telecom & NFV</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/science/">Science and HPC</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/containers/">Containers</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/enterprise/">Enterprise</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/surveys/landing">User Survey</a></li>
+          </ul>
+        </li>
+        <li> <!-- Events -->
+          <a href="https://www.openstack.org/events/" class="drop" id="dropdownMenuEvents">Events <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/summit/">Open Infrastructure Summits</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/ptg/">Project Teams Gathering</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/opendev-2020/">OpenDev</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/community-events/">Community Events</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/openstackdays">OpenStack & OpenInfra Days</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/videos/">Summit Videos</a></li>
+          </ul>
+        </li>
+        <li><!-- Community -->
+          <a href="https://www.openstack.org/community/" class="drop" id="dropdownMenuCommunity">Community <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuCommunity">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/">Welcome! Start Here</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/tech-committee">OpenStack Technical Committee</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/speakers/">Speakers Bureau</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://wiki.openstack.org">OpenStack Wiki</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/coa/">Get Certified (COA)</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/jobs/">Jobs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketing/">Marketing Resources</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/news/">Community News</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://superuser.openstack.org">Superuser Magazine</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/supporting-organizations/">OpenInfra Foundation Supporting Organizations</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">Open Infrastructure Foundation (OpenInfra Foundation)</a></li>
+          </ul>
+        </li>
+        <li><!-- Marketplace -->
+          <a href="https://www.openstack.orgmarketplace/" class="drop" id="dropdownMenuLearn">Marketplace <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/training/">Training</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/distros/">Distros & Appliances</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/public-clouds/">Public Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/hosted-private-clouds/">Hosted Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/remotely-managed-private-clouds/">Remotely Managed Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/consulting/">Consulting & Integrators</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/drivers/">Drivers</a></li>
+          </ul>
+        </li>
+        <li><!-- Blog -->
+          <a href="https://www.openstack.org/blog/">Blog</a>
+        </li>
+        <li><!-- Docs -->
+          <a href="http://docs.openstack.org/">Docs</a>
+        </li>
+        <li> <!-- Join -->
+            <li class="join-nav-section">
+              <a href="https://openinfra.dev/join/" id="dropdownMenuJoin">Join <i class="fa fa-caret-down"></i></a>
+              <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuJoin" style="display: none;">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sign up for Foundation Membership</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sponsor the Foundation</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">More about the Foundation</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="https://www.openstack.org/Security/login/?BackURL=/home/" class="sign-in-btn">Log In</a>
+            </li>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- /.container -->
+</nav>
+
+    <div class="container docs-book-wrapper">
+      <div class="row">
+        <div class="col-lg-9 col-md-8 col-sm-8 col-lg-push-3 col-md-push-4 col-sm-push-4">
+<div class="row docs-title">
+  <div class="col-lg-8">
+      <h1>Administrator’s Guide</h1>
+    
+  </div>
+  <div class="docs-actions">
+    
+    <a href="apache_deployment_guide.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Apache Deployment Guide"></i></a>
+    
+    
+    <a href="replication_network.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Dedicated replication network"></i></a>
+    
+    <a id="pdfLink1" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+    
+    <a id="logABugLink1" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+    
+  </div>
+</div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="docs-body" role="main">
+
+  <section id="administrator-s-guide">
+<h1>Administrator’s Guide<a class="headerlink" href="#administrator-s-guide" title="Permalink to this heading">¶</a></h1>
+<section id="defining-storage-policies">
+<h2>Defining Storage Policies<a class="headerlink" href="#defining-storage-policies" title="Permalink to this heading">¶</a></h2>
+<p>Defining your Storage Policies is very easy to do with Swift.  It is important
+that the administrator understand the concepts behind Storage Policies
+before actually creating and using them in order to get the most benefit out
+of the feature and, more importantly, to avoid having to make unnecessary changes
+once a set of policies have been deployed to a cluster.</p>
+<p>It is highly recommended that the reader fully read and comprehend
+<a class="reference internal" href="overview_policies.html"><span class="doc">Storage Policies</span></a> before proceeding with administration of
+policies.  Plan carefully and it is suggested that experimentation be
+done first on a non-production cluster to be certain that the desired
+configuration meets the needs of the users.  See <a class="reference internal" href="overview_policies.html#upgrade-policy"><span class="std std-ref">Upgrading and Confirming Functionality</span></a>
+before planning the upgrade of your existing deployment.</p>
+<p>Following is a high level view of the very few steps it takes to configure
+policies once you have decided what you want to do:</p>
+<ol class="arabic simple">
+<li><p>Define your policies in <code class="docutils literal notranslate"><span class="pre">/etc/swift/swift.conf</span></code></p></li>
+<li><p>Create the corresponding object rings</p></li>
+<li><p>Communicate the names of the Storage Policies to cluster users</p></li>
+</ol>
+<p>For a specific example that takes you through these steps, please see
+<a class="reference internal" href="policies_saio.html"><span class="doc">Adding Storage Policies to an Existing SAIO</span></a></p>
+</section>
+<section id="managing-the-rings">
+<h2>Managing the Rings<a class="headerlink" href="#managing-the-rings" title="Permalink to this heading">¶</a></h2>
+<p>You may build the storage rings on any server with the appropriate
+version of Swift installed.  Once built or changed (rebalanced), you
+must distribute the rings to all the servers in the cluster.  Storage
+rings contain information about all the Swift storage partitions and
+how they are distributed between the different nodes and disks.</p>
+<p>Swift 1.6.0 is the last version to use a Python pickle format.
+Subsequent versions use a different serialization format.  <strong>Rings
+generated by Swift versions 1.6.0 and earlier may be read by any
+version, but rings generated after 1.6.0 may only be read by Swift
+versions greater than 1.6.0.</strong>  So when upgrading from version 1.6.0 or
+earlier to a version greater than 1.6.0, either upgrade Swift on your
+ring building server <strong>last</strong> after all Swift nodes have been successfully
+upgraded, or refrain from generating rings until all Swift nodes have
+been successfully upgraded.</p>
+<p>If you need to downgrade from a version of Swift greater than 1.6.0 to
+a version less than or equal to 1.6.0, first downgrade your ring-building
+server, generate new rings, push them out, then continue with the rest
+of the downgrade.</p>
+<p>For more information see <a class="reference internal" href="overview_ring.html"><span class="doc">The Rings</span></a>.</p>
+<p>Removing a device from the ring:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>swift-ring-builder &lt;builder-file&gt; remove &lt;ip_address&gt;/&lt;device_name&gt;
+</pre></div>
+</div>
+<p>Removing a server from the ring:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>swift-ring-builder &lt;builder-file&gt; remove &lt;ip_address&gt;
+</pre></div>
+</div>
+<p>Adding devices to the ring:</p>
+<p>See <a class="reference internal" href="deployment_guide.html#ring-preparing"><span class="std std-ref">Preparing the Ring</span></a></p>
+<p>See what devices for a server are in the ring:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>swift-ring-builder &lt;builder-file&gt; search &lt;ip_address&gt;
+</pre></div>
+</div>
+<p>Once you are done with all changes to the ring, the changes need to be
+“committed”:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>swift-ring-builder &lt;builder-file&gt; rebalance
+</pre></div>
+</div>
+<p>Once the new rings are built, they should be pushed out to all the servers
+in the cluster.</p>
+<p>Optionally, if invoked as ‘swift-ring-builder-safe’ the directory containing
+the specified builder file will be locked (via a .lock file in the parent
+directory). This provides a basic safe guard against multiple instances
+of the swift-ring-builder (or other utilities that observe this lock) from
+attempting to write to or read the builder/ring files while operations are in
+progress. This can be useful in environments where ring management has been
+automated but the operator still needs to interact with the rings manually.</p>
+<p>If the ring builder is not producing the balances that you are
+expecting, you can gain visibility into what it’s doing with the
+<code class="docutils literal notranslate"><span class="pre">--debug</span></code> flag.:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>swift-ring-builder &lt;builder-file&gt; rebalance --debug
+</pre></div>
+</div>
+<p>This produces a great deal of output that is mostly useful if you are
+either (a) attempting to fix the ring builder, or (b) filing a bug
+against the ring builder.</p>
+<p>You may notice in the rebalance output a ‘dispersion’ number. What this
+number means is explained in <a class="reference internal" href="overview_ring.html#ring-dispersion"><span class="std std-ref">Dispersion</span></a> but in essence
+is the percentage of partitions in the ring that have too many replicas
+within a particular failure domain. You can ask ‘swift-ring-builder’ what
+the dispersion is with:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>swift-ring-builder &lt;builder-file&gt; dispersion
+</pre></div>
+</div>
+<p>This will give you the percentage again, if you want a detailed view of
+the dispersion simply add a <code class="docutils literal notranslate"><span class="pre">--verbose</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>swift-ring-builder &lt;builder-file&gt; dispersion --verbose
+</pre></div>
+</div>
+<p>This will not only display the percentage but will also display a dispersion
+table that lists partition dispersion by tier. You can use this table to figure
+out were you need to add capacity or to help tune an <a class="reference internal" href="overview_ring.html#ring-overload"><span class="std std-ref">Overload</span></a> value.</p>
+<p>Now let’s take an example with 1 region, 3 zones and 4 devices. Each device has
+the same weight, and the <code class="docutils literal notranslate"><span class="pre">dispersion</span> <span class="pre">--verbose</span></code> might show the following:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Dispersion is 16.666667, Balance is 0.000000, Overload is 0.00%
+Required overload is 33.333333%
+Worst tier is 33.333333 (r1z3)
+--------------------------------------------------------------------------
+Tier                           Parts      %    Max     0     1     2     3
+--------------------------------------------------------------------------
+r1                               768   0.00      3     0     0     0   256
+r1z1                             192   0.00      1    64   192     0     0
+r1z1-127.0.0.1                   192   0.00      1    64   192     0     0
+r1z1-127.0.0.1/sda               192   0.00      1    64   192     0     0
+r1z2                             192   0.00      1    64   192     0     0
+r1z2-127.0.0.2                   192   0.00      1    64   192     0     0
+r1z2-127.0.0.2/sda               192   0.00      1    64   192     0     0
+r1z3                             384  33.33      1     0   128   128     0
+r1z3-127.0.0.3                   384  33.33      1     0   128   128     0
+r1z3-127.0.0.3/sda               192   0.00      1    64   192     0     0
+r1z3-127.0.0.3/sdb               192   0.00      1    64   192     0     0
+</pre></div>
+</div>
+<p>The first line reports that there are 256 partitions with 3 copies in region 1;
+and this is an expected output in this case (single region with 3 replicas) as
+reported by the “Max” value.</p>
+<p>However, there is some imbalance in the cluster, more precisely in zone 3. The
+“Max” reports a maximum of 1 copy in this zone; however 50.00% of the partitions
+are storing 2 replicas in this zone (which is somewhat expected, because there
+are more disks in this zone).</p>
+<p>You can now either add more capacity to the other zones, decrease the total
+weight in zone 3 or set the overload to a value <cite>greater than</cite> 33.333333% -
+only as much overload as needed will be used.</p>
+</section>
+<section id="scripting-ring-creation">
+<h2>Scripting Ring Creation<a class="headerlink" href="#scripting-ring-creation" title="Permalink to this heading">¶</a></h2>
+<p>You can create scripts to create the account and container rings and rebalance. Here’s an example script for the Account ring. Use similar commands to create a make-container-ring.sh script on the proxy server node.</p>
+<ol class="arabic">
+<li><p>Create a script file called make-account-ring.sh on the proxy
+server node with the following content:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>#!/bin/bash
+cd /etc/swift
+rm -f account.builder account.ring.gz backups/account.builder backups/account.ring.gz
+swift-ring-builder account.builder create 18 3 1
+swift-ring-builder account.builder add r1z1-&lt;account-server-1&gt;:6202/sdb1 1
+swift-ring-builder account.builder add r1z2-&lt;account-server-2&gt;:6202/sdb1 1
+swift-ring-builder account.builder rebalance
+</pre></div>
+</div>
+<p>You need to replace the values of &lt;account-server-1&gt;,
+&lt;account-server-2&gt;, etc. with the IP addresses of the account
+servers used in your setup. You can have as many account servers as
+you need. All account servers are assumed to be listening on port
+6202, and have a storage device called “sdb1” (this is a directory
+name created under /drives when we setup the account server). The
+“z1”, “z2”, etc. designate zones, and you can choose whether you
+put devices in the same or different zones. The “r1” designates
+the region, with different regions specified as “r1”, “r2”, etc.</p>
+</li>
+<li><p>Make the script file executable and run it to create the account ring file:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>chmod +x make-account-ring.sh
+sudo ./make-account-ring.sh
+</pre></div>
+</div>
+</li>
+<li><p>Copy the resulting ring file /etc/swift/account.ring.gz to all the
+account server nodes in your Swift environment, and put them in the
+/etc/swift directory on these nodes. Make sure that every time you
+change the account ring configuration, you copy the resulting ring
+file to all the account nodes.</p></li>
+</ol>
+</section>
+<section id="handling-system-updates">
+<h2>Handling System Updates<a class="headerlink" href="#handling-system-updates" title="Permalink to this heading">¶</a></h2>
+<p>It is recommended that system updates and reboots are done a zone at a time.
+This allows the update to happen, and for the Swift cluster to stay available
+and responsive to requests.  It is also advisable when updating a zone, let
+it run for a while before updating the other zones to make sure the update
+doesn’t have any adverse effects.</p>
+</section>
+<section id="handling-drive-failure">
+<h2>Handling Drive Failure<a class="headerlink" href="#handling-drive-failure" title="Permalink to this heading">¶</a></h2>
+<p>In the event that a drive has failed, the first step is to make sure the drive
+is unmounted.  This will make it easier for Swift to work around the failure
+until it has been resolved.  If the drive is going to be replaced immediately,
+then it is just best to replace the drive, format it, remount it, and let
+replication fill it up.</p>
+<p>After the drive is unmounted, make sure the mount point is owned by root
+(root:root 755). This ensures that rsync will not try to replicate into the
+root drive once the failed drive is unmounted.</p>
+<p>If the drive can’t be replaced immediately, then it is best to leave it
+unmounted, and set the device weight to 0. This will allow all the
+replicas that were on that drive to be replicated elsewhere until the drive
+is replaced. Once the drive is replaced, the device weight can be increased
+again. Setting the device weight to 0 instead of removing the drive from the
+ring gives Swift the chance to replicate data from the failing disk too (in case
+it is still possible to read some of the data).</p>
+<p>Setting the device weight to 0 (or removing a failed drive from the ring) has
+another benefit: all partitions that were stored on the failed drive are
+distributed over the remaining disks in the cluster, and each disk only needs to
+store a few new partitions. This is much faster compared to replicating all
+partitions to a single, new disk. It decreases the time to recover from a
+degraded number of replicas significantly, and becomes more and more important
+with bigger disks.</p>
+</section>
+<section id="handling-server-failure">
+<h2>Handling Server Failure<a class="headerlink" href="#handling-server-failure" title="Permalink to this heading">¶</a></h2>
+<p>If a server is having hardware issues, it is a good idea to make sure the
+Swift services are not running.  This will allow Swift to work around the
+failure while you troubleshoot.</p>
+<p>If the server just needs a reboot, or a small amount of work that should
+only last a couple of hours, then it is probably best to let Swift work
+around the failure and get the machine fixed and back online.  When the
+machine comes back online, replication will make sure that anything that is
+missing during the downtime will get updated.</p>
+<p>If the server has more serious issues, then it is probably best to remove
+all of the server’s devices from the ring.  Once the server has been repaired
+and is back online, the server’s devices can be added back into the ring.
+It is important that the devices are reformatted before putting them back
+into the ring as it is likely to be responsible for a different set of
+partitions than before.</p>
+</section>
+<section id="detecting-failed-drives">
+<h2>Detecting Failed Drives<a class="headerlink" href="#detecting-failed-drives" title="Permalink to this heading">¶</a></h2>
+<p>It has been our experience that when a drive is about to fail, error messages
+will spew into <cite>/var/log/kern.log</cite>.  There is a script called
+<cite>swift-drive-audit</cite> that can be run via cron to watch for bad drives.  If
+errors are detected, it will unmount the bad drive, so that Swift can
+work around it.  The script takes a configuration file with the following
+settings:</p>
+<p><code class="docutils literal notranslate"><span class="pre">[drive-audit]</span></code></p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Option</p></td>
+<td><p>Default</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p>user</p></td>
+<td><p>swift</p></td>
+<td><p>Drop privileges to this user for non-root
+tasks</p></td>
+</tr>
+<tr class="row-odd"><td><p>log_facility</p></td>
+<td><p>LOG_LOCAL0</p></td>
+<td><p>Syslog log facility</p></td>
+</tr>
+<tr class="row-even"><td><p>log_level</p></td>
+<td><p>INFO</p></td>
+<td><p>Log level</p></td>
+</tr>
+<tr class="row-odd"><td><p>device_dir</p></td>
+<td><p>/srv/node</p></td>
+<td><p>Directory devices are mounted under</p></td>
+</tr>
+<tr class="row-even"><td><p>minutes</p></td>
+<td><p>60</p></td>
+<td><p>Number of minutes to look back in
+<cite>/var/log/kern.log</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p>error_limit</p></td>
+<td><p>1</p></td>
+<td><p>Number of errors to find before a device
+is unmounted</p></td>
+</tr>
+<tr class="row-even"><td><p>log_file_pattern</p></td>
+<td><p>/var/log/kern*</p></td>
+<td><p>Location of the log file with globbing
+pattern to check against device errors</p></td>
+</tr>
+<tr class="row-odd"><td><p>regex_pattern_X</p></td>
+<td><p>(see below)</p></td>
+<td><p>Regular expression patterns to be used to
+locate device blocks with errors in the
+log file</p></td>
+</tr>
+</tbody>
+</table>
+<p>The default regex pattern used to locate device blocks with errors are
+<cite>berrorb.*b(sd[a-z]{1,2}d?)b</cite> and <cite>b(sd[a-z]{1,2}d?)b.*berrorb</cite>.
+One is able to overwrite the default above by providing new expressions
+using the format <cite>regex_pattern_X = regex_expression</cite>, where <cite>X</cite> is a number.</p>
+<p>This script has been tested on Ubuntu 10.04 and Ubuntu 12.04, so if you are
+using a different distro or OS, some care should be taken before using in production.</p>
+</section>
+<section id="preventing-disk-full-scenarios">
+<h2>Preventing Disk Full Scenarios<a class="headerlink" href="#preventing-disk-full-scenarios" title="Permalink to this heading">¶</a></h2>
+<p>Prevent disk full scenarios by ensuring that the <code class="docutils literal notranslate"><span class="pre">proxy-server</span></code> blocks PUT
+requests and rsync prevents replication to the specific drives.</p>
+<p>You can prevent <cite>proxy-server</cite> PUT requests to low space disks by
+ensuring <code class="docutils literal notranslate"><span class="pre">fallocate_reserve</span></code> is set in <code class="docutils literal notranslate"><span class="pre">account-server.conf</span></code>,
+<code class="docutils literal notranslate"><span class="pre">container-server.conf</span></code>, and <code class="docutils literal notranslate"><span class="pre">object-server.conf</span></code>. By default,
+<code class="docutils literal notranslate"><span class="pre">fallocate_reserve</span></code> is set to 1%. In the object server, this blocks
+PUT requests that would leave the free disk space below 1% of the
+disk. In the account and container servers, this blocks operations
+that will increase account or container database size once the free
+disk space falls below 1%.</p>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">fallocate_reserve</span></code> is highly recommended to avoid filling
+disks to 100%. When Swift’s disks are completely full, all requests
+involving those disks will fail, including DELETE requests that would
+otherwise free up space. This is because object deletion includes the
+creation of a zero-byte tombstone (.ts) to record the time of the
+deletion for replication purposes; this happens prior to deletion of
+the object’s data. On a completely-full filesystem, that zero-byte .ts
+file cannot be created, so the DELETE request will fail and the disk
+will remain completely full. If <code class="docutils literal notranslate"><span class="pre">fallocate_reserve</span></code> is set, then the
+filesystem will have enough space to create the zero-byte .ts file,
+and thus the deletion of the object will succeed and free up some
+space.</p>
+<p>In order to prevent rsync replication to specific drives, firstly
+setup <code class="docutils literal notranslate"><span class="pre">rsync_module</span></code> per disk in your <code class="docutils literal notranslate"><span class="pre">object-replicator</span></code>.
+Set this in <code class="docutils literal notranslate"><span class="pre">object-server.conf</span></code>:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[object-replicator]</span>
+<span class="na">rsync_module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">{replication_ip}::object_{device}</span>
+</pre></div>
+</div>
+<p>Set the individual drives in <code class="docutils literal notranslate"><span class="pre">rsync.conf</span></code>. For example:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[object_sda]</span>
+<span class="na">max connections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+<span class="na">lock file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/lock/object_sda.lock</span>
+
+<span class="k">[object_sdb]</span>
+<span class="na">max connections</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">4</span>
+<span class="na">lock file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/lock/object_sdb.lock</span>
+</pre></div>
+</div>
+<p>Finally, monitor the disk space of each disk and adjust the rsync
+<code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">connections</span></code> per drive to <code class="docutils literal notranslate"><span class="pre">-1</span></code>. We recommend utilising your existing
+monitoring solution to achieve this. The following is an example script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">errno</span>
+
+<span class="n">RESERVE</span> <span class="o">=</span> <span class="mi">500</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">20</span>  <span class="c1"># 500 MiB</span>
+
+<span class="n">DEVICES</span> <span class="o">=</span> <span class="s1">&#39;/srv/node1&#39;</span>
+
+<span class="n">path_template</span> <span class="o">=</span> <span class="s1">&#39;/etc/rsync.d/disable_</span><span class="si">%s</span><span class="s1">.conf&#39;</span>
+<span class="n">config_template</span> <span class="o">=</span> <span class="s1">&#39;&#39;&#39;</span>
+<span class="s1">[object_</span><span class="si">%s</span><span class="s1">]</span>
+<span class="s1">max connections = -1</span>
+<span class="s1">&#39;&#39;&#39;</span>
+
+<span class="k">def</span> <span class="nf">disable_rsync</span><span class="p">(</span><span class="n">device</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path_template</span> <span class="o">%</span> <span class="n">device</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">config_template</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span> <span class="o">%</span> <span class="n">device</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">enable_rsync</span><span class="p">(</span><span class="n">device</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">path_template</span> <span class="o">%</span> <span class="n">device</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># ignore file does not exist</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">ENOENT</span><span class="p">:</span>
+            <span class="k">raise</span>
+
+
+<span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">DEVICES</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DEVICES</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+    <span class="n">st</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">statvfs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">free</span> <span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">f_bavail</span> <span class="o">*</span> <span class="n">st</span><span class="o">.</span><span class="n">f_frsize</span>
+    <span class="k">if</span> <span class="n">free</span> <span class="o">&lt;</span> <span class="n">RESERVE</span><span class="p">:</span>
+        <span class="n">disable_rsync</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">enable_rsync</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For the above script to work, ensure <code class="docutils literal notranslate"><span class="pre">/etc/rsync.d/</span></code> conf files are
+included, by specifying <code class="docutils literal notranslate"><span class="pre">&amp;include</span></code> in your <code class="docutils literal notranslate"><span class="pre">rsync.conf</span></code> file:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">&amp;include /etc/rsync.d</span>
+</pre></div>
+</div>
+<p>Use this in conjunction with a cron job to periodically run the script, for example:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="c1"># /etc/cron.d/devicecheck</span>
+<span class="na">* * * * * root /some/path/to/disable_rsync.py</span>
+</pre></div>
+</div>
+</section>
+<section id="dispersion-report">
+<span id="id1"></span><h2>Dispersion Report<a class="headerlink" href="#dispersion-report" title="Permalink to this heading">¶</a></h2>
+<p>There is a swift-dispersion-report tool for measuring overall cluster health.
+This is accomplished by checking if a set of deliberately distributed
+containers and objects are currently in their proper places within the cluster.</p>
+<p>For instance, a common deployment has three replicas of each object. The health
+of that object can be measured by checking if each replica is in its proper
+place. If only 2 of the 3 is in place the object’s heath can be said to be at
+66.66%, where 100% would be perfect.</p>
+<p>A single object’s health, especially an older object, usually reflects the
+health of that entire partition the object is in. If we make enough objects on
+a distinct percentage of the partitions in the cluster, we can get a pretty
+valid estimate of the overall cluster health. In practice, about 1% partition
+coverage seems to balance well between accuracy and the amount of time it takes
+to gather results.</p>
+<p>The first thing that needs to be done to provide this health value is create a
+new account solely for this usage. Next, we need to place the containers and
+objects throughout the system so that they are on distinct partitions. The
+swift-dispersion-populate tool does this by making up random container and
+object names until they fall on distinct partitions. Last, and repeatedly for
+the life of the cluster, we need to run the swift-dispersion-report tool to
+check the health of each of these containers and objects.</p>
+<p>These tools need direct access to the entire cluster and to the ring files
+(installing them on a proxy server will probably do). Both
+swift-dispersion-populate and swift-dispersion-report use the same
+configuration file, /etc/swift/dispersion.conf. Example conf file:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[dispersion]</span>
+<span class="na">auth_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">http://localhost:8080/auth/v1.0</span>
+<span class="na">auth_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">test:tester</span>
+<span class="na">auth_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">testing</span>
+<span class="na">endpoint_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">internalURL</span>
+</pre></div>
+</div>
+<p>There are also options for the conf file for specifying the dispersion coverage
+(defaults to 1%), retries, concurrency, etc. though usually the defaults are
+fine. If you want to use keystone v3 for authentication there are options like
+auth_version, user_domain_name, project_domain_name and project_name.</p>
+<p>Once the configuration is in place, run <cite>swift-dispersion-populate</cite> to populate
+the containers and objects throughout the cluster.</p>
+<p>Now that those containers and objects are in place, you can run
+<cite>swift-dispersion-report</cite> to get a dispersion report, or the overall health of
+the cluster. Here is an example of a cluster in perfect health:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ swift-dispersion-report
+Queried 2621 containers for dispersion reporting, 19s, 0 retries
+100.00% of container copies found (7863 of 7863)
+Sample represents 1.00% of the container partition space
+
+Queried 2619 objects for dispersion reporting, 7s, 0 retries
+100.00% of object copies found (7857 of 7857)
+Sample represents 1.00% of the object partition space
+</pre></div>
+</div>
+<p>Now I’ll deliberately double the weight of a device in the object ring (with
+replication turned off) and rerun the dispersion report to show what impact
+that has:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ swift-ring-builder object.builder set_weight d0 200
+$ swift-ring-builder object.builder rebalance
+...
+$ swift-dispersion-report
+Queried 2621 containers for dispersion reporting, 8s, 0 retries
+100.00% of container copies found (7863 of 7863)
+Sample represents 1.00% of the container partition space
+
+Queried 2619 objects for dispersion reporting, 7s, 0 retries
+There were 1763 partitions missing one copy.
+77.56% of object copies found (6094 of 7857)
+Sample represents 1.00% of the object partition space
+</pre></div>
+</div>
+<p>You can see the health of the objects in the cluster has gone down
+significantly. Of course, I only have four devices in this test environment, in
+a production environment with many many devices the impact of one device change
+is much less. Next, I’ll run the replicators to get everything put back into
+place and then rerun the dispersion report:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>... start object replicators and monitor logs until they&#39;re caught up ...
+$ swift-dispersion-report
+Queried 2621 containers for dispersion reporting, 17s, 0 retries
+100.00% of container copies found (7863 of 7863)
+Sample represents 1.00% of the container partition space
+
+Queried 2619 objects for dispersion reporting, 7s, 0 retries
+100.00% of object copies found (7857 of 7857)
+Sample represents 1.00% of the object partition space
+</pre></div>
+</div>
+<p>You can also run the report for only containers or objects:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ swift-dispersion-report --container-only
+Queried 2621 containers for dispersion reporting, 17s, 0 retries
+100.00% of container copies found (7863 of 7863)
+Sample represents 1.00% of the container partition space
+
+$ swift-dispersion-report --object-only
+Queried 2619 objects for dispersion reporting, 7s, 0 retries
+100.00% of object copies found (7857 of 7857)
+Sample represents 1.00% of the object partition space
+</pre></div>
+</div>
+<p>Alternatively, the dispersion report can also be output in JSON format. This
+allows it to be more easily consumed by third party utilities:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>$ swift-dispersion-report -j
+{&quot;object&quot;: {&quot;retries:&quot;: 0, &quot;missing_two&quot;: 0, &quot;copies_found&quot;: 7863, &quot;missing_one&quot;: 0, &quot;copies_expected&quot;: 7863, &quot;pct_found&quot;: 100.0, &quot;overlapping&quot;: 0, &quot;missing_all&quot;: 0}, &quot;container&quot;: {&quot;retries:&quot;: 0, &quot;missing_two&quot;: 0, &quot;copies_found&quot;: 12534, &quot;missing_one&quot;: 0, &quot;copies_expected&quot;: 12534, &quot;pct_found&quot;: 100.0, &quot;overlapping&quot;: 15, &quot;missing_all&quot;: 0}}
+</pre></div>
+</div>
+<p>Note that you may select which storage policy to use by setting the option
+‘–policy-name silver’ or ‘-P silver’ (silver is the example policy name here).
+If no policy is specified, the default will be used per the swift.conf file.
+When you specify a policy the containers created also include the policy index,
+thus even when running a container_only report, you will need to specify the
+policy not using the default.</p>
+</section>
+<section id="geographically-distributed-swift-considerations">
+<h2>Geographically Distributed Swift Considerations<a class="headerlink" href="#geographically-distributed-swift-considerations" title="Permalink to this heading">¶</a></h2>
+<p>Swift provides two features that may be used to distribute replicas of objects
+across multiple geographically distributed data-centers: with
+<a class="reference internal" href="overview_global_cluster.html"><span class="doc">Global Clusters</span></a> object replicas may be dispersed across devices
+from different data-centers by using <cite>regions</cite> in ring device descriptors; with
+<a class="reference internal" href="overview_container_sync.html"><span class="doc">Container to Container Synchronization</span></a> objects may be copied between independent Swift
+clusters in each data-center. The operation and configuration of each are
+described in their respective documentation. The following points should be
+considered when selecting the feature that is most appropriate for a particular
+use case:</p>
+<ol class="arabic simple">
+<li><p>Global Clusters allows the distribution of object replicas across
+data-centers to be controlled by the cluster operator on per-policy basis,
+since the distribution is determined by the assignment of devices from
+each data-center in each policy’s ring file. With Container Sync the end
+user controls the distribution of objects across clusters on a
+per-container basis.</p></li>
+<li><p>Global Clusters requires an operator to coordinate ring deployments across
+multiple data-centers. Container Sync allows for independent management of
+separate Swift clusters in each data-center, and for existing Swift
+clusters to be used as peers in Container Sync relationships without
+deploying new policies/rings.</p></li>
+<li><p>Global Clusters seamlessly supports features that may rely on
+cross-container operations such as large objects and versioned writes.
+Container Sync requires the end user to ensure that all required
+containers are sync’d for these features to work in all data-centers.</p></li>
+<li><p>Global Clusters makes objects available for GET or HEAD requests in both
+data-centers even if a replica of the object has not yet been
+asynchronously migrated between data-centers, by forwarding requests
+between data-centers. Container Sync is unable to serve requests for an
+object in a particular data-center until the asynchronous sync process has
+copied the object to that data-center.</p></li>
+<li><p>Global Clusters may require less storage capacity than Container Sync to
+achieve equivalent durability of objects in each data-center. Global
+Clusters can restore replicas that are lost or corrupted in one
+data-center using replicas from other data-centers. Container Sync
+requires each data-center to independently manage the durability of
+objects, which may result in each data-center storing more replicas than
+with Global Clusters.</p></li>
+<li><p>Global Clusters execute all account/container metadata updates
+synchronously to account/container replicas in all data-centers, which may
+incur delays when making updates across WANs. Container Sync only copies
+objects between data-centers and all Swift internal traffic is
+confined to each data-center.</p></li>
+<li><p>Global Clusters does not yet guarantee the availability of objects stored
+in Erasure Coded policies when one data-center is offline. With Container
+Sync the availability of objects in each data-center is independent of the
+state of other data-centers once objects have been synced. Container Sync
+also allows objects to be stored using different policy types in different
+data-centers.</p></li>
+</ol>
+<section id="checking-handoff-partition-distribution">
+<h3>Checking handoff partition distribution<a class="headerlink" href="#checking-handoff-partition-distribution" title="Permalink to this heading">¶</a></h3>
+<p>You can check if handoff partitions are piling up on a server by
+comparing the expected number of partitions with the actual number on
+your disks. First get the number of partitions that are currently
+assigned to a server using the <code class="docutils literal notranslate"><span class="pre">dispersion</span></code> command from
+<code class="docutils literal notranslate"><span class="pre">swift-ring-builder</span></code>:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>swift-ring-builder sample.builder dispersion --verbose
+Dispersion is 0.000000, Balance is 0.000000, Overload is 0.00%
+Required overload is 0.000000%
+--------------------------------------------------------------------------
+Tier                           Parts      %    Max     0     1     2     3
+--------------------------------------------------------------------------
+r1                              8192   0.00      2     0     0  8192     0
+r1z1                            4096   0.00      1  4096  4096     0     0
+r1z1-172.16.10.1                4096   0.00      1  4096  4096     0     0
+r1z1-172.16.10.1/sda1           4096   0.00      1  4096  4096     0     0
+r1z2                            4096   0.00      1  4096  4096     0     0
+r1z2-172.16.10.2                4096   0.00      1  4096  4096     0     0
+r1z2-172.16.10.2/sda1           4096   0.00      1  4096  4096     0     0
+r1z3                            4096   0.00      1  4096  4096     0     0
+r1z3-172.16.10.3                4096   0.00      1  4096  4096     0     0
+r1z3-172.16.10.3/sda1           4096   0.00      1  4096  4096     0     0
+r1z4                            4096   0.00      1  4096  4096     0     0
+r1z4-172.16.20.4                4096   0.00      1  4096  4096     0     0
+r1z4-172.16.20.4/sda1           4096   0.00      1  4096  4096     0     0
+r2                              8192   0.00      2     0  8192     0     0
+r2z1                            4096   0.00      1  4096  4096     0     0
+r2z1-172.16.20.1                4096   0.00      1  4096  4096     0     0
+r2z1-172.16.20.1/sda1           4096   0.00      1  4096  4096     0     0
+r2z2                            4096   0.00      1  4096  4096     0     0
+r2z2-172.16.20.2                4096   0.00      1  4096  4096     0     0
+r2z2-172.16.20.2/sda1           4096   0.00      1  4096  4096     0     0
+</pre></div>
+</div>
+<p>As you can see from the output, each server should store 4096 partitions, and
+each region should store 8192 partitions. This example used a partition power
+of 13 and 3 replicas.</p>
+<p>With write_affinity enabled it is expected to have a higher number of
+partitions on disk compared to the value reported by the
+swift-ring-builder dispersion command. The number of additional (handoff)
+partitions in region r1 depends on your cluster size, the amount
+of incoming data as well as the replication speed.</p>
+<p>Let’s use the example from above with 6 nodes in 2 regions, and write_affinity
+configured to write to region r1 first. <cite>swift-ring-builder</cite> reported that
+each node should store 4096 partitions:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Expected partitions for region r2:                                      8192
+Handoffs stored across 4 nodes in region r1:                 8192 / 4 = 2048
+Maximum number of partitions on each server in region r1: 2048 + 4096 = 6144
+</pre></div>
+</div>
+<p>Worst case is that handoff partitions in region 1 are populated with new
+object replicas faster than replication is able to move them to region 2.
+In that case you will see ~ 6144 partitions per
+server in region r1. Your actual number should be lower and
+between 4096 and 6144 partitions (preferably on the lower side).</p>
+<p>Now count the number of object partitions on a given server in region 1,
+for example on 172.16.10.1.  Note that the pathnames might be
+different; <cite>/srv/node/</cite> is the default mount location, and <cite>objects</cite>
+applies only to storage policy 0 (storage policy 1 would use
+<cite>objects-1</cite> and so on):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>find -L /srv/node/ -maxdepth 3 -type d -wholename &quot;*objects/*&quot; | wc -l
+</pre></div>
+</div>
+<p>If this number is always on the upper end of the expected partition
+number range (4096 to 6144) or increasing you should check your
+replication speed and maybe even disable write_affinity.
+Please refer to the next section how to collect metrics from Swift, and
+especially <a class="reference internal" href="#recon-replication"><span class="std std-ref">swift-recon -r</span></a> how to check replication
+stats.</p>
+</section>
+</section>
+<section id="cluster-telemetry-and-monitoring">
+<span id="id2"></span><h2>Cluster Telemetry and Monitoring<a class="headerlink" href="#cluster-telemetry-and-monitoring" title="Permalink to this heading">¶</a></h2>
+<p>Various metrics and telemetry can be obtained from the account, container, and
+object servers using the recon server middleware and the swift-recon cli. To do
+so update your account, container, or object servers pipelines to include recon
+and add the associated filter config.</p>
+<p>object-server.conf sample:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[pipeline:main]</span>
+<span class="na">pipeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">recon object-server</span>
+
+<span class="k">[filter:recon]</span>
+<span class="na">use</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">egg:swift</span><span class="c1">#recon</span>
+<span class="na">recon_cache_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/cache/swift</span>
+</pre></div>
+</div>
+<p>container-server.conf sample:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[pipeline:main]</span>
+<span class="na">pipeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">recon container-server</span>
+
+<span class="k">[filter:recon]</span>
+<span class="na">use</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">egg:swift</span><span class="c1">#recon</span>
+<span class="na">recon_cache_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/cache/swift</span>
+</pre></div>
+</div>
+<p>account-server.conf sample:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="k">[pipeline:main]</span>
+<span class="na">pipeline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">recon account-server</span>
+
+<span class="k">[filter:recon]</span>
+<span class="na">use</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">egg:swift</span><span class="c1">#recon</span>
+<span class="na">recon_cache_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/var/cache/swift</span>
+</pre></div>
+</div>
+<p>The recon_cache_path simply sets the directory where stats for a few items will
+be stored. Depending on the method of deployment you may need to create this
+directory manually and ensure that Swift has read/write access.</p>
+<p>Finally, if you also wish to track asynchronous pending on your object
+servers you will need to setup a cronjob to run the swift-recon-cron script
+periodically on your object servers:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>*/5 * * * * swift /usr/bin/swift-recon-cron /etc/swift/object-server.conf
+</pre></div>
+</div>
+<p>Once the recon middleware is enabled, a GET request for
+“/recon/&lt;metric&gt;” to the backend object server will return a
+JSON-formatted response:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fhines@ubuntu:~$ curl -i http://localhost:6230/recon/async
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 20
+Date: Tue, 18 Oct 2011 21:03:01 GMT
+
+{&quot;async_pending&quot;: 0}
+</pre></div>
+</div>
+<p>Note that the default port for the object server is 6200, except on a
+Swift All-In-One installation, which uses 6210, 6220, 6230, and 6240.</p>
+<p>The following metrics and telemetry are currently exposed:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Request URI</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p>/recon/load</p></td>
+<td><p>returns 1,5, and 15 minute load average</p></td>
+</tr>
+<tr class="row-odd"><td><p>/recon/mem</p></td>
+<td><p>returns /proc/meminfo</p></td>
+</tr>
+<tr class="row-even"><td><p>/recon/mounted</p></td>
+<td><p>returns <em>ALL</em> currently mounted filesystems</p></td>
+</tr>
+<tr class="row-odd"><td><p>/recon/unmounted</p></td>
+<td><p>returns all unmounted drives if mount_check = True</p></td>
+</tr>
+<tr class="row-even"><td><p>/recon/diskusage</p></td>
+<td><p>returns disk utilization for storage devices</p></td>
+</tr>
+<tr class="row-odd"><td><p>/recon/driveaudit</p></td>
+<td><p>returns # of drive audit errors</p></td>
+</tr>
+<tr class="row-even"><td><p>/recon/ringmd5</p></td>
+<td><p>returns object/container/account ring md5sums</p></td>
+</tr>
+<tr class="row-odd"><td><p>/recon/swiftconfmd5</p></td>
+<td><p>returns swift.conf md5sum</p></td>
+</tr>
+<tr class="row-even"><td><p>/recon/quarantined</p></td>
+<td><p>returns # of quarantined objects/accounts/containers</p></td>
+</tr>
+<tr class="row-odd"><td><p>/recon/sockstat</p></td>
+<td><p>returns consumable info from /proc/net/sockstat|6</p></td>
+</tr>
+<tr class="row-even"><td><p>/recon/devices</p></td>
+<td><p>returns list of devices and devices dir i.e. /srv/node</p></td>
+</tr>
+<tr class="row-odd"><td><p>/recon/async</p></td>
+<td><p>returns count of async pending</p></td>
+</tr>
+<tr class="row-even"><td><p>/recon/replication</p></td>
+<td><p>returns object replication info (for backward compatibility)</p></td>
+</tr>
+<tr class="row-odd"><td><p>/recon/replication/&lt;type&gt;</p></td>
+<td><p>returns replication info for given type (account, container, object)</p></td>
+</tr>
+<tr class="row-even"><td><p>/recon/auditor/&lt;type&gt;</p></td>
+<td><p>returns auditor stats on last reported scan for given type (account, container, object)</p></td>
+</tr>
+<tr class="row-odd"><td><p>/recon/updater/&lt;type&gt;</p></td>
+<td><p>returns last updater sweep times for given type (container, object)</p></td>
+</tr>
+<tr class="row-even"><td><p>/recon/expirer/object</p></td>
+<td><p>returns time elapsed and number of objects deleted during last object expirer sweep</p></td>
+</tr>
+<tr class="row-odd"><td><p>/recon/version</p></td>
+<td><p>returns Swift version</p></td>
+</tr>
+<tr class="row-even"><td><p>/recon/time</p></td>
+<td><p>returns node time</p></td>
+</tr>
+</tbody>
+</table>
+<p>Note that ‘object_replication_last’ and ‘object_replication_time’ in object
+replication info are considered to be transitional and will be removed in
+the subsequent releases. Use ‘replication_last’ and ‘replication_time’ instead.</p>
+<p>This information can also be queried via the swift-recon command line utility:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fhines@ubuntu:~$ swift-recon -h
+Usage:
+        usage: swift-recon &lt;server_type&gt; [-v] [--suppress] [-a] [-r] [-u] [-d]
+        [-R] [-l] [-T] [--md5] [--auditor] [--updater] [--expirer] [--sockstat]
+
+        &lt;server_type&gt;   account|container|object
+        Defaults to object server.
+
+        ex: swift-recon container -l --auditor
+
+
+Options:
+  -h, --help            show this help message and exit
+  -v, --verbose         Print verbose info
+  --suppress            Suppress most connection related errors
+  -a, --async           Get async stats
+  -r, --replication     Get replication stats
+  -R, --reconstruction  Get reconstruction stats
+  --auditor             Get auditor stats
+  --updater             Get updater stats
+  --expirer             Get expirer stats
+  -u, --unmounted       Check cluster for unmounted devices
+  -d, --diskusage       Get disk usage stats
+  -l, --loadstats       Get cluster load average stats
+  -q, --quarantined     Get cluster quarantine stats
+  --md5                 Get md5sum of servers ring and compare to local copy
+  --sockstat            Get cluster socket usage stats
+  -T, --time            Check time synchronization
+  --all                 Perform all checks. Equal to
+                        -arudlqT --md5 --sockstat --auditor --updater
+                        --expirer --driveaudit --validate-servers
+  -z ZONE, --zone=ZONE  Only query servers in specified zone
+  -t SECONDS, --timeout=SECONDS
+                        Time to wait for a response from a server
+  --swiftdir=SWIFTDIR   Default = /etc/swift
+</pre></div>
+</div>
+<p id="recon-replication">For example, to obtain container replication info from all hosts in zone “3”:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>fhines@ubuntu:~$ swift-recon container -r --zone 3
+===============================================================================
+--&gt; Starting reconnaissance on 1 hosts
+===============================================================================
+[2012-04-02 02:45:48] Checking on replication
+[failure] low: 0.000, high: 0.000, avg: 0.000, reported: 1
+[success] low: 486.000, high: 486.000, avg: 486.000, reported: 1
+[replication_time] low: 20.853, high: 20.853, avg: 20.853, reported: 1
+[attempted] low: 243.000, high: 243.000, avg: 243.000, reported: 1
+</pre></div>
+</div>
+</section>
+<section id="reporting-metrics-to-statsd">
+<h2>Reporting Metrics to StatsD<a class="headerlink" href="#reporting-metrics-to-statsd" title="Permalink to this heading">¶</a></h2>
+<p>If you have a <a class="reference external" href="https://codeascraft.com/2011/02/15/measure-anything-measure-everything/">StatsD</a> server running, Swift may be configured to send it
+real-time operational metrics.  To enable this, set the following
+configuration entries (see the sample configuration files):</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">log_statsd_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">localhost</span>
+<span class="na">log_statsd_port</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">8125</span>
+<span class="na">log_statsd_default_sample_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+<span class="na">log_statsd_sample_rate_factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span>
+<span class="na">log_statsd_metric_prefix</span><span class="w"> </span><span class="o">=</span><span class="w">                </span><span class="s">[empty-string]</span>
+</pre></div>
+</div>
+<p>If <cite>log_statsd_host</cite> is not set, this feature is disabled.  The default values
+for the other settings are given above.  The <cite>log_statsd_host</cite> can be a
+hostname, an IPv4 address, or an IPv6 address (not surrounded with brackets, as
+this is unnecessary since the port is specified separately).  If a hostname
+resolves to an IPv4 address, an IPv4 socket will be used to send StatsD UDP
+packets, even if the hostname would also resolve to an IPv6 address.</p>
+<p>The sample rate is a real number between 0 and 1 which defines the
+probability of sending a sample for any given event or timing measurement.
+This sample rate is sent with each sample to StatsD and used to
+multiply the value.  For example, with a sample rate of 0.5, StatsD will
+multiply that counter’s value by 2 when flushing the metric to an upstream
+monitoring system (<a class="reference external" href="http://graphiteapp.org/">Graphite</a>, <a class="reference external" href="http://ganglia.sourceforge.net/">Ganglia</a>, etc.).</p>
+<p>Some relatively high-frequency metrics have a default sample rate less than
+one.  If you want to override the default sample rate for all metrics whose
+default sample rate is not specified in the Swift source, you may set
+<cite>log_statsd_default_sample_rate</cite> to a value less than one.  This is NOT
+recommended (see next paragraph).  A better way to reduce StatsD load is to
+adjust <cite>log_statsd_sample_rate_factor</cite> to a value less than one.  The
+<cite>log_statsd_sample_rate_factor</cite> is multiplied to any sample rate (either the
+global default or one specified by the actual metric logging call in the Swift
+source) prior to handling.  In other words, this one tunable can lower the
+frequency of all StatsD logging by a proportional amount.</p>
+<p>To get the best data, start with the default <cite>log_statsd_default_sample_rate</cite>
+and <cite>log_statsd_sample_rate_factor</cite> values of 1 and only lower
+<cite>log_statsd_sample_rate_factor</cite> if needed.  The
+<cite>log_statsd_default_sample_rate</cite> should not be used and remains for backward
+compatibility only.</p>
+<p>The metric prefix will be prepended to every metric sent to the StatsD server
+For example, with:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">log_statsd_metric_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">proxy01</span>
+</pre></div>
+</div>
+<p>the metric <cite>proxy-server.errors</cite> would be sent to StatsD as
+<cite>proxy01.proxy-server.errors</cite>.  This is useful for differentiating different
+servers when sending statistics to a central StatsD server.  If you run a local
+StatsD server per node, you could configure a per-node metrics prefix there and
+leave <cite>log_statsd_metric_prefix</cite> blank.</p>
+<p>Note that metrics reported to StatsD are counters or timing data (which are
+sent in units of milliseconds).  StatsD usually expands timing data out to min,
+max, avg, count, and 90th percentile per timing metric, but the details of
+this behavior will depend on the configuration of your StatsD server.  Some
+important “gauge” metrics may still need to be collected using another method.
+For example, the <cite>object-server.async_pendings</cite> StatsD metric counts the generation
+of async_pendings in real-time, but will not tell you the current number of
+async_pending container updates on disk at any point in time.</p>
+<p>Note also that the set of metrics collected, their names, and their semantics
+are not locked down and will change over time.</p>
+<p>Metrics for <cite>account-auditor</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-auditor.errors</cite></p></td>
+<td><p>Count of audit runs (across all account databases) which
+caught an Exception.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-auditor.passes</cite></p></td>
+<td><p>Count of individual account databases which passed audit.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-auditor.failures</cite></p></td>
+<td><p>Count of individual account databases which failed audit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-auditor.timing</cite></p></td>
+<td><p>Timing data for individual account database audits.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>account-reaper</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-reaper.errors</cite></p></td>
+<td><p>Count of devices failing the mount check.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-reaper.timing</cite></p></td>
+<td><p>Timing data for each reap_account() call.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-reaper.return_codes.X</cite></p></td>
+<td><p>Count of HTTP return codes from various operations
+(e.g. object listing, container deletion, etc.). The
+value for X is the first digit of the return code
+(2 for 201, 4 for 404, etc.).</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-reaper.containers_failures</cite></p></td>
+<td><p>Count of failures to delete a container.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-reaper.containers_deleted</cite></p></td>
+<td><p>Count of containers successfully deleted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-reaper.containers_remaining</cite></p></td>
+<td><p>Count of containers which failed to delete with
+zero successes.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-reaper.containers_possibly_remaining</cite></p></td>
+<td><p>Count of containers which failed to delete with
+at least one success.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-reaper.objects_failures</cite></p></td>
+<td><p>Count of failures to delete an object.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-reaper.objects_deleted</cite></p></td>
+<td><p>Count of objects successfully deleted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-reaper.objects_remaining</cite></p></td>
+<td><p>Count of objects which failed to delete with zero
+successes.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-reaper.objects_possibly_remaining</cite></p></td>
+<td><p>Count of objects which failed to delete with at
+least one success.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>account-server</cite> (“Not Found” is not considered an error and requests
+which increment <cite>errors</cite> are not included in the timing data):</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-server.DELETE.errors.timing</cite></p></td>
+<td><p>Timing data for each DELETE request resulting in an
+error: bad request, not mounted, missing timestamp.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-server.DELETE.timing</cite></p></td>
+<td><p>Timing data for each DELETE request not resulting in
+an error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-server.PUT.errors.timing</cite></p></td>
+<td><p>Timing data for each PUT request resulting in an error:
+bad request, not mounted, conflict, recently-deleted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-server.PUT.timing</cite></p></td>
+<td><p>Timing data for each PUT request not resulting in an
+error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-server.HEAD.errors.timing</cite></p></td>
+<td><p>Timing data for each HEAD request resulting in an
+error: bad request, not mounted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-server.HEAD.timing</cite></p></td>
+<td><p>Timing data for each HEAD request not resulting in
+an error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-server.GET.errors.timing</cite></p></td>
+<td><p>Timing data for each GET request resulting in an
+error: bad request, not mounted, bad delimiter,
+account listing limit too high, bad accept header.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-server.GET.timing</cite></p></td>
+<td><p>Timing data for each GET request not resulting in
+an error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-server.REPLICATE.errors.timing</cite></p></td>
+<td><p>Timing data for each REPLICATE request resulting in an
+error: bad request, not mounted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-server.REPLICATE.timing</cite></p></td>
+<td><p>Timing data for each REPLICATE request not resulting
+in an error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-server.POST.errors.timing</cite></p></td>
+<td><p>Timing data for each POST request resulting in an
+error: bad request, bad or missing timestamp, not
+mounted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-server.POST.timing</cite></p></td>
+<td><p>Timing data for each POST request not resulting in
+an error.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>account-replicator</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-replicator.diffs</cite></p></td>
+<td><p>Count of syncs handled by sending differing rows.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-replicator.diff_caps</cite></p></td>
+<td><p>Count of “diffs” operations which failed because
+“max_diffs” was hit.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-replicator.no_changes</cite></p></td>
+<td><p>Count of accounts found to be in sync.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-replicator.hashmatches</cite></p></td>
+<td><p>Count of accounts found to be in sync via hash
+comparison (<cite>broker.merge_syncs</cite> was called).</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-replicator.rsyncs</cite></p></td>
+<td><p>Count of completely missing accounts which were sent
+via rsync.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-replicator.remote_merges</cite></p></td>
+<td><p>Count of syncs handled by sending entire database
+via rsync.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-replicator.attempts</cite></p></td>
+<td><p>Count of database replication attempts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-replicator.failures</cite></p></td>
+<td><p>Count of database replication attempts which failed
+due to corruption (quarantined) or inability to read
+as well as attempts to individual nodes which
+failed.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-replicator.removes.&lt;device&gt;</cite></p></td>
+<td><p>Count of databases on &lt;device&gt; deleted because the
+delete_timestamp was greater than the put_timestamp
+and the database had no rows or because it was
+successfully sync’ed to other locations and doesn’t
+belong here anymore.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>account-replicator.successes</cite></p></td>
+<td><p>Count of replication attempts to an individual node
+which were successful.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>account-replicator.timing</cite></p></td>
+<td><p>Timing data for each database replication attempt
+not resulting in a failure.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>container-auditor</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-auditor.errors</cite></p></td>
+<td><p>Incremented when an Exception is caught in an audit
+pass (only once per pass, max).</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-auditor.passes</cite></p></td>
+<td><p>Count of individual containers passing an audit.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-auditor.failures</cite></p></td>
+<td><p>Count of individual containers failing an audit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-auditor.timing</cite></p></td>
+<td><p>Timing data for each container audit.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>container-replicator</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-replicator.diffs</cite></p></td>
+<td><p>Count of syncs handled by sending differing rows.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-replicator.diff_caps</cite></p></td>
+<td><p>Count of “diffs” operations which failed because
+“max_diffs” was hit.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-replicator.no_changes</cite></p></td>
+<td><p>Count of containers found to be in sync.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-replicator.hashmatches</cite></p></td>
+<td><p>Count of containers found to be in sync via hash
+comparison (<cite>broker.merge_syncs</cite> was called).</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-replicator.rsyncs</cite></p></td>
+<td><p>Count of completely missing containers where were sent
+via rsync.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-replicator.remote_merges</cite></p></td>
+<td><p>Count of syncs handled by sending entire database
+via rsync.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-replicator.attempts</cite></p></td>
+<td><p>Count of database replication attempts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-replicator.failures</cite></p></td>
+<td><p>Count of database replication attempts which failed
+due to corruption (quarantined) or inability to read
+as well as attempts to individual nodes which
+failed.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-replicator.removes.&lt;device&gt;</cite></p></td>
+<td><p>Count of databases deleted on &lt;device&gt; because the
+delete_timestamp was greater than the put_timestamp
+and the database had no rows or because it was
+successfully sync’ed to other locations and doesn’t
+belong here anymore.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-replicator.successes</cite></p></td>
+<td><p>Count of replication attempts to an individual node
+which were successful.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-replicator.timing</cite></p></td>
+<td><p>Timing data for each database replication attempt
+not resulting in a failure.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>container-server</cite> (“Not Found” is not considered an error and requests
+which increment <cite>errors</cite> are not included in the timing data):</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-server.DELETE.errors.timing</cite></p></td>
+<td><p>Timing data for DELETE request errors: bad request,
+not mounted, missing timestamp, conflict.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-server.DELETE.timing</cite></p></td>
+<td><p>Timing data for each DELETE request not resulting in
+an error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-server.PUT.errors.timing</cite></p></td>
+<td><p>Timing data for PUT request errors: bad request,
+missing timestamp, not mounted, conflict.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-server.PUT.timing</cite></p></td>
+<td><p>Timing data for each PUT request not resulting in an
+error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-server.HEAD.errors.timing</cite></p></td>
+<td><p>Timing data for HEAD request errors: bad request,
+not mounted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-server.HEAD.timing</cite></p></td>
+<td><p>Timing data for each HEAD request not resulting in
+an error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-server.GET.errors.timing</cite></p></td>
+<td><p>Timing data for GET request errors: bad request,
+not mounted, parameters not utf8, bad accept header.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-server.GET.timing</cite></p></td>
+<td><p>Timing data for each GET request not resulting in
+an error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-server.REPLICATE.errors.timing</cite></p></td>
+<td><p>Timing data for REPLICATE request errors: bad
+request, not mounted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-server.REPLICATE.timing</cite></p></td>
+<td><p>Timing data for each REPLICATE request not resulting
+in an error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-server.POST.errors.timing</cite></p></td>
+<td><p>Timing data for POST request errors: bad request,
+bad x-container-sync-to, not mounted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-server.POST.timing</cite></p></td>
+<td><p>Timing data for each POST request not resulting in
+an error.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>container-sync</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-sync.skips</cite></p></td>
+<td><p>Count of containers skipped because they don’t have
+sync’ing enabled.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-sync.failures</cite></p></td>
+<td><p>Count of failures sync’ing of individual containers.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-sync.syncs</cite></p></td>
+<td><p>Count of individual containers sync’ed successfully.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-sync.deletes</cite></p></td>
+<td><p>Count of container database rows sync’ed by
+deletion.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-sync.deletes.timing</cite></p></td>
+<td><p>Timing data for each container database row
+synchronization via deletion.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-sync.puts</cite></p></td>
+<td><p>Count of container database rows sync’ed by Putting.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-sync.puts.timing</cite></p></td>
+<td><p>Timing data for each container database row
+synchronization via Putting.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>container-updater</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-updater.successes</cite></p></td>
+<td><p>Count of containers which successfully updated their
+account.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-updater.failures</cite></p></td>
+<td><p>Count of containers which failed to update their
+account.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>container-updater.no_changes</cite></p></td>
+<td><p>Count of containers which didn’t need to update
+their account.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>container-updater.timing</cite></p></td>
+<td><p>Timing data for processing a container; only
+includes timing for containers which needed to
+update their accounts (i.e. “successes” and
+“failures” but not “no_changes”).</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>object-auditor</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-auditor.quarantines</cite></p></td>
+<td><p>Count of objects failing audit and quarantined.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-auditor.errors</cite></p></td>
+<td><p>Count of errors encountered while auditing objects.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-auditor.timing</cite></p></td>
+<td><p>Timing data for each object audit (does not include
+any rate-limiting sleep time for
+max_files_per_second, but does include rate-limiting
+sleep time for max_bytes_per_second).</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>object-expirer</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-expirer.objects</cite></p></td>
+<td><p>Count of objects expired.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-expirer.errors</cite></p></td>
+<td><p>Count of errors encountered while attempting to
+expire an object.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-expirer.timing</cite></p></td>
+<td><p>Timing data for each object expiration attempt,
+including ones resulting in an error.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>object-reconstructor</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-reconstructor.partition.delete.count.&lt;device&gt;</cite></p></td>
+<td><p>A count of partitions on &lt;device&gt; which were
+reconstructed and synced to another node because they
+didn’t belong on this node. This metric is tracked
+per-device to allow for “quiescence detection” for
+object reconstruction activity on each device.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-reconstructor.partition.delete.timing</cite></p></td>
+<td><p>Timing data for partitions reconstructed and synced to
+another node because they didn’t belong on this node.
+This metric is not tracked per device.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-reconstructor.partition.update.count.&lt;device&gt;</cite></p></td>
+<td><p>A count of partitions on &lt;device&gt; which were
+reconstructed and synced to another node, but also
+belong on this node. As with delete.count, this metric
+is tracked per-device.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-reconstructor.partition.update.timing</cite></p></td>
+<td><p>Timing data for partitions reconstructed which also
+belong on this node. This metric is not tracked
+per-device.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-reconstructor.suffix.hashes</cite></p></td>
+<td><p>Count of suffix directories whose hash (of filenames)
+was recalculated.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-reconstructor.suffix.syncs</cite></p></td>
+<td><p>Count of suffix directories reconstructed with ssync.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>object-replicator</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-replicator.partition.delete.count.&lt;device&gt;</cite></p></td>
+<td><p>A count of partitions on &lt;device&gt; which were
+replicated to another node because they didn’t
+belong on this node.  This metric is tracked
+per-device to allow for “quiescence detection” for
+object replication activity on each device.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-replicator.partition.delete.timing</cite></p></td>
+<td><p>Timing data for partitions replicated to another
+node because they didn’t belong on this node.  This
+metric is not tracked per device.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-replicator.partition.update.count.&lt;device&gt;</cite></p></td>
+<td><p>A count of partitions on &lt;device&gt; which were
+replicated to another node, but also belong on this
+node.  As with delete.count, this metric is tracked
+per-device.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-replicator.partition.update.timing</cite></p></td>
+<td><p>Timing data for partitions replicated which also
+belong on this node.  This metric is not tracked
+per-device.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-replicator.suffix.hashes</cite></p></td>
+<td><p>Count of suffix directories whose hash (of filenames)
+was recalculated.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-replicator.suffix.syncs</cite></p></td>
+<td><p>Count of suffix directories replicated with rsync.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>object-server</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-server.quarantines</cite></p></td>
+<td><p>Count of objects (files) found bad and moved to
+quarantine.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-server.async_pendings</cite></p></td>
+<td><p>Count of container updates saved as async_pendings
+(may result from PUT or DELETE requests).</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-server.POST.errors.timing</cite></p></td>
+<td><p>Timing data for POST request errors: bad request,
+missing timestamp, delete-at in past, not mounted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-server.POST.timing</cite></p></td>
+<td><p>Timing data for each POST request not resulting in
+an error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-server.PUT.errors.timing</cite></p></td>
+<td><p>Timing data for PUT request errors: bad request,
+not mounted, missing timestamp, object creation
+constraint violation, delete-at in past.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-server.PUT.timeouts</cite></p></td>
+<td><p>Count of object PUTs which exceeded max_upload_time.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-server.PUT.timing</cite></p></td>
+<td><p>Timing data for each PUT request not resulting in an
+error.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-server.PUT.&lt;device&gt;.timing</cite></p></td>
+<td><p>Timing data per kB transferred (ms/kB) for each
+non-zero-byte PUT request on each device.
+Monitoring problematic devices, higher is bad.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-server.GET.errors.timing</cite></p></td>
+<td><p>Timing data for GET request errors: bad request,
+not mounted, header timestamps before the epoch,
+precondition failed.
+File errors resulting in a quarantine are not
+counted here.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-server.GET.timing</cite></p></td>
+<td><p>Timing data for each GET request not resulting in an
+error.  Includes requests which couldn’t find the
+object (including disk errors resulting in file
+quarantine).</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-server.HEAD.errors.timing</cite></p></td>
+<td><p>Timing data for HEAD request errors: bad request,
+not mounted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-server.HEAD.timing</cite></p></td>
+<td><p>Timing data for each HEAD request not resulting in
+an error.  Includes requests which couldn’t find the
+object (including disk errors resulting in file
+quarantine).</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-server.DELETE.errors.timing</cite></p></td>
+<td><p>Timing data for DELETE request errors: bad request,
+missing timestamp, not mounted, precondition
+failed.  Includes requests which couldn’t find or
+match the object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-server.DELETE.timing</cite></p></td>
+<td><p>Timing data for each DELETE request not resulting
+in an error.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-server.REPLICATE.errors.timing</cite></p></td>
+<td><p>Timing data for REPLICATE request errors: bad
+request, not mounted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-server.REPLICATE.timing</cite></p></td>
+<td><p>Timing data for each REPLICATE request not resulting
+in an error.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>object-updater</cite>:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-updater.errors</cite></p></td>
+<td><p>Count of drives not mounted or async_pending files
+with an unexpected name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-updater.timing</cite></p></td>
+<td><p>Timing data for object sweeps to flush async_pending
+container updates.  Does not include object sweeps
+which did not find an existing async_pending storage
+directory.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-updater.quarantines</cite></p></td>
+<td><p>Count of async_pending container updates which were
+corrupted and moved to quarantine.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-updater.successes</cite></p></td>
+<td><p>Count of successful container updates.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>object-updater.failures</cite></p></td>
+<td><p>Count of failed container updates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>object-updater.unlinks</cite></p></td>
+<td><p>Count of async_pending files unlinked. An
+async_pending file is unlinked either when it is
+successfully processed or when the replicator sees
+that there is a newer async_pending file for the
+same object.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>proxy-server</cite> (in the table, <cite>&lt;type&gt;</cite> is the proxy-server
+controller responsible for the request and will be one of “account”,
+“container”, or “object”):</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>proxy-server.errors</cite></p></td>
+<td><p>Count of errors encountered while serving requests
+before the controller type is determined.  Includes
+invalid Content-Length, errors finding the internal
+controller to handle the request, invalid utf8, and
+bad URLs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>proxy-server.&lt;type&gt;.handoff_count</cite></p></td>
+<td><p>Count of node hand-offs; only tracked if log_handoffs
+is set in the proxy-server config.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>proxy-server.&lt;type&gt;.handoff_all_count</cite></p></td>
+<td><p>Count of times <em>only</em> hand-off locations were
+utilized; only tracked if log_handoffs is set in the
+proxy-server config.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>proxy-server.&lt;type&gt;.client_timeouts</cite></p></td>
+<td><p>Count of client timeouts (client did not read within
+<cite>client_timeout</cite> seconds during a GET or did not
+supply data within <cite>client_timeout</cite> seconds during
+a PUT).</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>proxy-server.&lt;type&gt;.client_disconnects</cite></p></td>
+<td><p>Count of detected client disconnects during PUT
+operations (does NOT include caught Exceptions in
+the proxy-server which caused a client disconnect).</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>proxy-logging</cite> middleware (in the table, <cite>&lt;type&gt;</cite> is either the
+proxy-server controller responsible for the request: “account”, “container”,
+“object”, or the string “SOS” if the request came from the <a class="reference external" href="https://github.com/dpgoetz/sos">Swift Origin Server</a>
+middleware.  The <cite>&lt;verb&gt;</cite> portion will be one of “GET”, “HEAD”, “POST”, “PUT”,
+“DELETE”, “COPY”, “OPTIONS”, or “BAD_METHOD”.  The list of valid HTTP methods
+is configurable via the <cite>log_statsd_valid_http_methods</cite> config variable and
+the default setting yields the above behavior):</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>proxy-server.&lt;type&gt;.&lt;verb&gt;.&lt;status&gt;.timing</cite></p></td>
+<td><p>Timing data for requests, start to finish.
+The &lt;status&gt; portion is the numeric HTTP
+status code for the request (e.g.  “200” or
+“404”).</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>proxy-server.&lt;type&gt;.GET.&lt;status&gt;.first-byte.timing</cite></p></td>
+<td><p>Timing data up to completion of sending the
+response headers (only for GET requests).
+&lt;status&gt; and &lt;type&gt; are as for the main
+timing metric.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>proxy-server.&lt;type&gt;.&lt;verb&gt;.&lt;status&gt;.xfer</cite></p></td>
+<td><p>This counter metric is the sum of bytes
+transferred in (from clients) and out (to
+clients) for requests.  The &lt;type&gt;, &lt;verb&gt;,
+and &lt;status&gt; portions of the metric are just
+like the main timing metric.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The <cite>proxy-logging</cite> middleware also groups these metrics by policy.  The
+<cite>&lt;policy-index&gt;</cite> portion represents a policy index):</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>proxy-server.object.policy.&lt;policy-index&gt;.&lt;verb&gt;.&lt;status&gt;.timing</cite></p></td>
+<td><p>Timing data for requests, aggregated
+by policy index.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>proxy-server.object.policy.&lt;policy-index&gt;.GET.&lt;status&gt;.first-byte.timing</cite></p></td>
+<td><p>Timing data up to completion of
+sending the response headers,
+aggregated by policy index.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>proxy-server.object.policy.&lt;policy-index&gt;.&lt;verb&gt;.&lt;status&gt;.xfer</cite></p></td>
+<td><p>Sum of bytes transferred in and out,
+aggregated by policy index.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Metrics for <cite>tempauth</cite> middleware (in the table, <cite>&lt;reseller_prefix&gt;</cite> represents
+the actual configured reseller_prefix or “<cite>NONE</cite>” if the reseller_prefix is the
+empty string):</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Metric Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>tempauth.&lt;reseller_prefix&gt;.unauthorized</cite></p></td>
+<td><p>Count of regular requests which were denied with
+HTTPUnauthorized.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>tempauth.&lt;reseller_prefix&gt;.forbidden</cite></p></td>
+<td><p>Count of regular requests which were denied with
+HTTPForbidden.</p></td>
+</tr>
+<tr class="row-even"><td><p><cite>tempauth.&lt;reseller_prefix&gt;.token_denied</cite></p></td>
+<td><p>Count of token requests which were denied.</p></td>
+</tr>
+<tr class="row-odd"><td><p><cite>tempauth.&lt;reseller_prefix&gt;.errors</cite></p></td>
+<td><p>Count of errors.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="debugging-tips-and-tools">
+<h2>Debugging Tips and Tools<a class="headerlink" href="#debugging-tips-and-tools" title="Permalink to this heading">¶</a></h2>
+<p>When a request is made to Swift, it is given a unique transaction id.  This
+id should be in every log line that has to do with that request.  This can
+be useful when looking at all the services that are hit by a single request.</p>
+<p>If you need to know where a specific account, container or object is in the
+cluster, <cite>swift-get-nodes</cite> will show the location where each replica should be.</p>
+<p>If you are looking at an object on the server and need more info,
+<cite>swift-object-info</cite> will display the account, container, replica locations
+and metadata of the object.</p>
+<p>If you are looking at a container on the server and need more info,
+<cite>swift-container-info</cite> will display all the information like the account,
+container, replica locations and metadata of the container.</p>
+<p>If you are looking at an account on the server and need more info,
+<cite>swift-account-info</cite> will display the account, replica locations
+and metadata of the account.</p>
+<p>If you want to audit the data for an account, <cite>swift-account-audit</cite> can be
+used to crawl the account, checking that all containers and objects can be
+found.</p>
+</section>
+<section id="managing-services">
+<h2>Managing Services<a class="headerlink" href="#managing-services" title="Permalink to this heading">¶</a></h2>
+<p>Swift services are generally managed with <code class="docutils literal notranslate"><span class="pre">swift-init</span></code>. the general usage is
+<code class="docutils literal notranslate"><span class="pre">swift-init</span> <span class="pre">&lt;service&gt;</span> <span class="pre">&lt;command&gt;</span></code>, where service is the Swift service to
+manage (for example object, container, account, proxy) and command is one of:</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Command</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p>start</p></td>
+<td><p>Start the service</p></td>
+</tr>
+<tr class="row-odd"><td><p>stop</p></td>
+<td><p>Stop the service</p></td>
+</tr>
+<tr class="row-even"><td><p>restart</p></td>
+<td><p>Restart the service</p></td>
+</tr>
+<tr class="row-odd"><td><p>shutdown</p></td>
+<td><p>Attempt to gracefully shutdown the service</p></td>
+</tr>
+<tr class="row-even"><td><p>reload</p></td>
+<td><p>Attempt to gracefully restart the service</p></td>
+</tr>
+<tr class="row-odd"><td><p>reload-seamless</p></td>
+<td><p>Attempt to seamlessly restart the service</p></td>
+</tr>
+</tbody>
+</table>
+<p>A graceful shutdown or reload will allow all server workers to finish any
+current requests before exiting.  The parent server process exits immediately.</p>
+<p>A seamless reload will make new configuration settings active, with no window
+where client requests fail due to there being no active listen socket.
+The parent server process will re-exec itself, retaining its existing PID.
+After the re-exec’ed parent server process binds its listen sockets, the old
+listen sockets are closed and old server workers finish any current requests
+before exiting.</p>
+<p>There is also a special case of <code class="docutils literal notranslate"><span class="pre">swift-init</span> <span class="pre">all</span> <span class="pre">&lt;command&gt;</span></code>, which will run
+the command for all swift services.</p>
+<p>In cases where there are multiple configs for a service, a specific config
+can be managed with <code class="docutils literal notranslate"><span class="pre">swift-init</span> <span class="pre">&lt;service&gt;.&lt;config&gt;</span> <span class="pre">&lt;command&gt;</span></code>.
+For example, when a separate replication network is used, there might be
+<code class="docutils literal notranslate"><span class="pre">/etc/swift/object-server/public.conf</span></code> for the object server and
+<code class="docutils literal notranslate"><span class="pre">/etc/swift/object-server/replication.conf</span></code> for the replication services.
+In this case, the replication services could be restarted with
+<code class="docutils literal notranslate"><span class="pre">swift-init</span> <span class="pre">object-server.replication</span> <span class="pre">restart</span></code>.</p>
+</section>
+<section id="object-auditor">
+<h2>Object Auditor<a class="headerlink" href="#object-auditor" title="Permalink to this heading">¶</a></h2>
+<p>On system failures, the XFS file system can sometimes truncate files it’s
+trying to write and produce zero-byte files. The object-auditor will catch
+these problems but in the case of a system crash it would be advisable to run
+an extra, less rate limited sweep to check for these specific files. You can
+run this command as follows:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">swift-object-auditor /path/to/object-server/config/file.conf once -z 1000</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-z</span></code> means to only check for zero-byte files at 1000 files per second.</p>
+<p>At times it is useful to be able to run the object auditor on a specific
+device or set of devices.  You can run the object-auditor as follows:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">swift-object-auditor /path/to/object-server/config/file.conf once --devices</span><span class="o">=</span><span class="s">sda,sdb</span>
+</pre></div>
+</div>
+<p>This will run the object auditor on only the sda and sdb devices. This param
+accepts a comma separated list of values.</p>
+</section>
+<section id="object-replicator">
+<h2>Object Replicator<a class="headerlink" href="#object-replicator" title="Permalink to this heading">¶</a></h2>
+<p>At times it is useful to be able to run the object replicator on a specific
+device or partition.  You can run the object-replicator as follows:</p>
+<div class="highlight-cfg notranslate"><div class="highlight"><pre><span></span><span class="na">swift-object-replicator /path/to/object-server/config/file.conf once --devices</span><span class="o">=</span><span class="s">sda,sdb</span>
+</pre></div>
+</div>
+<p>This will run the object replicator on only the sda and sdb devices.  You can
+likewise run that command with <code class="docutils literal notranslate"><span class="pre">--partitions</span></code>.  Both params accept a comma
+separated list of values. If both are specified they will be ANDed together.
+These can only be run in “once” mode.</p>
+</section>
+<section id="swift-orphans">
+<h2>Swift Orphans<a class="headerlink" href="#swift-orphans" title="Permalink to this heading">¶</a></h2>
+<p>Swift Orphans are processes left over after a reload of a Swift server.</p>
+<p>For example, when upgrading a proxy server you would probably finish
+with a <code class="docutils literal notranslate"><span class="pre">swift-init</span> <span class="pre">proxy-server</span> <span class="pre">reload</span></code> or <code class="docutils literal notranslate"><span class="pre">/etc/init.d/swift-proxy</span>
+<span class="pre">reload</span></code>. This kills the parent proxy server process and leaves the
+child processes running to finish processing whatever requests they
+might be handling at the time. It then starts up a new parent proxy
+server process and its children to handle new incoming requests. This
+allows zero-downtime upgrades with no impact to existing requests.</p>
+<p>The orphaned child processes may take a while to exit, depending on
+the length of the requests they were handling. However, sometimes an
+old process can be hung up due to some bug or hardware issue. In these
+cases, these orphaned processes will hang around
+forever. <code class="docutils literal notranslate"><span class="pre">swift-orphans</span></code> can be used to find and kill these orphans.</p>
+<p><code class="docutils literal notranslate"><span class="pre">swift-orphans</span></code> with no arguments will just list the orphans it finds
+that were started more than 24 hours ago. You shouldn’t really check
+for orphans until 24 hours after you perform a reload, as some
+requests can take a long time to process. <code class="docutils literal notranslate"><span class="pre">swift-orphans</span> <span class="pre">-k</span> <span class="pre">TERM</span></code> will
+send the SIG_TERM signal to the orphans processes, or you can <code class="docutils literal notranslate"><span class="pre">kill</span>
+<span class="pre">-TERM</span></code> the pids yourself if you prefer.</p>
+<p>You can run <code class="docutils literal notranslate"><span class="pre">swift-orphans</span> <span class="pre">--help</span></code> for more options.</p>
+</section>
+<section id="swift-oldies">
+<h2>Swift Oldies<a class="headerlink" href="#swift-oldies" title="Permalink to this heading">¶</a></h2>
+<p>Swift Oldies are processes that have just been around for a long
+time. There’s nothing necessarily wrong with this, but it might
+indicate a hung process if you regularly upgrade and reload/restart
+services. You might have so many servers that you don’t notice when a
+reload/restart fails; <code class="docutils literal notranslate"><span class="pre">swift-oldies</span></code> can help with this.</p>
+<p>For example, if you upgraded and reloaded/restarted everything 2 days
+ago, and you’ve already cleaned up any orphans with <code class="docutils literal notranslate"><span class="pre">swift-orphans</span></code>,
+you can run <code class="docutils literal notranslate"><span class="pre">swift-oldies</span> <span class="pre">-a</span> <span class="pre">48</span></code> to find any Swift processes still
+around that were started more than 2 days ago and then investigate
+them accordingly.</p>
+</section>
+<section id="custom-log-handlers">
+<h2>Custom Log Handlers<a class="headerlink" href="#custom-log-handlers" title="Permalink to this heading">¶</a></h2>
+<p>Swift supports setting up custom log handlers for services by specifying a
+comma-separated list of functions to invoke when logging is setup. It does so
+via the <code class="docutils literal notranslate"><span class="pre">log_custom_handlers</span></code> configuration option. Logger hooks invoked are
+passed the same arguments as Swift’s get_logger function (as well as the
+getLogger and LogAdapter object):</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Name</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr class="row-even"><td><p>conf</p></td>
+<td><p>Configuration dict to read settings from</p></td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>Name of the logger received</p></td>
+</tr>
+<tr class="row-even"><td><p>log_to_console</p></td>
+<td><p>(optional) Write log messages to console on stderr</p></td>
+</tr>
+<tr class="row-odd"><td><p>log_route</p></td>
+<td><p>Route for the logging received</p></td>
+</tr>
+<tr class="row-even"><td><p>fmt</p></td>
+<td><p>Override log format received</p></td>
+</tr>
+<tr class="row-odd"><td><p>logger</p></td>
+<td><p>The logging.getLogger object</p></td>
+</tr>
+<tr class="row-even"><td><p>adapted_logger</p></td>
+<td><p>The LogAdapter object</p></td>
+</tr>
+</tbody>
+</table>
+<p>A basic example that sets up a custom logger might look like the
+following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">my_logger</span><span class="p">(</span><span class="n">conf</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">log_to_console</span><span class="p">,</span> <span class="n">log_route</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span>
+              <span class="n">adapted_logger</span><span class="p">):</span>
+    <span class="n">my_conf_opt</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;some_custom_setting&#39;</span><span class="p">)</span>
+    <span class="n">my_handler</span> <span class="o">=</span> <span class="n">third_party_logstore_handler</span><span class="p">(</span><span class="n">my_conf_opt</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">my_handler</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="associated_projects.html#custom-logger-hooks-label"><span class="std std-ref">Custom Logger Hooks</span></a> for sample use cases.</p>
+</section>
+<section id="securing-openstack-swift">
+<h2>Securing OpenStack Swift<a class="headerlink" href="#securing-openstack-swift" title="Permalink to this heading">¶</a></h2>
+<p>Please refer to the security guide at <a class="reference external" href="https://docs.openstack.org/security-guide">https://docs.openstack.org/security-guide</a>
+and in particular the <a class="reference external" href="https://docs.openstack.org/security-guide/object-storage.html">Object Storage</a> section.</p>
+</section>
+</section>
+
+
+              </div>
+            </div>
+          </div>
+          <div class="docs-actions">
+          
+            <a href="apache_deployment_guide.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Apache Deployment Guide"></i></a>
+          
+          
+            <a href="replication_network.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Dedicated replication network"></i></a>
+          
+          <a id="pdfLink2" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+          
+            <a id="logABugLink3" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+          
+          </div>
+          <div class="row docs-byline bottom">
+            <div class="docs-updated">this page last updated: 2022-08-02 11:51:24</div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-8 docs-license">
+<a href="https://creativecommons.org/licenses/by/3.0/">
+ <img src="_static/images/docs/license.png" alt="Creative Commons Attribution 3.0 License"/>
+</a>
+<p>
+ Except where otherwise noted, this document is licensed under
+ <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons
+ Attribution 3.0 License</a>. See all <a href="https://www.openstack.org/legal">
+ OpenStack Legal Documents</a>.
+</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 docs-actions-wrapper">
+            <!-- ID buglinkbottom added so that pre-filled doc bugs
+                 are sent to Launchpad projects related to the
+                 document -->
+              <a href="#" id="logABugLink2" class="docs-footer-actions"><i class="fa fa-bug"></i> found an error? report a bug</a>
+            </div>
+          </div>
+        </div>
+<div class="col-lg-3 col-md-4 col-sm-4 col-lg-pull-9 col-md-pull-8 col-sm-pull-8 docs-sidebar">
+  <div class="btn-group docs-sidebar-releases">
+    <button onclick="location.href='/'" class="btn docs-sidebar-home" data-toggle="tooltip" data-placement="top" title="OpenStack Docs Home"><i class="fa fa-arrow-circle-o-left"></i></button>
+<button href="#" type="button" data-toggle="dropdown" class="btn docs-sidebar-release-select">OpenStack Documentation<i class="fa fa-caret-down"></i></button>
+    <ul class="dropdown-menu docs-sidebar-dropdown" role="menu" aria-labelledby="dLabel">
+      <li role="presentation" class="dropdown-header">Guides</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#install-guides">Install Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#user-guides">User Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#configuration-guides">Configuration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#ops-and-admin-guides">Operations and Administration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#api-guides">API Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#contributor-guides">Contributor Guides</a></li>
+      <li role="presentation" class="dropdown-header">Languages</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/de/">Deutsch (German)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/fr/">Français (French)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/id/">Bahasa Indonesia (Indonesian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/it/">Italiano (Italian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ja/">日本語 (Japanese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ko_KR/">한국어 (Korean)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/pt_BR/">Português (Portuguese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/tr_TR/">Türkçe (Türkiye)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/zh_CN/">简体中文 (Simplified Chinese)</a></li>
+    </ul>
+  </div>
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="table-of-contents">
+      <a href="index.html" class="docs-sidebar-section-title"><h4>Swift 0.1.0.dev10164</h4></a>
+      <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_architecture.html">Swift Architectural Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_ring.html">The Rings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_policies.html">Storage Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_reaper.html">The Account Reaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_auth.html">The Auth System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_acl.html">Access Control Lists (ACLs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ratelimit.html">Rate Limiting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_large_objects.html">Large Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_global_cluster.html">Global Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sync.html">Container to Container Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_expiring_objects.html">Expiring Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cors.html">CORS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crossdomain.html">Cross-domain Policy File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_erasure_code.html">Erasure Code Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_encryption.html">Object Encryption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_backing_store.html">Using Swift as Backing Store for Service Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sharding.html">Container Sharding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ring_background.html">Building a Consistent Hashing Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ring_partpower.html">Modifying Ring Partition Power</a></li>
+<li class="toctree-l1"><a class="reference internal" href="associated_projects.html">Associated Projects</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html">Contributing to OpenStack Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#swift-design-principles">Swift Design Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#recommended-workflow">Recommended workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#notes-on-testing">Notes on Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#ideas">Ideas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#community">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/review_guidelines.html">Review Guidelines</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development_guidelines.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_saio.html">SAIO (Swift All In One)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="first_contribution_swift.html">First Contribution to Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policies_saio.html">Adding Storage Policies to an Existing SAIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_auth.html">Auth Server and Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_middleware.html">Middleware and Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_ondisk_backends.html">Pluggable On-Disk Back-end APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_watchers.html">Auditor Watchers</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deployment_guide.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apache_deployment_guide.html">Apache Deployment Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Administrator’s Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#defining-storage-policies">Defining Storage Policies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#managing-the-rings">Managing the Rings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#scripting-ring-creation">Scripting Ring Creation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#handling-system-updates">Handling System Updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#handling-drive-failure">Handling Drive Failure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#handling-server-failure">Handling Server Failure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#detecting-failed-drives">Detecting Failed Drives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preventing-disk-full-scenarios">Preventing Disk Full Scenarios</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dispersion-report">Dispersion Report</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#geographically-distributed-swift-considerations">Geographically Distributed Swift Considerations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cluster-telemetry-and-monitoring">Cluster Telemetry and Monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reporting-metrics-to-statsd">Reporting Metrics to StatsD</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging-tips-and-tools">Debugging Tips and Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#managing-services">Managing Services</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#object-auditor">Object Auditor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#object-replicator">Object Replicator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#swift-orphans">Swift Orphans</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#swift-oldies">Swift Oldies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#custom-log-handlers">Custom Log Handlers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#securing-openstack-swift">Securing OpenStack Swift</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="replication_network.html">Dedicated replication network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logs.html">Logs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ops_runbook/index.html">Swift Ops Runbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin/index.html">OpenStack Swift Administrator Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Object Storage Install Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config/index.html">Configuration Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/discoverability.html">Discoverability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/container_quotas.html">Container quotas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object_versioning.html">Object versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/large_objects.html">Large objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/temporary_url_middleware.html">Temporary URL middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/form_post_middleware.html">Form POST middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_content-encoding_metadata.html">Use Content-Encoding metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_the_content-disposition_metadata.html">Use the Content-Disposition metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pseudo-hierarchical-folders-directories.html">Pseudo-hierarchical folders and directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pagination.html">Page through large lists of containers or objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/serialized-response-formats.html">Serialized response formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/static-website.html">Create static website</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object-expiration.html">Object expiration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/bulk-delete.html">Bulk delete</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="s3_compat.html">S3/Swift REST API Comparison Matrix</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ring.html">Partitioned Consistent Hash Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxy.html">Proxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="account.html">Account</a></li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="db.html">Account DB and Container DB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object.html">Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audit_watchers.html">Object Audit Watchers</a></li>
+</ul>
+
+    </div>
+
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="local-table-of-contents">
+      <h4 class="docs-sidebar-section-title">Page Contents</h4>
+      <ul>
+<li><a class="reference internal" href="#">Administrator’s Guide</a><ul>
+<li><a class="reference internal" href="#defining-storage-policies">Defining Storage Policies</a></li>
+<li><a class="reference internal" href="#managing-the-rings">Managing the Rings</a></li>
+<li><a class="reference internal" href="#scripting-ring-creation">Scripting Ring Creation</a></li>
+<li><a class="reference internal" href="#handling-system-updates">Handling System Updates</a></li>
+<li><a class="reference internal" href="#handling-drive-failure">Handling Drive Failure</a></li>
+<li><a class="reference internal" href="#handling-server-failure">Handling Server Failure</a></li>
+<li><a class="reference internal" href="#detecting-failed-drives">Detecting Failed Drives</a></li>
+<li><a class="reference internal" href="#preventing-disk-full-scenarios">Preventing Disk Full Scenarios</a></li>
+<li><a class="reference internal" href="#dispersion-report">Dispersion Report</a></li>
+<li><a class="reference internal" href="#geographically-distributed-swift-considerations">Geographically Distributed Swift Considerations</a><ul>
+<li><a class="reference internal" href="#checking-handoff-partition-distribution">Checking handoff partition distribution</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cluster-telemetry-and-monitoring">Cluster Telemetry and Monitoring</a></li>
+<li><a class="reference internal" href="#reporting-metrics-to-statsd">Reporting Metrics to StatsD</a></li>
+<li><a class="reference internal" href="#debugging-tips-and-tools">Debugging Tips and Tools</a></li>
+<li><a class="reference internal" href="#managing-services">Managing Services</a></li>
+<li><a class="reference internal" href="#object-auditor">Object Auditor</a></li>
+<li><a class="reference internal" href="#object-replicator">Object Replicator</a></li>
+<li><a class="reference internal" href="#swift-orphans">Swift Orphans</a></li>
+<li><a class="reference internal" href="#swift-oldies">Swift Oldies</a></li>
+<li><a class="reference internal" href="#custom-log-handlers">Custom Log Handlers</a></li>
+<li><a class="reference internal" href="#securing-openstack-swift">Securing OpenStack Swift</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  </div>
+</div>
+      </div>
+    </div>
+<footer>
+  <div class="container">
+    <div class="row footer-links">
+      <div class="col-lg-2 col-sm-2">
+        <h3>OpenStack</h3>
+        <ul>
+          <li><a href="https://openstack.org/projects/">Projects</a></li>
+          <li><a href="https://www.openstack.org/software/security/">OpenStack Security</a></li>
+          <li><a href="https://openstack.org/projects/openstack-faq/">Common Questions</a></li>
+          <li><a href="https://openstack.org/blog/">Blog</a></li>g
+          <li><a href="https://openstack.org/news/">News</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Community</h3>
+        <ul>
+          <li><a href="https://openstack.org/community/">User Groups</a></li>
+          <li><a href="https://openstack.org/community/events/">Events</a></li>
+          <li><a href="https://openstack.org/community/jobs/">Jobs</a></li>
+          <li><a href="https://openstack.org/foundation/companies/">Companies</a></li>
+          <li><a href="https://docs.openstack.org/contributors">Contribute</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="https://docs.openstack.org">OpenStack Manuals</a></li>
+          <li><a href="https://openstack.org/software/start/">Getting Started</a></li>
+          <li><a href="https://developer.openstack.org">API Documentation</a></li>
+          <li><a href="https://wiki.openstack.org">Wiki</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Branding & Legal</h3>
+        <ul>
+          <li><a href="https://openstack.org/brand/">Logos & Guidelines</a></li>
+          <li><a href="https://openstack.org/brand/openstack-trademark-policy/">Trademark Policy</a></li>
+          <li><a href="https://openstack.org/privacy/">Privacy Policy</a></li>
+          <li><a href="https://wiki.openstack.org/wiki/How_To_Contribute#Contributor_License_Agreement">OpenStack CLA</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-sm-4">
+        <h3>Stay In Touch</h3>
+        <a href="https://twitter.com/OpenStack" target="_blank" class="social-icons footer-twitter"></a>
+        <a href="https://www.facebook.com/openstack" target="_blank" class="social-icons footer-facebook"></a>
+        <a href="https://www.linkedin.com/company/openstack" target="_blank" class="social-icons footer-linkedin"></a>
+        <a href="https://www.youtube.com/user/OpenStackFoundation" target="_blank" class="social-icons footer-youtube"></a>
+        <p class="fine-print">
+          The OpenStack project is provided under the
+          <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>. Openstack.org is powered by
+          <a href="https://rackspace.com" target="_blank">Rackspace Cloud Computing</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- jQuery -->
+<script type="text/javascript" src="_static/js/jquery-3.2.1.min.js"></script>
+
+<!-- Bootstrap JavaScript -->
+<script type="text/javascript" src="_static/js/bootstrap.min.js"></script>
+
+<!-- The rest of the JS -->
+<script type="text/javascript" src="_static/js/navigation.js"></script>
+
+<!-- Docs JS -->
+<script type="text/javascript" src="_static/js/docs.js"></script>
+
+<!-- standard sphinx include libraries, which allow search highlighting -->
+<script type="text/javascript" src="_static/underscore.js"></script>
+<script type="text/javascript" src="_static/doctools.js"></script>
+<script type="text/javascript" src="_static/searchtools.js"></script>
+<script type="text/javascript" src="_static/language_data.js"></script>
+
+<script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+      URL_ROOT:    './',
+      VERSION:     '0.1.0.dev10164',
+      COLLAPSE_INDEX: false,
+      FILE_SUFFIX: '.html',
+      LINK_SUFFIX: '.html',
+      SOURCELINK_SUFFIX: '.txt',
+      HAS_SOURCE:  true
+    };
+</script>
+
+<!-- Javascript for page -->
+<script language="JavaScript">
+  /* Build a description of this page including SHA, source location on git
+   * repo, build time and the project's launchpad bug tag. Set the HREF of the
+   * bug buttons
+   */
+    var lineFeed = "%0A";
+    var gitURL = "Source: Can't derive source file URL";
+
+    /* there have been cases where "pagename" wasn't set; better check for it */
+    /* "giturl" is the URL of the source file on Git and is auto-generated by
+     * openstackdocstheme.
+     *
+     * "pagename" is a standard sphinx parameter containing the name of
+     * the source file, without extension.
+     */
+
+    var sourceFile = "admin_guide" + ".rst";
+    gitURL = "Source: https://opendev.org/openstack/swift/src/doc/source" + "/" + sourceFile;
+
+    /* gitsha, project and bug_tag rely on variables in conf.py */
+    var gitSha = "SHA: c7afe681fd119752e66a8e9032e8782641fec3ff";
+    var repositoryName = "openstack/swift";
+    var bugProject = "swift";
+    var bugTitle = "Administrator’s Guide in Swift";
+    var fieldTags = "";
+    var useStoryboard = "";
+
+    /* "last_updated" is the build date and time. It relies on the
+       conf.py variable "html_last_updated_fmt", which should include
+       year/month/day as well as hours and minutes                   */
+    var buildstring = "Release: 0.1.0.dev10164 on 2022-08-02 11:51:24";
+
+    var fieldComment = encodeURI(buildstring) +
+                       lineFeed + encodeURI(gitSha) +
+                       lineFeed + encodeURI(gitURL) ;
+
+    logABug(bugTitle, bugProject, fieldComment, fieldTags, repositoryName, useStoryboard);
+    var currentSourceFile = "admin_guide";
+    var pdfFileName = "doc-swift.pdf";
+    pdfLink(currentSourceFile, pdfFileName);
+</script>
+
+
+  </body>
+</html>

@@ -1,0 +1,1670 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Identifying issues and resolutions &#8212; Swift 0.1.0.dev10164 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/basic.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <link rel="canonical" href="/openstack-swift/ops_runbook/diagnose.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Software configuration procedures" href="procedures.html" />
+    <link rel="prev" title="Swift Ops Runbook" href="index.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Bootstrap CSS -->
+<link href="../_static/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Fonts -->
+<link href="../_static/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="../_static/css/combined.css" rel="stylesheet">
+
+<!-- Search CSS -->
+<link href="../_static/css/search.css" rel="stylesheet">
+
+<!-- Pygments CSS -->
+<link href="../_static/pygments.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-17511903-1', 'auto');
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+  </head><body>
+
+<!-- SOURCE_FILE: https://opendev.org/openstack/swift/src/doc/source/ops_runbook/diagnose.rst -->
+
+<script>
+    (function (window, document) {
+        var loader = function () {
+            var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+            script.src = "https://search.openstack.org/widget/embed.min.js?t="+Date.now();
+            tag.parentNode.insertBefore(script, tag);
+        };
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document);
+</script>
+
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse" type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="brand-wrapper">
+        <a class="navbar-brand" href="https://www.openstack.org/"></a>
+      </div>
+      <div class="search-icon show"><i class="fa fa-search"></i> Search</div></div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <div class="search-container tiny">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</div>
+      <ul class="nav navbar-nav navbar-main show">
+        <li class="search-container-mobile">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</li>
+        <li> <!--Software -->
+          <a href="https://www.openstack.org/software/" class="drop" id="dropdownMenuSoftware">Software <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSoftware">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/">Overview</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/openstack-components">OpenStack Components</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/sdks">SDKs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/deployment-tools">Deployment Tools</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/assets/software/projectmap/openstack-map.pdf" target="_blank">OpenStack Map</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/sample-configs/">Sample Configs</a></li>
+          </ul>
+        </li>
+        <li> <!-- Use Cases -->
+          <a href="https://www.openstack.org/use-cases/" class="drop" id="dropdownMenuUsers">Use Cases <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuUsers">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/">Users in Production</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/bare-metal/">Ironic Bare Metal</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/edge-computing/">Edge Computing</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/telecoms-and-nfv/">Telecom & NFV</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/science/">Science and HPC</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/containers/">Containers</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/enterprise/">Enterprise</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/surveys/landing">User Survey</a></li>
+          </ul>
+        </li>
+        <li> <!-- Events -->
+          <a href="https://www.openstack.org/events/" class="drop" id="dropdownMenuEvents">Events <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/summit/">Open Infrastructure Summits</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/ptg/">Project Teams Gathering</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/opendev-2020/">OpenDev</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/community-events/">Community Events</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/openstackdays">OpenStack & OpenInfra Days</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/videos/">Summit Videos</a></li>
+          </ul>
+        </li>
+        <li><!-- Community -->
+          <a href="https://www.openstack.org/community/" class="drop" id="dropdownMenuCommunity">Community <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuCommunity">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/">Welcome! Start Here</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/tech-committee">OpenStack Technical Committee</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/speakers/">Speakers Bureau</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://wiki.openstack.org">OpenStack Wiki</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/coa/">Get Certified (COA)</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/jobs/">Jobs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketing/">Marketing Resources</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/news/">Community News</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://superuser.openstack.org">Superuser Magazine</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/supporting-organizations/">OpenInfra Foundation Supporting Organizations</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">Open Infrastructure Foundation (OpenInfra Foundation)</a></li>
+          </ul>
+        </li>
+        <li><!-- Marketplace -->
+          <a href="https://www.openstack.orgmarketplace/" class="drop" id="dropdownMenuLearn">Marketplace <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/training/">Training</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/distros/">Distros & Appliances</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/public-clouds/">Public Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/hosted-private-clouds/">Hosted Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/remotely-managed-private-clouds/">Remotely Managed Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/consulting/">Consulting & Integrators</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/drivers/">Drivers</a></li>
+          </ul>
+        </li>
+        <li><!-- Blog -->
+          <a href="https://www.openstack.org/blog/">Blog</a>
+        </li>
+        <li><!-- Docs -->
+          <a href="http://docs.openstack.org/">Docs</a>
+        </li>
+        <li> <!-- Join -->
+            <li class="join-nav-section">
+              <a href="https://openinfra.dev/join/" id="dropdownMenuJoin">Join <i class="fa fa-caret-down"></i></a>
+              <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuJoin" style="display: none;">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sign up for Foundation Membership</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sponsor the Foundation</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">More about the Foundation</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="https://www.openstack.org/Security/login/?BackURL=/home/" class="sign-in-btn">Log In</a>
+            </li>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- /.container -->
+</nav>
+
+    <div class="container docs-book-wrapper">
+      <div class="row">
+        <div class="col-lg-9 col-md-8 col-sm-8 col-lg-push-3 col-md-push-4 col-sm-push-4">
+<div class="row docs-title">
+  <div class="col-lg-8">
+      <h1>Identifying issues and resolutions</h1>
+    
+  </div>
+  <div class="docs-actions">
+    
+    <a href="index.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Swift Ops Runbook"></i></a>
+    
+    
+    <a href="procedures.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Software configuration procedures"></i></a>
+    
+    <a id="pdfLink1" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+    
+    <a id="logABugLink1" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+    
+  </div>
+</div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="docs-body" role="main">
+
+  <section id="identifying-issues-and-resolutions">
+<h1>Identifying issues and resolutions<a class="headerlink" href="#identifying-issues-and-resolutions" title="Permalink to this heading">¶</a></h1>
+<section id="is-the-system-up">
+<h2>Is the system up?<a class="headerlink" href="#is-the-system-up" title="Permalink to this heading">¶</a></h2>
+<p>If you have a report that Swift is down, perform the following basic checks:</p>
+<ol class="arabic simple">
+<li><p>Run swift functional tests.</p></li>
+<li><p>From a server in your data center, use <code class="docutils literal notranslate"><span class="pre">curl</span></code> to check <code class="docutils literal notranslate"><span class="pre">/healthcheck</span></code>
+(see below).</p></li>
+<li><p>If you have a monitoring system, check your monitoring system.</p></li>
+<li><p>Check your hardware load balancers infrastructure.</p></li>
+<li><p>Run swift-recon on a proxy node.</p></li>
+</ol>
+</section>
+<section id="functional-tests-usage">
+<h2>Functional tests usage<a class="headerlink" href="#functional-tests-usage" title="Permalink to this heading">¶</a></h2>
+<p>We would recommend that you set up the functional tests to run against your
+production system. Run regularly this can be a useful tool to validate
+that the system is configured correctly. In addition, it can provide
+early warning about failures in your system (if the functional tests stop
+working, user applications will also probably stop working).</p>
+<p>A script for running the function tests is located in <code class="docutils literal notranslate"><span class="pre">swift/.functests</span></code>.</p>
+</section>
+<section id="external-monitoring">
+<h2>External monitoring<a class="headerlink" href="#external-monitoring" title="Permalink to this heading">¶</a></h2>
+<p>We use pingdom.com to monitor the external Swift API. We suggest the
+following:</p>
+<ul class="simple">
+<li><p>Do a GET on <code class="docutils literal notranslate"><span class="pre">/healthcheck</span></code></p></li>
+<li><p>Create a container, make it public (<code class="docutils literal notranslate"><span class="pre">x-container-read:</span>
+<span class="pre">.r*,.rlistings</span></code>), create a small file in the container; do a GET
+on the object</p></li>
+</ul>
+</section>
+<section id="diagnose-general-approach">
+<h2>Diagnose: General approach<a class="headerlink" href="#diagnose-general-approach" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Look at service status in your monitoring system.</p></li>
+<li><p>In addition to system monitoring tools and issue logging by users,
+swift errors will often result in log entries (see <a class="reference internal" href="#swift-logs"><span class="std std-ref">Diagnose: Interpreting messages in /var/log/swift/ files</span></a>).</p></li>
+<li><p>Look at any logs your deployment tool produces.</p></li>
+<li><p>Log files should be reviewed for error signatures (see below) that
+may point to a known issue, or root cause issues reported by the
+diagnostics tools, prior to escalation.</p></li>
+</ul>
+<section id="dependencies">
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this heading">¶</a></h3>
+<p>The Swift software is dependent on overall system health. Operating
+system level issues with network connectivity, domain name resolution,
+user management, hardware and system configuration and capacity in terms
+of memory and free disk space, may result is secondary Swift issues.
+System level issues should be resolved prior to diagnosis of swift
+issues.</p>
+</section>
+</section>
+<section id="diagnose-swift-dispersion-report">
+<h2>Diagnose: Swift-dispersion-report<a class="headerlink" href="#diagnose-swift-dispersion-report" title="Permalink to this heading">¶</a></h2>
+<p>The swift-dispersion-report is a useful tool to gauge the general
+health of the system. Configure the <code class="docutils literal notranslate"><span class="pre">swift-dispersion</span></code> report to cover at
+a minimum every disk drive in your system (usually 1% coverage).
+See <a class="reference internal" href="../admin_guide.html#dispersion-report"><span class="std std-ref">Dispersion Report</span></a> for details of how to configure and
+use the dispersion reporting tool.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">swift-dispersion-report</span></code> tool can take a long time to run, especially
+if any servers are down. We suggest you run it regularly
+(e.g., in a cron job) and save the results. This makes it easy to refer
+to the last report without having to wait for a long-running command
+to complete.</p>
+</section>
+<section id="diagnose-is-system-responding-to-healthcheck">
+<h2>Diagnose: Is system responding to <code class="docutils literal notranslate"><span class="pre">/healthcheck</span></code>?<a class="headerlink" href="#diagnose-is-system-responding-to-healthcheck" title="Permalink to this heading">¶</a></h2>
+<p>When you want to establish if a swift endpoint is running, run <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">-k</span></code>
+against <code class="docutils literal notranslate"><span class="pre">https://$ENDPOINT/healthcheck</span></code>.</p>
+</section>
+<section id="diagnose-interpreting-messages-in-var-log-swift-files">
+<span id="swift-logs"></span><h2>Diagnose: Interpreting messages in <code class="docutils literal notranslate"><span class="pre">/var/log/swift/</span></code> files<a class="headerlink" href="#diagnose-interpreting-messages-in-var-log-swift-files" title="Permalink to this heading">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the Hewlett Packard Enterprise Helion Public Cloud we send logs to
+<code class="docutils literal notranslate"><span class="pre">proxy.log</span></code> (proxy-server logs), <code class="docutils literal notranslate"><span class="pre">server.log</span></code> (object-server,
+account-server, container-server logs), <code class="docutils literal notranslate"><span class="pre">background.log</span></code> (all
+other servers [object-replicator, etc]).</p>
+</div>
+<p>The following table lists known issues:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Logfile</strong></p></th>
+<th class="head"><p><strong>Signature</strong></p></th>
+<th class="head"><p><strong>Issue</strong></p></th>
+<th class="head"><p><strong>Steps to take</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>/var/log/syslog</p></td>
+<td><p>kernel: [] sd …. [csbu:sd…] Sense Key: Medium Error</p></td>
+<td><p>Suggests disk surface issues</p></td>
+<td><p>Run <code class="docutils literal notranslate"><span class="pre">swift-drive-audit</span></code> on the target node to check for disk errors,
+repair disk errors</p></td>
+</tr>
+<tr class="row-odd"><td><p>/var/log/syslog</p></td>
+<td><p>kernel: [] sd …. [csbu:sd…] Sense Key: Hardware Error</p></td>
+<td><p>Suggests storage hardware issues</p></td>
+<td><p>Run diagnostics on the target node to check for disk failures,
+replace failed disks</p></td>
+</tr>
+<tr class="row-even"><td><p>/var/log/syslog</p></td>
+<td><p>kernel: [] …. I/O error, dev sd…. ,sector ….</p></td>
+<td></td>
+<td><p>Run diagnostics on the target node to check for disk errors</p></td>
+</tr>
+<tr class="row-odd"><td><p>/var/log/syslog</p></td>
+<td><p>pound: NULL get_thr_arg</p></td>
+<td><p>Multiple threads woke up</p></td>
+<td><p>Noise, safe to ignore</p></td>
+</tr>
+<tr class="row-even"><td><p>/var/log/swift/proxy.log</p></td>
+<td><p>…. ERROR …. ConnectionTimeout ….</p></td>
+<td><p>A storage node is not responding in a timely fashion</p></td>
+<td><p>Check if node is down, not running Swift,
+unconfigured, storage off-line or for network issues between the
+proxy and non responding node</p></td>
+</tr>
+<tr class="row-odd"><td><p>/var/log/swift/proxy.log</p></td>
+<td><p>proxy-server …. HTTP/1.0 500 ….</p></td>
+<td><p>A proxy server has reported an internal server error</p></td>
+<td><p>Examine the logs for any errors at the time the error was reported to
+attempt to understand the cause of the error.</p></td>
+</tr>
+<tr class="row-even"><td><p>/var/log/swift/server.log</p></td>
+<td><p>…. ERROR …. ConnectionTimeout ….</p></td>
+<td><p>A storage server is not responding in a timely fashion</p></td>
+<td><p>Check if node is down, not running Swift,
+unconfigured, storage off-line or for network issues between the
+server and non responding node</p></td>
+</tr>
+<tr class="row-odd"><td><p>/var/log/swift/server.log</p></td>
+<td><p>…. ERROR …. Remote I/O error: ‘/srv/node/disk….</p></td>
+<td><p>A storage device is not responding as expected</p></td>
+<td><p>Run <code class="docutils literal notranslate"><span class="pre">swift-drive-audit</span></code> and check the filesystem named in the error
+for corruption (unmount &amp; xfs_repair). Check if the filesystem
+is mounted and working.</p></td>
+</tr>
+<tr class="row-even"><td><p>/var/log/swift/background.log</p></td>
+<td><p>object-server ERROR container update failed …. Connection refused</p></td>
+<td><p>A container server node could not be contacted</p></td>
+<td><p>Check if node is down, not running Swift,
+unconfigured, storage off-line or for network issues between the
+server and non responding node</p></td>
+</tr>
+<tr class="row-odd"><td><p>/var/log/swift/background.log</p></td>
+<td><p>object-updater ERROR with remote …. ConnectionTimeout</p></td>
+<td><p>The remote container server is busy</p></td>
+<td><p>If the container is very large, some errors updating it can be
+expected. However, this error can also occur if there is a networking
+issue.</p></td>
+</tr>
+<tr class="row-even"><td><p>/var/log/swift/background.log</p></td>
+<td><p>account-reaper STDOUT: …. error: ECONNREFUSED</p></td>
+<td><p>Network connectivity issue or the target server is down.</p></td>
+<td><p>Resolve network issue or reboot the target server</p></td>
+</tr>
+<tr class="row-odd"><td><p>/var/log/swift/background.log</p></td>
+<td><p>…. ERROR …. ConnectionTimeout</p></td>
+<td><p>A storage server is not responding in a timely fashion</p></td>
+<td><p>The target server may be busy. However, this error can also occur if
+there is a networking issue.</p></td>
+</tr>
+<tr class="row-even"><td><p>/var/log/swift/background.log</p></td>
+<td><p>…. ERROR syncing …. Timeout</p></td>
+<td><p>A timeout occurred syncing data to another node.</p></td>
+<td><p>The target server may be busy. However, this error can also occur if
+there is a networking issue.</p></td>
+</tr>
+<tr class="row-odd"><td><p>/var/log/swift/background.log</p></td>
+<td><p>…. ERROR Remote drive not mounted ….</p></td>
+<td><p>A storage server disk is unavailable</p></td>
+<td><p>Repair and remount the file system (on the remote node)</p></td>
+</tr>
+<tr class="row-even"><td><p>/var/log/swift/background.log</p></td>
+<td><p>object-replicator …. responded as unmounted</p></td>
+<td><p>A storage server disk is unavailable</p></td>
+<td><p>Repair and remount the file system (on the remote node)</p></td>
+</tr>
+<tr class="row-odd"><td><p>/var/log/swift/*.log</p></td>
+<td><p>STDOUT: EXCEPTION IN</p></td>
+<td><p>A unexpected error occurred</p></td>
+<td><p>Read the Traceback details, if it matches known issues
+(e.g. active network/disk issues), check for re-ocurrences
+after the primary issues have been resolved</p></td>
+</tr>
+<tr class="row-even"><td><p>/var/log/rsyncd.log</p></td>
+<td><p>rsync: mkdir “/disk….failed: No such file or directory….</p></td>
+<td><p>A local storage server disk is unavailable</p></td>
+<td><p>Run diagnostics on the node to check for a failed or
+unmounted disk</p></td>
+</tr>
+<tr class="row-odd"><td><p>/var/log/swift*</p></td>
+<td><p>Exception: Could not bind to 0.0.0.0:6xxx</p></td>
+<td><p>Possible Swift process restart issue. This indicates an old swift
+process is still running.</p></td>
+<td><p>Restart Swift services. If some swift services are reported down,
+check if they left residual process behind.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="diagnose-parted-reports-the-backup-gpt-table-is-corrupt">
+<h2>Diagnose: Parted reports the backup GPT table is corrupt<a class="headerlink" href="#diagnose-parted-reports-the-backup-gpt-table-is-corrupt" title="Permalink to this heading">¶</a></h2>
+<ul>
+<li><p>If a GPT table is broken, a message like the following should be
+observed when the following command is run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>parted<span class="w"> </span>-l
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Error: The backup GPT table is corrupt, but the primary appears OK,</span>
+<span class="go">so that will be used.</span>
+
+<span class="go">OK/Cancel?</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>To fix, go to <a class="reference internal" href="procedures.html#fix-broken-gpt-table"><span class="std std-ref">Fix broken GPT table (broken disk partition)</span></a></p>
+</section>
+<section id="diagnose-drives-diagnostic-reports-a-fs-label-is-not-acceptable">
+<h2>Diagnose: Drives diagnostic reports a FS label is not acceptable<a class="headerlink" href="#diagnose-drives-diagnostic-reports-a-fs-label-is-not-acceptable" title="Permalink to this heading">¶</a></h2>
+<p>If diagnostics reports something like  “FS label: obj001dsk011 is not
+acceptable”, it indicates that a partition has a valid disk label, but an
+invalid filesystem label. In such cases proceed as follows:</p>
+<ol class="arabic">
+<li><p>Verify that the disk labels are correct:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">FS</span><span class="o">=</span>/dev/sd#1
+
+<span class="gp">$ </span>sudo<span class="w"> </span>parted<span class="w"> </span>-l<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>object
+</pre></div>
+</div>
+</li>
+<li><p>If partition labels are inconsistent then, resolve the disk label issues
+before proceeding:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>parted<span class="w"> </span>-s<span class="w"> </span><span class="si">${</span><span class="nv">FS</span><span class="si">}</span><span class="w"> </span>name<span class="w"> </span><span class="si">${</span><span class="nv">PART_NO</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">PART_NAME</span><span class="si">}</span><span class="w"> </span><span class="c1">#Partition Label</span>
+<span class="gp">$ </span><span class="c1"># PART_NO is 1 for object disks and 3 for OS disks</span>
+<span class="gp">$ </span><span class="c1"># PART_NAME follows the convention seen in &quot;sudo parted -l | grep object&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p>If the Filesystem label is missing then create it with care:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>xfs_admin<span class="w"> </span>-l<span class="w"> </span><span class="si">${</span><span class="nv">FS</span><span class="si">}</span><span class="w"> </span><span class="c1">#Filesystem label (12 Char limit)</span>
+
+<span class="gp">$ </span><span class="c1"># Check for the existence of a FS label</span>
+
+<span class="gp">$ </span><span class="nv">OBJNO</span><span class="o">=</span>&lt;<span class="m">3</span><span class="w"> </span>Length<span class="w"> </span>Object<span class="w"> </span>No.&gt;
+
+<span class="gp">$ </span><span class="c1"># I.E OBJNO for sw-stbaz3-object0007 would be 007</span>
+
+<span class="gp">$ </span><span class="nv">DISKNO</span><span class="o">=</span>&lt;<span class="m">3</span><span class="w"> </span>Length<span class="w"> </span>Disk<span class="w"> </span>No.&gt;
+
+<span class="gp">$ </span><span class="c1"># I.E DISKNO for /dev/sdb would be 001, /dev/sdc would be 002 etc.</span>
+
+<span class="gp">$ </span>sudo<span class="w"> </span>xfs_admin<span class="w"> </span>-L<span class="w"> </span><span class="s2">&quot;obj</span><span class="si">${</span><span class="nv">OBJNO</span><span class="si">}</span><span class="s2">dsk</span><span class="si">${</span><span class="nv">DISKNO</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="si">${</span><span class="nv">FS</span><span class="si">}</span>
+
+<span class="gp">$ </span><span class="c1"># Create a FS Label</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="diagnose-failed-luns">
+<h2>Diagnose: Failed LUNs<a class="headerlink" href="#diagnose-failed-luns" title="Permalink to this heading">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The HPE Helion Public Cloud uses direct attach SmartArray
+controllers/drives. The information here is specific to that
+environment. The hpacucli utility mentioned here may be called
+hpssacli in your environment.</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">swift_diagnostics</span></code> mount checks may return a warning that a LUN has
+failed, typically accompanied by DriveAudit check failures and device
+errors.</p>
+<p>Such cases are typically caused by a drive failure, and if drive check
+also reports a failed status for the underlying drive, then follow
+the procedure to replace the disk.</p>
+<p>Otherwise the lun can be re-enabled as follows:</p>
+<ol class="arabic">
+<li><p>Generate a hpssacli diagnostic report. This report allows the DC
+team to troubleshoot potential cabling or hardware issues so it is
+imperative that you run it immediately when troubleshooting a failed
+LUN. You will come back later and grep this file for more details, but
+just generate it for now.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>hpssacli<span class="w"> </span>controller<span class="w"> </span>all<span class="w"> </span>diag<span class="w"> </span><span class="nv">file</span><span class="o">=</span>/tmp/hpacu.diag<span class="w"> </span><span class="nv">ris</span><span class="o">=</span>on<span class="w"> </span><span class="nv">xml</span><span class="o">=</span>off<span class="w"> </span><span class="nv">zip</span><span class="o">=</span>off
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Export the following variables using the below instructions before
+proceeding further.</p>
+<ol class="arabic">
+<li><p>Print a list of logical drives and their numbers and take note of the
+failed drive’s number and array value (example output: “array A
+logicaldrive 1…” would be exported as LDRIVE=1):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>hpssacli<span class="w"> </span>controller<span class="w"> </span><span class="nv">slot</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>ld<span class="w"> </span>all<span class="w"> </span>show
+</pre></div>
+</div>
+</li>
+<li><p>Export the number of the logical drive that was retrieved from the
+previous command into the LDRIVE variable:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">LDRIVE</span><span class="o">=</span>&lt;LogicalDriveNumber&gt;
+</pre></div>
+</div>
+</li>
+<li><p>Print the array value and Port:Box:Bay for all drives and take note of
+the Port:Box:Bay for the failed drive (example output: “ array A
+physicaldrive 2C:1:1…” would be exported as PBOX=2C:1:1). Match the
+array value of this output with the array value obtained from the
+previous command to be sure you are working on the same drive. Also,
+the array value usually matches the device name (For example, /dev/sdc
+in the case of “array c”), but we will run a different command to be sure
+we are operating on the correct device.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>hpssacli<span class="w"> </span>controller<span class="w"> </span><span class="nv">slot</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>pd<span class="w"> </span>all<span class="w"> </span>show
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sometimes a LUN may appear to be failed as it is not and cannot
+be mounted but the hpssacli/parted commands may show no problems with
+the LUNS/drives. In this case, the filesystem may be corrupt and may be
+necessary to run <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">xfs_check</span> <span class="pre">/dev/sd[a-l][1-2]</span></code> to see if there is
+an xfs issue. The results of running this command may require that
+<code class="docutils literal notranslate"><span class="pre">xfs_repair</span></code> is run.</p>
+</div>
+<ol class="arabic">
+<li><p>Export the Port:Box:Bay for the failed drive into the PBOX variable:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PBOX</span><span class="o">=</span>&lt;Port:Box:Bay&gt;
+</pre></div>
+</div>
+</li>
+<li><p>Print the physical device information and take note of the Disk Name
+(example output: “Disk Name: /dev/sdk” would be exported as
+DEV=/dev/sdk):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>hpssacli<span class="w"> </span>controller<span class="w"> </span><span class="nv">slot</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>ld<span class="w"> </span><span class="si">${</span><span class="nv">LDRIVE</span><span class="si">}</span><span class="w"> </span>show<span class="w"> </span>detail<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s2">&quot;Disk Name&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Export the device name variable from the preceding command (example:
+/dev/sdk):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">DEV</span><span class="o">=</span>&lt;Device&gt;
+</pre></div>
+</div>
+</li>
+<li><p>Export the filesystem variable. Disks that are split between the
+operating system and data storage, typically sda and sdb, should  only
+have repairs done on their data filesystem, usually /dev/sda2 and
+/dev/sdb2, Other data only disks have just one partition on the device,
+so the filesystem will be 1. In any case you should verify the data
+filesystem by running <code class="docutils literal notranslate"><span class="pre">df</span> <span class="pre">-h</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">/srv/node</span></code> and using the listed
+data filesystem for the device in question as the export. For example:
+/dev/sdk1.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">FS</span><span class="o">=</span>&lt;Filesystem&gt;
+</pre></div>
+</div>
+</li>
+<li><p>Verify the LUN is failed, and the device is not:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>hpssacli<span class="w"> </span>controller<span class="w"> </span><span class="nv">slot</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>ld<span class="w"> </span>all<span class="w"> </span>show
+<span class="gp">$ </span>sudo<span class="w"> </span>hpssacli<span class="w"> </span>controller<span class="w"> </span><span class="nv">slot</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>pd<span class="w"> </span>all<span class="w"> </span>show
+<span class="gp">$ </span>sudo<span class="w"> </span>hpssacli<span class="w"> </span>controller<span class="w"> </span><span class="nv">slot</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>ld<span class="w"> </span><span class="si">${</span><span class="nv">LDRIVE</span><span class="si">}</span><span class="w"> </span>show<span class="w"> </span>detail
+<span class="gp">$ </span>sudo<span class="w"> </span>hpssacli<span class="w"> </span>controller<span class="w"> </span><span class="nv">slot</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>pd<span class="w"> </span><span class="si">${</span><span class="nv">PBOX</span><span class="si">}</span><span class="w"> </span>show<span class="w"> </span>detail
+</pre></div>
+</div>
+</li>
+<li><p>Stop the swift and rsync service:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>service<span class="w"> </span>rsync<span class="w"> </span>stop
+<span class="gp">$ </span>sudo<span class="w"> </span>swift-init<span class="w"> </span>shutdown<span class="w"> </span>all
+</pre></div>
+</div>
+</li>
+<li><p>Unmount the problem drive, fix the LUN and the filesystem:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>umount<span class="w"> </span><span class="si">${</span><span class="nv">FS</span><span class="si">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>If umount fails, you should run lsof search for the mountpoint and
+kill any lingering processes before repeating the unpount:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>hpacucli<span class="w"> </span>controller<span class="w"> </span><span class="nv">slot</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>ld<span class="w"> </span><span class="si">${</span><span class="nv">LDRIVE</span><span class="si">}</span><span class="w"> </span>modify<span class="w"> </span>reenable
+<span class="gp">$ </span>sudo<span class="w"> </span>xfs_repair<span class="w"> </span><span class="si">${</span><span class="nv">FS</span><span class="si">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>If the <code class="docutils literal notranslate"><span class="pre">xfs_repair</span></code> complains about possible journal data, use the
+<code class="docutils literal notranslate"><span class="pre">xfs_repair</span> <span class="pre">-L</span></code> option to zeroise the journal log.</p></li>
+<li><p>Once complete test-mount the filesystem, and tidy up its lost and
+found area.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>mount<span class="w"> </span><span class="si">${</span><span class="nv">FS</span><span class="si">}</span><span class="w"> </span>/mnt
+<span class="gp">$ </span>sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/mnt/lost+found/
+<span class="gp">$ </span>sudo<span class="w"> </span>umount<span class="w"> </span>/mnt
+</pre></div>
+</div>
+</li>
+<li><p>Mount the filesystem and restart swift and rsync.</p></li>
+<li><p>Run the following to determine if a DC ticket is needed to check the
+cables on the node:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>grep<span class="w"> </span>-y<span class="w"> </span>media.exchanged<span class="w"> </span>/tmp/hpacu.diag
+<span class="gp">$ </span>grep<span class="w"> </span>-y<span class="w"> </span>hot.plug.count<span class="w"> </span>/tmp/hpacu.diag
+</pre></div>
+</div>
+</li>
+<li><p>If the output reports any non 0x00 values, it suggests that the cables
+should be checked. For example, log a DC ticket to check the sas cables
+between the drive and the expander.</p></li>
+</ol>
+</section>
+<section id="diagnose-slow-disk-devices">
+<span id="diagnose-slow-disk-drives"></span><h2>Diagnose: Slow disk devices<a class="headerlink" href="#diagnose-slow-disk-devices" title="Permalink to this heading">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>collectl is an open-source performance gathering/analysis tool.</p>
+</div>
+<p>If the diagnostics report a message such as <code class="docutils literal notranslate"><span class="pre">sda:</span> <span class="pre">drive</span> <span class="pre">is</span> <span class="pre">slow</span></code>, you
+should log onto the node and run the following command (remove <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">1</span></code> option to continuously monitor
+the data):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>/usr/bin/collectl<span class="w"> </span>-s<span class="w"> </span>D<span class="w"> </span>-c<span class="w"> </span><span class="m">1</span>
+<span class="go">waiting for 1 second sample...</span>
+<span class="gp"># </span>DISK<span class="w"> </span>STATISTICS<span class="w"> </span><span class="o">(</span>/sec<span class="o">)</span>
+<span class="gp">#          </span>&lt;---------reads---------&gt;&lt;---------writes---------&gt;&lt;--------averages--------&gt;<span class="w"> </span>Pct
+<span class="gp">#</span>Name<span class="w">       </span>KBytes<span class="w"> </span>Merged<span class="w">  </span>IOs<span class="w"> </span>Size<span class="w">  </span>KBytes<span class="w"> </span>Merged<span class="w">  </span>IOs<span class="w"> </span>Size<span class="w">  </span>RWSize<span class="w">  </span>QLen<span class="w">  </span>Wait<span class="w"> </span>SvcTim<span class="w"> </span>Util
+<span class="go">sdb            204      0   33    6      43      0    4   11       6     1     7      6   23</span>
+<span class="go">sda             84      0   13    6     108     21    6   18      10     1     7      7   13</span>
+<span class="go">sdc            100      0   16    6       0      0    0    0       6     1     7      6    9</span>
+<span class="go">sdd            140      0   22    6      22      0    2   11       6     1     9      9   22</span>
+<span class="go">sde             76      0   12    6     255      0   52    5       5     1     2      1   10</span>
+<span class="go">sdf            276      0   44    6       0      0    0    0       6     1    11      8   38</span>
+<span class="go">sdg            112      0   17    7      18      0    2    9       6     1     7      7   13</span>
+<span class="go">sdh           3552      0   73   49       0      0    0    0      48     1     9      8   62</span>
+<span class="go">sdi             72      0   12    6       0      0    0    0       6     1     8      8   10</span>
+<span class="go">sdj            112      0   17    7      22      0    2   11       7     1    10      9   18</span>
+<span class="go">sdk            120      0   19    6      21      0    2   11       6     1     8      8   16</span>
+<span class="go">sdl            144      0   22    7      18      0    2    9       6     1     9      7   18</span>
+<span class="go">dm-0             0      0    0    0       0      0    0    0       0     0     0      0    0</span>
+<span class="go">dm-1             0      0    0    0      60      0   15    4       4     0     0      0    0</span>
+<span class="go">dm-2             0      0    0    0      48      0   12    4       4     0     0      0    0</span>
+<span class="go">dm-3             0      0    0    0       0      0    0    0       0     0     0      0    0</span>
+<span class="go">dm-4             0      0    0    0       0      0    0    0       0     0     0      0    0</span>
+<span class="go">dm-5             0      0    0    0       0      0    0    0       0     0     0      0    0</span>
+</pre></div>
+</div>
+<p>Look at the <code class="docutils literal notranslate"><span class="pre">Wait</span></code> and <code class="docutils literal notranslate"><span class="pre">SvcTime</span></code> values. It is not normal for
+these values to exceed 50msec. This is known to impact customer
+performance (upload/download). For a controller problem, many/all drives
+will show long wait and service times. A reboot may correct the problem;
+otherwise hardware replacement is needed.</p>
+<p>Another way to look at the data is as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>/opt/hp/syseng/disk-anal.pl<span class="w"> </span>-d
+<span class="go">Disk: sda  Wait: 54580 371  65  25  12   6   6   0   1   2   0  46</span>
+<span class="go">Disk: sdb  Wait: 54532 374  96  36  16   7   4   1   0   2   0  46</span>
+<span class="go">Disk: sdc  Wait: 54345 554 105  29  15   4   7   1   4   4   0  46</span>
+<span class="go">Disk: sdd  Wait: 54175 553 254  31  20  11   6   6   2   2   1  53</span>
+<span class="go">Disk: sde  Wait: 54923  66  56  15   8   7   7   0   1   0   2  29</span>
+<span class="go">Disk: sdf  Wait: 50952 941 565 403 426 366 442 447 338  99  38  97</span>
+<span class="go">Disk: sdg  Wait: 50711 689 808 562 642 675 696 185  43  14   7  82</span>
+<span class="go">Disk: sdh  Wait: 51018 668 688 483 575 542 692 275  55  22   9  87</span>
+<span class="go">Disk: sdi  Wait: 51012 1011 849 672 568 240 344 280  38  13   6  81</span>
+<span class="go">Disk: sdj  Wait: 50724 743 770 586 662 509 684 283  46  17  11  79</span>
+<span class="go">Disk: sdk  Wait: 50886 700 585 517 633 511 729 352  89  23   8  81</span>
+<span class="go">Disk: sdl  Wait: 50106 617 794 553 604 504 532 501 288 234 165 216</span>
+<span class="go">Disk: sda  Time: 55040  22  16   6   1   1  13   0   0   0   3  12</span>
+
+<span class="go">Disk: sdb  Time: 55014  41  19   8   3   1   8   0   0   0   3  17</span>
+<span class="go">Disk: sdc  Time: 55032  23  14   8   9   2   6   1   0   0   0  19</span>
+<span class="go">Disk: sdd  Time: 55022  29  17  12   6   2  11   0   0   0   1  14</span>
+<span class="go">Disk: sde  Time: 55018  34  15  11  12   1   9   0   0   0   2  12</span>
+<span class="go">Disk: sdf  Time: 54809 250  45   7   1   0   0   0   0   0   1   1</span>
+<span class="go">Disk: sdg  Time: 55070  36   6   2   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdh  Time: 55079  33   2   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdi  Time: 55074  28   7   2   0   0   2   0   0   0   0   1</span>
+<span class="go">Disk: sdj  Time: 55067  35  10   0   1   0   0   0   0   0   0   1</span>
+<span class="go">Disk: sdk  Time: 55068  31  10   3   0   0   1   0   0   0   0   1</span>
+<span class="go">Disk: sdl  Time: 54905 130  61   7   3   4   1   0   0   0   0   3</span>
+</pre></div>
+</div>
+<p>This shows the historical distribution of the wait and service times
+over a day. This is how you read it:</p>
+<ul class="simple">
+<li><p>sda did 54580 operations with a short wait time, 371 operations with
+a longer wait time and 65 with an even longer wait time.</p></li>
+<li><p>sdl did 50106 operations with a short wait time, but as you can see
+many took longer.</p></li>
+</ul>
+<p>There is a clear pattern that sdf to sdl have a problem. Actually, sda
+to sde would more normally have lots of zeros in their data. But maybe
+this is a busy system. In this example it is worth changing the
+controller as the individual drives may be ok.</p>
+<p>After the controller is changed, use collectl -s D as described above to
+see if the problem has cleared. disk-anal.pl will continue to show
+historical data. You can look at recent data as follows. It only looks
+at data from 13:15 to 14:15. As you can see, this is a relatively clean
+system (few if any long wait or service times):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>/opt/hp/syseng/disk-anal.pl<span class="w"> </span>-d<span class="w"> </span>-t<span class="w"> </span><span class="m">13</span>:15-14:15
+<span class="go">Disk: sda  Wait:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdb  Wait:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdc  Wait:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdd  Wait:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sde  Wait:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdf  Wait:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdg  Wait:  3594   6   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdh  Wait:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdi  Wait:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdj  Wait:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdk  Wait:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdl  Wait:  3599   1   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sda  Time:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdb  Time:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdc  Time:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdd  Time:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sde  Time:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdf  Time:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdg  Time:  3594   6   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdh  Time:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdi  Time:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdj  Time:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdk  Time:  3600   0   0   0   0   0   0   0   0   0   0   0</span>
+<span class="go">Disk: sdl  Time:  3599   1   0   0   0   0   0   0   0   0   0   0</span>
+</pre></div>
+</div>
+<p>For long wait times, where the service time appears normal is to check
+the logical drive cache status. While the cache may be enabled, it can
+be disabled on a per-drive basis.</p>
+</section>
+<section id="diagnose-slow-network-link-measuring-network-performance">
+<h2>Diagnose: Slow network link - Measuring network performance<a class="headerlink" href="#diagnose-slow-network-link-measuring-network-performance" title="Permalink to this heading">¶</a></h2>
+<p>Network faults can cause performance between Swift nodes to degrade. Testing
+with <code class="docutils literal notranslate"><span class="pre">netperf</span></code> is recommended. Other methods (such as copying large
+files) may also work, but can produce inconclusive results.</p>
+<p>Install <code class="docutils literal notranslate"><span class="pre">netperf</span></code> on all systems if not
+already installed. Check that the UFW rules for its control port are in place.
+However, there are no pre-opened ports for netperf’s data connection. Pick a
+port number. In this example, 12866 is used because it is one higher
+than netperf’s default control port number, 12865. If you get very
+strange results including zero values, you may not have gotten the data
+port opened in UFW at the target or may have gotten the netperf
+command-line wrong.</p>
+<p>Pick a <code class="docutils literal notranslate"><span class="pre">source</span></code> and <code class="docutils literal notranslate"><span class="pre">target</span></code> node. The source is often a proxy node
+and the target is often an object node. Using the same source proxy you
+can test communication to different object nodes in different AZs to
+identity possible bottlenecks.</p>
+<section id="running-tests">
+<h3>Running tests<a class="headerlink" href="#running-tests" title="Permalink to this heading">¶</a></h3>
+<ol class="arabic">
+<li><p>Prepare the <code class="docutils literal notranslate"><span class="pre">target</span></code> node as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>iptables<span class="w"> </span>-I<span class="w"> </span>INPUT<span class="w"> </span>-p<span class="w"> </span>tcp<span class="w"> </span>-j<span class="w"> </span>ACCEPT
+</pre></div>
+</div>
+<p>Or, do:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>ufw<span class="w"> </span>allow<span class="w"> </span><span class="m">12866</span>/tcp
+</pre></div>
+</div>
+</li>
+<li><p>On the <code class="docutils literal notranslate"><span class="pre">source</span></code> node, run the following command to check
+throughput. Note the double-dash before the -P option.
+The command takes 10 seconds to complete. The <code class="docutils literal notranslate"><span class="pre">target</span></code> node is 192.168.245.5.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>netperf<span class="w"> </span>-H<span class="w"> </span><span class="m">192</span>.168.245.5<span class="w"> </span>--<span class="w"> </span>-P<span class="w"> </span><span class="m">12866</span>
+<span class="go">MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 12866 AF_INET to</span>
+<span class="go">&lt;redacted&gt;.72.4 (&lt;redacted&gt;.72.4) port 12866 AF_INET : demo</span>
+<span class="go">Recv   Send    Send</span>
+<span class="go">Socket Socket  Message  Elapsed</span>
+<span class="go">Size   Size    Size     Time     Throughput</span>
+<span class="go">bytes  bytes   bytes    secs.    10^6bits/sec</span>
+<span class="go">87380  16384  16384    10.02     923.69</span>
+</pre></div>
+</div>
+</li>
+<li><p>On the <code class="docutils literal notranslate"><span class="pre">source</span></code> node, run the following command to check latency:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>netperf<span class="w"> </span>-H<span class="w"> </span><span class="m">192</span>.168.245.5<span class="w"> </span>-t<span class="w"> </span>TCP_RR<span class="w"> </span>--<span class="w"> </span>-P<span class="w"> </span><span class="m">12866</span>
+<span class="go">MIGRATED TCP REQUEST/RESPONSE TEST from 0.0.0.0 (0.0.0.0) port 12866</span>
+<span class="go">AF_INET to &lt;redacted&gt;.72.4 (&lt;redacted&gt;.72.4) port 12866 AF_INET : demo</span>
+<span class="go">: first burst 0</span>
+<span class="go">Local  Remote Socket   Size    Request  Resp.   Elapsed  Trans.</span>
+<span class="go">Send   Recv   Size     Size    Time     Rate</span>
+<span class="go">bytes  Bytes  bytes    bytes   secs.    per sec</span>
+<span class="go">16384  87380  1        1       10.00    11753.37</span>
+<span class="go">16384  87380</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="expected-results">
+<h3>Expected results<a class="headerlink" href="#expected-results" title="Permalink to this heading">¶</a></h3>
+<p>Faults will show up as differences between different pairs of nodes.
+However, for reference, here are some expected numbers:</p>
+<ul class="simple">
+<li><p>For throughput, proxy to proxy, expect ~9300 Mbit/sec  (proxies have
+a 10Ge link).</p></li>
+<li><p>For throughout, proxy to object, expect ~920 Mbit/sec  (at time of
+writing this, object nodes have a 1Ge link).</p></li>
+<li><p>For throughput, object to object, expect ~920 Mbit/sec.</p></li>
+<li><p>For latency (all types), expect ~11000 transactions/sec.</p></li>
+</ul>
+</section>
+</section>
+<section id="diagnose-remapping-sectors-experiencing-ures">
+<h2>Diagnose: Remapping sectors experiencing UREs<a class="headerlink" href="#diagnose-remapping-sectors-experiencing-ures" title="Permalink to this heading">¶</a></h2>
+<ol class="arabic">
+<li><p>Find the bad sector, device, and filesystem in <code class="docutils literal notranslate"><span class="pre">kern.log</span></code>.</p></li>
+<li><p>Set the environment variables SEC, DEV &amp; FS, for example:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">SEC</span><span class="o">=</span><span class="m">2930954256</span>
+<span class="gp">$ </span><span class="nv">DEV</span><span class="o">=</span>/dev/sdi
+<span class="gp">$ </span><span class="nv">FS</span><span class="o">=</span>/dev/sdi1
+</pre></div>
+</div>
+</li>
+<li><p>Verify that the sector is bad:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>dd<span class="w"> </span><span class="k">if</span><span class="o">=</span><span class="si">${</span><span class="nv">DEV</span><span class="si">}</span><span class="w"> </span><span class="nv">of</span><span class="o">=</span>/dev/null<span class="w"> </span><span class="nv">bs</span><span class="o">=</span><span class="m">512</span><span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">skip</span><span class="o">=</span><span class="si">${</span><span class="nv">SEC</span><span class="si">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>If the sector is bad this command will output an input/output error:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">dd: reading `/dev/sdi`: Input/output error</span>
+<span class="go">0+0 records in</span>
+<span class="go">0+0 records out</span>
+</pre></div>
+</div>
+</li>
+<li><p>Prevent chef from attempting to re-mount the filesystem while the
+repair is in progress:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>mv<span class="w"> </span>/etc/chef/client.pem<span class="w"> </span>/etc/chef/xx-client.xx-pem
+</pre></div>
+</div>
+</li>
+<li><p>Stop the swift and rsync service:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>service<span class="w"> </span>rsync<span class="w"> </span>stop
+<span class="gp">$ </span>sudo<span class="w"> </span>swift-init<span class="w"> </span>shutdown<span class="w"> </span>all
+</pre></div>
+</div>
+</li>
+<li><p>Unmount the problem drive:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>umount<span class="w"> </span><span class="si">${</span><span class="nv">FS</span><span class="si">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Overwrite/remap the bad sector:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>dd_rescue<span class="w"> </span>-d<span class="w"> </span>-A<span class="w"> </span>-m8b<span class="w"> </span>-s<span class="w"> </span><span class="si">${</span><span class="nv">SEC</span><span class="si">}</span>b<span class="w"> </span><span class="si">${</span><span class="nv">DEV</span><span class="si">}</span><span class="w"> </span><span class="si">${</span><span class="nv">DEV</span><span class="si">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>This command should report an input/output error the first time
+it is run. Run the command a second time, if it successfully remapped
+the bad sector it should not report an input/output error.</p></li>
+<li><p>Verify the sector is now readable:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>dd<span class="w"> </span><span class="k">if</span><span class="o">=</span><span class="si">${</span><span class="nv">DEV</span><span class="si">}</span><span class="w"> </span><span class="nv">of</span><span class="o">=</span>/dev/null<span class="w"> </span><span class="nv">bs</span><span class="o">=</span><span class="m">512</span><span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">skip</span><span class="o">=</span><span class="si">${</span><span class="nv">SEC</span><span class="si">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>If the sector is now readable this command should not report an
+input/output error.</p></li>
+<li><p>If more than one problem sector is listed, set the SEC environment
+variable to the next sector in the list:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">SEC</span><span class="o">=</span><span class="m">123456789</span>
+</pre></div>
+</div>
+</li>
+<li><p>Repeat from step 8.</p></li>
+<li><p>Repair the filesystem:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>xfs_repair<span class="w"> </span><span class="si">${</span><span class="nv">FS</span><span class="si">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">xfs_repair</span></code> reports that the filesystem has valuable filesystem
+changes:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>xfs_repair<span class="w"> </span><span class="si">${</span><span class="nv">FS</span><span class="si">}</span>
+<span class="go">Phase 1 - find and verify superblock...</span>
+<span class="go">Phase 2 - using internal log</span>
+<span class="go">        - zero log...</span>
+<span class="go">ERROR: The filesystem has valuable metadata changes in a log which</span>
+<span class="go">needs to be replayed.</span>
+<span class="go">Mount the filesystem to replay the log, and unmount it before</span>
+<span class="go">re-running xfs_repair.</span>
+<span class="go">If you are unable to mount the filesystem, then use the -L option to</span>
+<span class="go">destroy the log and attempt a repair. Note that destroying the log may</span>
+<span class="go">cause corruption -- please attempt a mount of the filesystem before</span>
+<span class="go">doing this.</span>
+</pre></div>
+</div>
+</li>
+<li><p>You should attempt to mount the filesystem, and clear the lost+found
+area:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>mount<span class="w"> </span><span class="nv">$FS</span><span class="w"> </span>/mnt
+<span class="gp">$ </span>sudo<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/mnt/lost+found/*
+<span class="gp">$ </span>sudo<span class="w"> </span>umount<span class="w"> </span>/mnt
+</pre></div>
+</div>
+</li>
+<li><p>If the filesystem fails to mount then you will need to use the
+<code class="docutils literal notranslate"><span class="pre">xfs_repair</span> <span class="pre">-L</span></code> option to force log zeroing.
+Repeat step 11.</p></li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">xfs_repair</span></code> reports that an additional input/output error has been
+encountered, get the sector details as follows:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;I/O error&quot;</span><span class="w"> </span>/var/log/kern.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>sector<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-1
+</pre></div>
+</div>
+</li>
+<li><p>If new input/output error is reported then set the SEC environment
+variable to the problem sector number:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">SEC</span><span class="o">=</span><span class="m">234567890</span>
+</pre></div>
+</div>
+</li>
+<li><p>Repeat from step 8</p></li>
+<li><p>Remount the filesystem and restart swift and rsync.</p>
+<ul class="simple">
+<li><p>If all UREs in the kern.log have been fixed and you are still unable
+to have xfs_repair disk, it is possible that the URE’s have
+corrupted the filesystem or possibly destroyed the drive altogether.
+In this case, the first step is to re-format the filesystem and if
+this fails, get the disk replaced.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="diagnose-high-system-latency">
+<h2>Diagnose: High system latency<a class="headerlink" href="#diagnose-high-system-latency" title="Permalink to this heading">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The latency measurements described here are specific to the HPE
+Helion Public Cloud.</p>
+</div>
+<ul class="simple">
+<li><p>A bad NIC on a proxy server. However, as explained above, this
+usually causes the peak to rise, but average should remain near
+normal parameters. A quick fix is to shutdown the proxy.</p></li>
+<li><p>A stuck memcache server. Accepts connections, but then will not respond.
+Expect to see timeout messages in <code class="docutils literal notranslate"><span class="pre">/var/log/proxy.log</span></code> (port 11211).
+Swift Diags will also report this as a failed node/port. A quick fix
+is to shutdown the proxy server.</p></li>
+<li><p>A bad/broken object server can also cause problems if the accounts
+used by the monitor program happen to live on the bad object server.</p></li>
+<li><p>A general network problem within the data canter. Compare the results
+with the Pingdom monitors to see if they also have a problem.</p></li>
+</ul>
+</section>
+<section id="diagnose-interface-reports-errors">
+<h2>Diagnose: Interface reports errors<a class="headerlink" href="#diagnose-interface-reports-errors" title="Permalink to this heading">¶</a></h2>
+<p>Should a network interface on a Swift node begin reporting network
+errors, it may well indicate a cable, switch, or network issue.</p>
+<p>Get an overview of the interface with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>ifconfig<span class="w"> </span>eth<span class="o">{</span>n<span class="o">}</span>
+<span class="gp">$ </span>sudo<span class="w"> </span>ethtool<span class="w"> </span>eth<span class="o">{</span>n<span class="o">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Link</span> <span class="pre">Detected:</span></code> indicator will read <code class="docutils literal notranslate"><span class="pre">yes</span></code> if the nic is
+cabled.</p>
+<p>Establish the adapter type with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>ethtool<span class="w">  </span>-i<span class="w"> </span>eth<span class="o">{</span>n<span class="o">}</span>
+</pre></div>
+</div>
+<p>Gather the interface statistics with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>ethtool<span class="w">  </span>-S<span class="w"> </span>eth<span class="o">{</span>n<span class="o">}</span>
+</pre></div>
+</div>
+<p>If the nick supports self test, this can be performed with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>ethtool<span class="w">  </span>-t<span class="w"> </span>eth<span class="o">{</span>n<span class="o">}</span>
+</pre></div>
+</div>
+<p>Self tests should read <code class="docutils literal notranslate"><span class="pre">PASS</span></code> if the nic is operating correctly.</p>
+<p>Nic module drivers can be re-initialised by carefully removing and
+re-installing the modules (this avoids rebooting the server).
+For example, mellanox drivers use a two part driver mlx4_en and
+mlx4_core. To reload these you must carefully remove the mlx4_en
+(ethernet) then the mlx4_core modules, and reinstall them in the
+reverse order.</p>
+<p>As the interface will be disabled while the modules are unloaded, you
+must be very careful not to lock yourself out so it may be better
+to script this.</p>
+</section>
+<section id="diagnose-hung-swift-object-replicator">
+<h2>Diagnose: Hung swift object replicator<a class="headerlink" href="#diagnose-hung-swift-object-replicator" title="Permalink to this heading">¶</a></h2>
+<p>A replicator reports in its log that remaining time exceeds
+100 hours. This may indicate that the swift <code class="docutils literal notranslate"><span class="pre">object-replicator</span></code> is stuck and not
+making progress. Another useful way to check this is with the
+‘swift-recon -r’ command on a swift proxy server:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>swift-recon<span class="w"> </span>-r
+<span class="go">===============================================================================</span>
+
+<span class="go">--&gt; Starting reconnaissance on 384 hosts</span>
+<span class="go">===============================================================================</span>
+<span class="go">[2013-07-17 12:56:19] Checking on replication</span>
+<span class="go">[replication_time] low: 2, high: 80, avg: 28.8, total: 11037, Failed: 0.0%, no_result: 0, reported: 383</span>
+<span class="go">Oldest completion was 2013-06-12 22:46:50 (12 days ago) by 192.168.245.3:6200.</span>
+<span class="go">Most recent completion was 2013-07-17 12:56:19 (5 seconds ago) by 192.168.245.5:6200.</span>
+<span class="go">===============================================================================</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Oldest</span> <span class="pre">completion</span></code> line in this example indicates that the
+object-replicator on swift object server 192.168.245.3 has not completed
+the replication cycle in 12 days. This replicator is stuck. The object
+replicator cycle is generally less than 1 hour. Though an replicator
+cycle of 15-20 hours can occur if nodes are added to the system and a
+new ring has been deployed.</p>
+<p>You can further check if the object replicator is stuck by logging on
+the object server and checking the object replicator progress with
+the following command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>grep<span class="w"> </span>object-rep<span class="w"> </span>/var/log/swift/background.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;Starting object replication&quot;</span><span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;Object replication complete&quot;</span><span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;partitions rep&quot;</span>
+<span class="go">Jul 16 06:25:46 192.168.245.4 object-replicator 15344/16450 (93.28%) partitions replicated in 69018.48s (0.22/sec, 22h remaining)</span>
+<span class="go">Jul 16 06:30:46 192.168.245.4object-replicator 15344/16450 (93.28%) partitions replicated in 69318.58s (0.22/sec, 22h remaining)</span>
+<span class="go">Jul 16 06:35:46 192.168.245.4 object-replicator 15344/16450 (93.28%) partitions replicated in 69618.63s (0.22/sec, 23h remaining)</span>
+<span class="go">Jul 16 06:40:46 192.168.245.4 object-replicator 15344/16450 (93.28%) partitions replicated in 69918.73s (0.22/sec, 23h remaining)</span>
+<span class="go">Jul 16 06:45:46 192.168.245.4 object-replicator 15348/16450 (93.30%) partitions replicated in 70218.75s (0.22/sec, 24h remaining)</span>
+<span class="go">Jul 16 06:50:47 192.168.245.4object-replicator 15348/16450 (93.30%) partitions replicated in 70518.85s (0.22/sec, 24h remaining)</span>
+<span class="go">Jul 16 06:55:47 192.168.245.4 object-replicator 15348/16450 (93.30%) partitions replicated in 70818.95s (0.22/sec, 25h remaining)</span>
+<span class="go">Jul 16 07:00:47 192.168.245.4 object-replicator 15348/16450 (93.30%) partitions replicated in 71119.05s (0.22/sec, 25h remaining)</span>
+<span class="go">Jul 16 07:05:47 192.168.245.4 object-replicator 15348/16450 (93.30%) partitions replicated in 71419.15s (0.21/sec, 26h remaining)</span>
+<span class="go">Jul 16 07:10:47 192.168.245.4object-replicator 15348/16450 (93.30%) partitions replicated in 71719.25s (0.21/sec, 26h remaining)</span>
+<span class="go">Jul 16 07:15:47 192.168.245.4 object-replicator 15348/16450 (93.30%) partitions replicated in 72019.27s (0.21/sec, 27h remaining)</span>
+<span class="go">Jul 16 07:20:47 192.168.245.4object-replicator 15348/16450 (93.30%) partitions replicated in 72319.37s (0.21/sec, 27h remaining)</span>
+<span class="go">Jul 16 07:25:47 192.168.245.4 object-replicator 15348/16450 (93.30%) partitions replicated in 72619.47s (0.21/sec, 28h remaining)</span>
+<span class="go">Jul 16 07:30:47 192.168.245.4 object-replicator 15348/16450 (93.30%) partitions replicated in 72919.56s (0.21/sec, 28h remaining)</span>
+<span class="go">Jul 16 07:35:47 192.168.245.4 object-replicator 15348/16450 (93.30%) partitions replicated in 73219.67s (0.21/sec, 29h remaining)</span>
+<span class="go">Jul 16 07:40:47 192.168.245.4 object-replicator 15348/16450 (93.30%) partitions replicated in 73519.76s (0.21/sec, 29h remaining)</span>
+</pre></div>
+</div>
+<p>The above status is output every 5 minutes to <code class="docutils literal notranslate"><span class="pre">/var/log/swift/background.log</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The ‘remaining’ time is increasing as time goes on, normally the
+time remaining should be decreasing. Also note the partition number. For example,
+15344 remains the same for several status lines. Eventually the object
+replicator detects the hang and attempts to make progress by killing the
+problem thread. The replicator then progresses to the next partition but
+quite often it again gets stuck on the same partition.</p>
+</div>
+<p>One of the reasons for the object replicator hanging like this is
+filesystem corruption on the drive. The following is a typical log entry
+of a corrupted filesystem detected by the object replicator:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>bzgrep<span class="w"> </span><span class="s2">&quot;Remote I/O error&quot;</span><span class="w"> </span>/var/log/swift/background.log*<span class="w"> </span><span class="p">|</span>grep<span class="w"> </span>srv<span class="w"> </span><span class="p">|</span><span class="w"> </span>-<span class="w"> </span>tail<span class="w"> </span>-1
+<span class="go">Jul 12 03:33:30 192.168.245.4 object-replicator STDOUT: ERROR:root:Error hashing suffix#012Traceback (most recent call last):#012 File</span>
+<span class="go">&quot;/usr/lib/python2.7/dist-packages/swift/obj/replicator.py&quot;, line 199, in get_hashes#012 hashes[suffix] = hash_suffix(suffix_dir,</span>
+<span class="go">reclaim_age)#012 File &quot;/usr/lib/python2.7/dist-packages/swift/obj/replicator.py&quot;, line 84, in hash_suffix#012 path_contents =</span>
+<span class="go">sorted(os.listdir(path))#012OSError: [Errno 121] Remote I/O error: &#39;/srv/node/disk4/objects/1643763/b51&#39;</span>
+</pre></div>
+</div>
+<p>An <code class="docutils literal notranslate"><span class="pre">ls</span></code> of the problem file or directory usually shows something like the following:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ls<span class="w"> </span>-l<span class="w"> </span>/srv/node/disk4/objects/1643763/b51
+<span class="go">ls: cannot access /srv/node/disk4/objects/1643763/b51: Remote I/O error</span>
+</pre></div>
+</div>
+<p>If no entry with <code class="docutils literal notranslate"><span class="pre">Remote</span> <span class="pre">I/O</span> <span class="pre">error</span></code> occurs in the <code class="docutils literal notranslate"><span class="pre">background.log</span></code> it is
+not possible to determine why the object-replicator is hung. It may be
+that the <code class="docutils literal notranslate"><span class="pre">Remote</span> <span class="pre">I/O</span> <span class="pre">error</span></code> entry is older than 7 days and so has been
+rotated out of the logs. In this scenario it may be best to simply
+restart the object-replicator.</p>
+<ol class="arabic">
+<li><p>Stop the object-replicator:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>swift-init<span class="w"> </span>object-replicator<span class="w"> </span>stop
+</pre></div>
+</div>
+</li>
+<li><p>Make sure the object replicator has stopped, if it has hung, the stop
+command will not stop the hung process:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>ps<span class="w"> </span>auxww<span class="w"> </span><span class="p">|</span><span class="w"> </span>-<span class="w"> </span>grep<span class="w"> </span>swift-object-replicator
+</pre></div>
+</div>
+</li>
+<li><p>If the previous ps shows the object-replicator is still running, kill
+the process:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span><span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span>&lt;pid-of-swift-object-replicator&gt;
+</pre></div>
+</div>
+</li>
+<li><p>Start the object-replicator:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>swift-init<span class="w"> </span>object-replicator<span class="w"> </span>start
+</pre></div>
+</div>
+</li>
+</ol>
+<p>If the above grep did find an <code class="docutils literal notranslate"><span class="pre">Remote</span> <span class="pre">I/O</span> <span class="pre">error</span></code> then it may be possible
+to repair the problem filesystem.</p>
+<ol class="arabic">
+<li><p>Stop swift and rsync:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>swift-init<span class="w"> </span>all<span class="w"> </span>shutdown
+<span class="gp"># </span>sudo<span class="w"> </span>service<span class="w"> </span>rsync<span class="w"> </span>stop
+</pre></div>
+</div>
+</li>
+<li><p>Make sure all swift process have stopped:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>ps<span class="w"> </span>auxww<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>swift<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>python
+</pre></div>
+</div>
+</li>
+<li><p>Kill any swift processes still running.</p></li>
+<li><p>Unmount the problem filesystem:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>umount<span class="w"> </span>/srv/node/disk4
+</pre></div>
+</div>
+</li>
+<li><p>Repair the filesystem:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp"># </span>sudo<span class="w"> </span>xfs_repair<span class="w"> </span>-P<span class="w"> </span>/dev/sde1
+</pre></div>
+</div>
+</li>
+<li><p>If the <code class="docutils literal notranslate"><span class="pre">xfs_repair</span></code> fails then it may be necessary to re-format the
+filesystem. See <a class="reference internal" href="procedures.html#fix-broken-xfs-filesystem"><span class="std std-ref">Procedure: Fix broken XFS filesystem</span></a>. If the
+<code class="docutils literal notranslate"><span class="pre">xfs_repair</span></code> is successful, re-enable chef using the following command
+and replication should commence again.</p></li>
+</ol>
+</section>
+<section id="diagnose-high-cpu-load">
+<h2>Diagnose: High CPU load<a class="headerlink" href="#diagnose-high-cpu-load" title="Permalink to this heading">¶</a></h2>
+<p>The CPU load average on an object server, as shown with the
+‘uptime’ command, is typically under 10 when the server is
+lightly-moderately loaded:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uptime
+<span class="go">07:59:26 up 99 days,  5:57,  1 user,  load average: 8.59, 8.39, 8.32</span>
+</pre></div>
+</div>
+<p>During times of increased activity, due to user transactions or object
+replication, the CPU load average can increase to  to around 30.</p>
+<p>However, sometimes the CPU load average can increase significantly. The
+following is an example of an object server that has extremely high CPU
+load:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uptime
+<span class="go">07:44:02 up 18:22,  1 user,  load average: 407.12, 406.36, 404.59</span>
+</pre></div>
+</div>
+</section>
+<section id="further-issues-and-resolutions">
+<h2>Further issues and resolutions<a class="headerlink" href="#further-issues-and-resolutions" title="Permalink to this heading">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The urgency levels in each <strong>Action</strong> column indicates whether or
+not it is required to take immediate action, or if the problem can be worked
+on during business hours.</p>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+<col style="width: 33.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Scenario</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+<th class="head"><p><strong>Action</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">/healthcheck</span></code> latency is high.</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">/healthcheck</span></code> test does not tax the proxy very much so any drop in value is probably related to
+network issues, rather than the proxies being very busy. A very slow proxy might impact the average
+number, but it would need to be very slow to shift the number that much.</p></td>
+<td><p>Check networks. Do a <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">https://&lt;ip-address&gt;:&lt;port&gt;/healthcheck</span></code> where
+<code class="docutils literal notranslate"><span class="pre">ip-address</span></code> is individual proxy IP address.
+Repeat this for every proxy server to see if you can pin point the problem.</p>
+<p>Urgency: If there are other indications that your system is slow, you should treat
+this as an urgent problem.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Swift process is not running.</p></td>
+<td><p>You can use <code class="docutils literal notranslate"><span class="pre">swift-init</span></code> status to check if swift processes are running on any
+given server.</p></td>
+<td><p>Run this command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>swift-init<span class="w"> </span>all<span class="w"> </span>start
+</pre></div>
+</div>
+<p>Examine messages in the swift log files to see if there are any
+error messages related to any of the swift processes since the time you
+ran the <code class="docutils literal notranslate"><span class="pre">swift-init</span></code> command.</p>
+<p>Take any corrective actions that seem necessary.</p>
+<p>Urgency: If this only affects one server, and you have more than one,
+identifying and fixing the problem can wait until business hours.
+If this same problem affects many servers, then you need to take corrective
+action immediately.</p>
+</td>
+</tr>
+<tr class="row-even"><td><p>ntpd is not running.</p></td>
+<td><p>NTP is not running.</p></td>
+<td><p>Configure and start NTP.</p>
+<p>Urgency: For proxy servers, this is vital.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Host clock is not syncd to an NTP server.</p></td>
+<td><p>Node time settings does not match NTP server time.
+This may take some time to sync after a reboot.</p></td>
+<td><p>Assuming NTP is configured and running, you have to wait until the times sync.</p></td>
+</tr>
+<tr class="row-even"><td><p>A swift process has hundreds, to thousands of open file descriptors.</p></td>
+<td><p>May happen to any of the swift processes.
+Known to have happened with a <code class="docutils literal notranslate"><span class="pre">rsyslod</span></code> restart and where <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> was hanging.</p></td>
+<td><p>Restart the swift processes on the affected node:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>swift-init<span class="w"> </span>all<span class="w"> </span>reload
+</pre></div>
+</div>
+<dl>
+<dt>Urgency:</dt><dd><p>If known performance problem: Immediate</p>
+<p>If system seems fine: Medium</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="row-odd"><td><p>A swift process is not owned by the swift user.</p></td>
+<td><p>If the UID of the swift user has changed, then the processes might not be
+owned by that UID.</p></td>
+<td><p>Urgency: If this only affects one server, and you have more than one,
+identifying and fixing the problem can wait until business hours.
+If this same problem affects many servers, then you need to take corrective
+action immediately.</p></td>
+</tr>
+<tr class="row-even"><td><p>Object account or container files not owned by swift.</p></td>
+<td><p>This typically happens if during a reinstall or a re-image of a server that the UID
+of the swift user was changed. The data files in the object account and container
+directories are owned by the original swift UID. As a result, the current swift
+user does not own these files.</p></td>
+<td><p>Correct the UID of the swift user to reflect that of the original UID. An alternate
+action is to change the ownership of every file on all file systems. This alternate
+action is often impractical and will take considerable time.</p>
+<p>Urgency: If this only affects one server, and you have more than one,
+identifying and fixing the problem can wait until business hours.
+If this same problem affects many servers, then you need to take corrective
+action immediately.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>A disk drive has a high IO wait or service time.</p></td>
+<td><p>If high wait IO times are seen for a single disk, then the disk drive is the problem.
+If most/all devices are slow, the controller is probably the source of the problem.
+The controller cache may also be miss configured – which will cause similar long
+wait or service times.</p></td>
+<td><p>As a first step, if your controllers have a cache, check that it is enabled and their battery/capacitor
+is working.</p>
+<p>Second, reboot the server.
+If problem persists, file a DC ticket to have the drive or controller replaced.
+See <a class="reference internal" href="#diagnose-slow-disk-drives"><span class="std std-ref">Diagnose: Slow disk devices</span></a> on how to check the drive wait or service times.</p>
+<p>Urgency: Medium</p>
+</td>
+</tr>
+<tr class="row-even"><td><p>The network interface is not up.</p></td>
+<td><p>Use the <code class="docutils literal notranslate"><span class="pre">ifconfig</span></code> and <code class="docutils literal notranslate"><span class="pre">ethtool</span></code> commands to determine the network state.</p></td>
+<td><p>You can try restarting the interface. However, generally the interface
+(or cable) is probably broken, especially if the interface is flapping.</p>
+<p>Urgency: If this only affects one server, and you have more than one,
+identifying and fixing the problem can wait until business hours.
+If this same problem affects many servers, then you need to take corrective
+action immediately.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Network interface card (NIC) is not operating at the expected speed.</p></td>
+<td><p>The NIC is running at a slower speed than its nominal rated speed.
+For example, it is running at 100 Mb/s and the NIC is a 1Ge NIC.</p></td>
+<td><ol class="arabic">
+<li><p>Try resetting the interface with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>ethtool<span class="w"> </span>-s<span class="w"> </span>eth0<span class="w"> </span>speed<span class="w"> </span><span class="m">1000</span>
+</pre></div>
+</div>
+<p>… and then run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>lshw<span class="w"> </span>-class
+</pre></div>
+</div>
+<p>See if size goes to the expected speed. Failing
+that, check hardware (NIC cable/switch port).</p>
+</li>
+<li><p>If persistent, consider shutting down the server (especially if a proxy)
+until the problem is identified and resolved. If you leave this server
+running it can have a large impact on overall performance.</p></li>
+</ol>
+<p>Urgency: High</p>
+</td>
+</tr>
+<tr class="row-even"><td><p>The interface RX/TX error count is non-zero.</p></td>
+<td><p>A value of 0 is typical, but counts of 1 or 2 do not indicate a problem.</p></td>
+<td><ol class="arabic">
+<li><p>For low numbers (For example, 1 or 2), you can simply ignore. Numbers in the range
+3-30 probably indicate that the error count has crept up slowly over a long time.
+Consider rebooting the server to remove the report from the noise.</p>
+<p>Typically, when a cable or interface is bad, the error count goes to 400+. For example,
+it stands out. There may be other symptoms such as the interface going up and down or
+not running at correct speed. A server with a high error count should be watched.</p>
+</li>
+<li><p>If the error count continues to climb, consider taking the server down until
+it can be properly investigated. In any case, a reboot should be done to clear
+the error count.</p></li>
+</ol>
+<p>Urgency: High, if the error count increasing.</p>
+</td>
+</tr>
+<tr class="row-odd"><td><p>In a swift log you see a message that a process has not replicated in over 24 hours.</p></td>
+<td><p>The replicator has not successfully completed a run in the last 24 hours.
+This indicates that the replicator has probably hung.</p></td>
+<td><p>Use <code class="docutils literal notranslate"><span class="pre">swift-init</span></code> to stop and then restart the replicator process.</p>
+<p>Urgency: Low. However if you
+recently added or replaced disk drives then you should treat this urgently.</p>
+</td>
+</tr>
+<tr class="row-even"><td><p>Container Updater has not run in 4 hour(s).</p></td>
+<td><p>The service may appear to be running however, it may be hung. Examine their swift
+logs to see if there are any error messages relating to the container updater. This
+may potentially explain why the container is not running.</p></td>
+<td><p>Urgency: Medium
+This may have been triggered by a recent restart of the  rsyslog daemon.
+Restart the service with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>swift-init<span class="w"> </span>&lt;service&gt;<span class="w"> </span>reload
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p>Object replicator: Reports the remaining time and that time is more than 100 hours.</p></td>
+<td><p>Each replication cycle the object replicator writes a log message to its log
+reporting statistics about the current cycle. This includes an estimate for the
+remaining time needed to replicate all objects. If this time is longer than
+100 hours, there is a problem with the replication process.</p></td>
+<td><p>Urgency: Medium
+Restart the service with:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>swift-init<span class="w"> </span>object-replicator<span class="w"> </span>reload
+</pre></div>
+</div>
+<p>Check that the remaining replication time is going down.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+              </div>
+            </div>
+          </div>
+          <div class="docs-actions">
+          
+            <a href="index.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Swift Ops Runbook"></i></a>
+          
+          
+            <a href="procedures.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Software configuration procedures"></i></a>
+          
+          <a id="pdfLink2" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+          
+            <a id="logABugLink3" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+          
+          </div>
+          <div class="row docs-byline bottom">
+            <div class="docs-updated">this page last updated: 2022-08-02 11:51:24</div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-8 docs-license">
+<a href="https://creativecommons.org/licenses/by/3.0/">
+ <img src="../_static/images/docs/license.png" alt="Creative Commons Attribution 3.0 License"/>
+</a>
+<p>
+ Except where otherwise noted, this document is licensed under
+ <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons
+ Attribution 3.0 License</a>. See all <a href="https://www.openstack.org/legal">
+ OpenStack Legal Documents</a>.
+</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 docs-actions-wrapper">
+            <!-- ID buglinkbottom added so that pre-filled doc bugs
+                 are sent to Launchpad projects related to the
+                 document -->
+              <a href="#" id="logABugLink2" class="docs-footer-actions"><i class="fa fa-bug"></i> found an error? report a bug</a>
+            </div>
+          </div>
+        </div>
+<div class="col-lg-3 col-md-4 col-sm-4 col-lg-pull-9 col-md-pull-8 col-sm-pull-8 docs-sidebar">
+  <div class="btn-group docs-sidebar-releases">
+    <button onclick="location.href='/'" class="btn docs-sidebar-home" data-toggle="tooltip" data-placement="top" title="OpenStack Docs Home"><i class="fa fa-arrow-circle-o-left"></i></button>
+<button href="#" type="button" data-toggle="dropdown" class="btn docs-sidebar-release-select">OpenStack Documentation<i class="fa fa-caret-down"></i></button>
+    <ul class="dropdown-menu docs-sidebar-dropdown" role="menu" aria-labelledby="dLabel">
+      <li role="presentation" class="dropdown-header">Guides</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#install-guides">Install Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#user-guides">User Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#configuration-guides">Configuration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#ops-and-admin-guides">Operations and Administration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#api-guides">API Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#contributor-guides">Contributor Guides</a></li>
+      <li role="presentation" class="dropdown-header">Languages</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/de/">Deutsch (German)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/fr/">Français (French)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/id/">Bahasa Indonesia (Indonesian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/it/">Italiano (Italian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ja/">日本語 (Japanese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ko_KR/">한국어 (Korean)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/pt_BR/">Português (Portuguese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/tr_TR/">Türkçe (Türkiye)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/zh_CN/">简体中文 (Simplified Chinese)</a></li>
+    </ul>
+  </div>
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="table-of-contents">
+      <a href="../index.html" class="docs-sidebar-section-title"><h4>Swift 0.1.0.dev10164</h4></a>
+      <ul>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_architecture.html">Swift Architectural Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_ring.html">The Rings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_policies.html">Storage Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_reaper.html">The Account Reaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_auth.html">The Auth System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_acl.html">Access Control Lists (ACLs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ratelimit.html">Rate Limiting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_large_objects.html">Large Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_global_cluster.html">Global Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_container_sync.html">Container to Container Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_expiring_objects.html">Expiring Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cors.html">CORS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../crossdomain.html">Cross-domain Policy File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_erasure_code.html">Erasure Code Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_encryption.html">Object Encryption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_backing_store.html">Using Swift as Backing Store for Service Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../overview_container_sharding.html">Container Sharding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ring_background.html">Building a Consistent Hashing Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ring_partpower.html">Modifying Ring Partition Power</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../associated_projects.html">Associated Projects</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html">Contributing to OpenStack Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html#swift-design-principles">Swift Design Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html#recommended-workflow">Recommended workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html#notes-on-testing">Notes on Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html#ideas">Ideas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/contributing.html#community">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor/review_guidelines.html">Review Guidelines</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../development_guidelines.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_saio.html">SAIO (Swift All In One)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../first_contribution_swift.html">First Contribution to Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../policies_saio.html">Adding Storage Policies to an Existing SAIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_auth.html">Auth Server and Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_middleware.html">Middleware and Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_ondisk_backends.html">Pluggable On-Disk Back-end APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development_watchers.html">Auditor Watchers</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../deployment_guide.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apache_deployment_guide.html">Apache Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../admin_guide.html">Administrator’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../replication_network.html">Dedicated replication network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logs.html">Logs</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Swift Ops Runbook</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Identifying issues and resolutions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="procedures.html">Software configuration procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="maintenance.html">Server maintenance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html">Troubleshooting tips</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../admin/index.html">OpenStack Swift Administrator Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/index.html">Object Storage Install Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config/index.html">Configuration Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/discoverability.html">Discoverability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/container_quotas.html">Container quotas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/object_versioning.html">Object versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/large_objects.html">Large objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/temporary_url_middleware.html">Temporary URL middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/form_post_middleware.html">Form POST middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/use_content-encoding_metadata.html">Use Content-Encoding metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/use_the_content-disposition_metadata.html">Use the Content-Disposition metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/pseudo-hierarchical-folders-directories.html">Pseudo-hierarchical folders and directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/pagination.html">Page through large lists of containers or objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/serialized-response-formats.html">Serialized response formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/static-website.html">Create static website</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/object-expiration.html">Object expiration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/bulk-delete.html">Bulk delete</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../s3_compat.html">S3/Swift REST API Comparison Matrix</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ring.html">Partitioned Consistent Hash Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../proxy.html">Proxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../account.html">Account</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../container.html">Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../db.html">Account DB and Container DB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../object.html">Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../middleware.html">Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../audit_watchers.html">Object Audit Watchers</a></li>
+</ul>
+
+    </div>
+
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="local-table-of-contents">
+      <h4 class="docs-sidebar-section-title">Page Contents</h4>
+      <ul>
+<li><a class="reference internal" href="#">Identifying issues and resolutions</a><ul>
+<li><a class="reference internal" href="#is-the-system-up">Is the system up?</a></li>
+<li><a class="reference internal" href="#functional-tests-usage">Functional tests usage</a></li>
+<li><a class="reference internal" href="#external-monitoring">External monitoring</a></li>
+<li><a class="reference internal" href="#diagnose-general-approach">Diagnose: General approach</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#diagnose-swift-dispersion-report">Diagnose: Swift-dispersion-report</a></li>
+<li><a class="reference internal" href="#diagnose-is-system-responding-to-healthcheck">Diagnose: Is system responding to <code class="docutils literal notranslate"><span class="pre">/healthcheck</span></code>?</a></li>
+<li><a class="reference internal" href="#diagnose-interpreting-messages-in-var-log-swift-files">Diagnose: Interpreting messages in <code class="docutils literal notranslate"><span class="pre">/var/log/swift/</span></code> files</a></li>
+<li><a class="reference internal" href="#diagnose-parted-reports-the-backup-gpt-table-is-corrupt">Diagnose: Parted reports the backup GPT table is corrupt</a></li>
+<li><a class="reference internal" href="#diagnose-drives-diagnostic-reports-a-fs-label-is-not-acceptable">Diagnose: Drives diagnostic reports a FS label is not acceptable</a></li>
+<li><a class="reference internal" href="#diagnose-failed-luns">Diagnose: Failed LUNs</a></li>
+<li><a class="reference internal" href="#diagnose-slow-disk-devices">Diagnose: Slow disk devices</a></li>
+<li><a class="reference internal" href="#diagnose-slow-network-link-measuring-network-performance">Diagnose: Slow network link - Measuring network performance</a><ul>
+<li><a class="reference internal" href="#running-tests">Running tests</a></li>
+<li><a class="reference internal" href="#expected-results">Expected results</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#diagnose-remapping-sectors-experiencing-ures">Diagnose: Remapping sectors experiencing UREs</a></li>
+<li><a class="reference internal" href="#diagnose-high-system-latency">Diagnose: High system latency</a></li>
+<li><a class="reference internal" href="#diagnose-interface-reports-errors">Diagnose: Interface reports errors</a></li>
+<li><a class="reference internal" href="#diagnose-hung-swift-object-replicator">Diagnose: Hung swift object replicator</a></li>
+<li><a class="reference internal" href="#diagnose-high-cpu-load">Diagnose: High CPU load</a></li>
+<li><a class="reference internal" href="#further-issues-and-resolutions">Further issues and resolutions</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  </div>
+</div>
+      </div>
+    </div>
+<footer>
+  <div class="container">
+    <div class="row footer-links">
+      <div class="col-lg-2 col-sm-2">
+        <h3>OpenStack</h3>
+        <ul>
+          <li><a href="https://openstack.org/projects/">Projects</a></li>
+          <li><a href="https://www.openstack.org/software/security/">OpenStack Security</a></li>
+          <li><a href="https://openstack.org/projects/openstack-faq/">Common Questions</a></li>
+          <li><a href="https://openstack.org/blog/">Blog</a></li>g
+          <li><a href="https://openstack.org/news/">News</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Community</h3>
+        <ul>
+          <li><a href="https://openstack.org/community/">User Groups</a></li>
+          <li><a href="https://openstack.org/community/events/">Events</a></li>
+          <li><a href="https://openstack.org/community/jobs/">Jobs</a></li>
+          <li><a href="https://openstack.org/foundation/companies/">Companies</a></li>
+          <li><a href="https://docs.openstack.org/contributors">Contribute</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="https://docs.openstack.org">OpenStack Manuals</a></li>
+          <li><a href="https://openstack.org/software/start/">Getting Started</a></li>
+          <li><a href="https://developer.openstack.org">API Documentation</a></li>
+          <li><a href="https://wiki.openstack.org">Wiki</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Branding & Legal</h3>
+        <ul>
+          <li><a href="https://openstack.org/brand/">Logos & Guidelines</a></li>
+          <li><a href="https://openstack.org/brand/openstack-trademark-policy/">Trademark Policy</a></li>
+          <li><a href="https://openstack.org/privacy/">Privacy Policy</a></li>
+          <li><a href="https://wiki.openstack.org/wiki/How_To_Contribute#Contributor_License_Agreement">OpenStack CLA</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-sm-4">
+        <h3>Stay In Touch</h3>
+        <a href="https://twitter.com/OpenStack" target="_blank" class="social-icons footer-twitter"></a>
+        <a href="https://www.facebook.com/openstack" target="_blank" class="social-icons footer-facebook"></a>
+        <a href="https://www.linkedin.com/company/openstack" target="_blank" class="social-icons footer-linkedin"></a>
+        <a href="https://www.youtube.com/user/OpenStackFoundation" target="_blank" class="social-icons footer-youtube"></a>
+        <p class="fine-print">
+          The OpenStack project is provided under the
+          <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>. Openstack.org is powered by
+          <a href="https://rackspace.com" target="_blank">Rackspace Cloud Computing</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- jQuery -->
+<script type="text/javascript" src="../_static/js/jquery-3.2.1.min.js"></script>
+
+<!-- Bootstrap JavaScript -->
+<script type="text/javascript" src="../_static/js/bootstrap.min.js"></script>
+
+<!-- The rest of the JS -->
+<script type="text/javascript" src="../_static/js/navigation.js"></script>
+
+<!-- Docs JS -->
+<script type="text/javascript" src="../_static/js/docs.js"></script>
+
+<!-- standard sphinx include libraries, which allow search highlighting -->
+<script type="text/javascript" src="../_static/underscore.js"></script>
+<script type="text/javascript" src="../_static/doctools.js"></script>
+<script type="text/javascript" src="../_static/searchtools.js"></script>
+<script type="text/javascript" src="../_static/language_data.js"></script>
+
+<script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+      URL_ROOT:    './',
+      VERSION:     '0.1.0.dev10164',
+      COLLAPSE_INDEX: false,
+      FILE_SUFFIX: '.html',
+      LINK_SUFFIX: '.html',
+      SOURCELINK_SUFFIX: '.txt',
+      HAS_SOURCE:  true
+    };
+</script>
+
+<!-- Javascript for page -->
+<script language="JavaScript">
+  /* Build a description of this page including SHA, source location on git
+   * repo, build time and the project's launchpad bug tag. Set the HREF of the
+   * bug buttons
+   */
+    var lineFeed = "%0A";
+    var gitURL = "Source: Can't derive source file URL";
+
+    /* there have been cases where "pagename" wasn't set; better check for it */
+    /* "giturl" is the URL of the source file on Git and is auto-generated by
+     * openstackdocstheme.
+     *
+     * "pagename" is a standard sphinx parameter containing the name of
+     * the source file, without extension.
+     */
+
+    var sourceFile = "ops_runbook/diagnose" + ".rst";
+    gitURL = "Source: https://opendev.org/openstack/swift/src/doc/source" + "/" + sourceFile;
+
+    /* gitsha, project and bug_tag rely on variables in conf.py */
+    var gitSha = "SHA: c7afe681fd119752e66a8e9032e8782641fec3ff";
+    var repositoryName = "openstack/swift";
+    var bugProject = "swift";
+    var bugTitle = "Identifying issues and resolutions in Swift";
+    var fieldTags = "";
+    var useStoryboard = "";
+
+    /* "last_updated" is the build date and time. It relies on the
+       conf.py variable "html_last_updated_fmt", which should include
+       year/month/day as well as hours and minutes                   */
+    var buildstring = "Release: 0.1.0.dev10164 on 2022-08-02 11:51:24";
+
+    var fieldComment = encodeURI(buildstring) +
+                       lineFeed + encodeURI(gitSha) +
+                       lineFeed + encodeURI(gitURL) ;
+
+    logABug(bugTitle, bugProject, fieldComment, fieldTags, repositoryName, useStoryboard);
+    var currentSourceFile = "ops_runbook/diagnose";
+    var pdfFileName = "doc-swift.pdf";
+    pdfLink(currentSourceFile, pdfFileName);
+</script>
+
+
+  </body>
+</html>

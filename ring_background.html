@@ -1,0 +1,1432 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Building a Consistent Hashing Ring &#8212; Swift 0.1.0.dev10164 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/basic.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="canonical" href="/openstack-swift/ring_background.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Modifying Ring Partition Power" href="ring_partpower.html" />
+    <link rel="prev" title="Container Sharding" href="overview_container_sharding.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Bootstrap CSS -->
+<link href="_static/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Fonts -->
+<link href="_static/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="_static/css/combined.css" rel="stylesheet">
+
+<!-- Search CSS -->
+<link href="_static/css/search.css" rel="stylesheet">
+
+<!-- Pygments CSS -->
+<link href="_static/pygments.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-17511903-1', 'auto');
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+  </head><body>
+
+<!-- SOURCE_FILE: https://opendev.org/openstack/swift/src/doc/source/ring_background.rst -->
+
+<script>
+    (function (window, document) {
+        var loader = function () {
+            var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+            script.src = "https://search.openstack.org/widget/embed.min.js?t="+Date.now();
+            tag.parentNode.insertBefore(script, tag);
+        };
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document);
+</script>
+
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse" type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="brand-wrapper">
+        <a class="navbar-brand" href="https://www.openstack.org/"></a>
+      </div>
+      <div class="search-icon show"><i class="fa fa-search"></i> Search</div></div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <div class="search-container tiny">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</div>
+      <ul class="nav navbar-nav navbar-main show">
+        <li class="search-container-mobile">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</li>
+        <li> <!--Software -->
+          <a href="https://www.openstack.org/software/" class="drop" id="dropdownMenuSoftware">Software <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSoftware">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/">Overview</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/openstack-components">OpenStack Components</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/sdks">SDKs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/deployment-tools">Deployment Tools</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/assets/software/projectmap/openstack-map.pdf" target="_blank">OpenStack Map</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/sample-configs/">Sample Configs</a></li>
+          </ul>
+        </li>
+        <li> <!-- Use Cases -->
+          <a href="https://www.openstack.org/use-cases/" class="drop" id="dropdownMenuUsers">Use Cases <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuUsers">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/">Users in Production</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/bare-metal/">Ironic Bare Metal</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/edge-computing/">Edge Computing</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/telecoms-and-nfv/">Telecom & NFV</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/science/">Science and HPC</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/containers/">Containers</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/enterprise/">Enterprise</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/surveys/landing">User Survey</a></li>
+          </ul>
+        </li>
+        <li> <!-- Events -->
+          <a href="https://www.openstack.org/events/" class="drop" id="dropdownMenuEvents">Events <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/summit/">Open Infrastructure Summits</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/ptg/">Project Teams Gathering</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/opendev-2020/">OpenDev</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/community-events/">Community Events</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/openstackdays">OpenStack & OpenInfra Days</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/videos/">Summit Videos</a></li>
+          </ul>
+        </li>
+        <li><!-- Community -->
+          <a href="https://www.openstack.org/community/" class="drop" id="dropdownMenuCommunity">Community <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuCommunity">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/">Welcome! Start Here</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/tech-committee">OpenStack Technical Committee</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/speakers/">Speakers Bureau</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://wiki.openstack.org">OpenStack Wiki</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/coa/">Get Certified (COA)</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/jobs/">Jobs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketing/">Marketing Resources</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/news/">Community News</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://superuser.openstack.org">Superuser Magazine</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/supporting-organizations/">OpenInfra Foundation Supporting Organizations</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">Open Infrastructure Foundation (OpenInfra Foundation)</a></li>
+          </ul>
+        </li>
+        <li><!-- Marketplace -->
+          <a href="https://www.openstack.orgmarketplace/" class="drop" id="dropdownMenuLearn">Marketplace <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/training/">Training</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/distros/">Distros & Appliances</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/public-clouds/">Public Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/hosted-private-clouds/">Hosted Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/remotely-managed-private-clouds/">Remotely Managed Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/consulting/">Consulting & Integrators</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/drivers/">Drivers</a></li>
+          </ul>
+        </li>
+        <li><!-- Blog -->
+          <a href="https://www.openstack.org/blog/">Blog</a>
+        </li>
+        <li><!-- Docs -->
+          <a href="http://docs.openstack.org/">Docs</a>
+        </li>
+        <li> <!-- Join -->
+            <li class="join-nav-section">
+              <a href="https://openinfra.dev/join/" id="dropdownMenuJoin">Join <i class="fa fa-caret-down"></i></a>
+              <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuJoin" style="display: none;">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sign up for Foundation Membership</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sponsor the Foundation</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">More about the Foundation</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="https://www.openstack.org/Security/login/?BackURL=/home/" class="sign-in-btn">Log In</a>
+            </li>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- /.container -->
+</nav>
+
+    <div class="container docs-book-wrapper">
+      <div class="row">
+        <div class="col-lg-9 col-md-8 col-sm-8 col-lg-push-3 col-md-push-4 col-sm-push-4">
+<div class="row docs-title">
+  <div class="col-lg-8">
+      <h1>Building a Consistent Hashing Ring</h1>
+    
+  </div>
+  <div class="docs-actions">
+    
+    <a href="overview_container_sharding.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Container Sharding"></i></a>
+    
+    
+    <a href="ring_partpower.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Modifying Ring Partition Power"></i></a>
+    
+    <a id="pdfLink1" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+    
+    <a id="logABugLink1" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+    
+  </div>
+</div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="docs-body" role="main">
+
+  <section id="building-a-consistent-hashing-ring">
+<h1>Building a Consistent Hashing Ring<a class="headerlink" href="#building-a-consistent-hashing-ring" title="Permalink to this heading">¶</a></h1>
+<section id="authored-by-greg-holt-february-2011">
+<h2>Authored by Greg Holt, February 2011<a class="headerlink" href="#authored-by-greg-holt-february-2011" title="Permalink to this heading">¶</a></h2>
+<p>This is a compilation of five posts I made earlier discussing how to build
+a consistent hashing ring. The posts seemed to be accessed quite frequently,
+so I’ve gathered them all here on one page for easier reading.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is an historical document; as such, all code examples are Python 2.
+If this makes you squirm, think of it as pseudo-code. Regardless of
+implementation language, the state of the art in consistent-hashing and
+distributed systems more generally has advanced. We hope that this
+introduction from first principles will still prove informative,
+particularly with regard to how data is distributed within a Swift
+cluster.</p>
+</div>
+<section id="part-1">
+<h3>Part 1<a class="headerlink" href="#part-1" title="Permalink to this heading">¶</a></h3>
+<p>“Consistent Hashing” is a term used to describe a process where data is
+distributed using a hashing algorithm to determine its location. Using
+only the hash of the id of the data you can determine exactly where that
+data should be. This mapping of hashes to locations is usually termed a
+“ring”.</p>
+<p>Probably the simplest hash is just a modulus of the id. For instance, if
+all ids are numbers and you have two machines you wish to distribute data
+to, you could just put all odd numbered ids on one machine and even numbered
+ids on the other. Assuming you have a balanced number of odd and even
+numbered ids, and a balanced data size per id, your data would be balanced
+between the two machines.</p>
+<p>Since data ids are often textual names and not numbers, like paths for
+files or URLs, it makes sense to use a “real” hashing algorithm to convert
+the names to numbers first. Using MD5 for instance, the hash of the name
+‘mom.png’ is ‘4559a12e3e8da7c2186250c2f292e3af’ and the hash of ‘dad.png’
+is ‘096edcc4107e9e18d6a03a43b3853bea’. Now, using the modulus, we can
+place ‘mom.jpg’ on the odd machine and ‘dad.png’ on the even one. Another
+benefit of using a hashing algorithm like MD5 is that the resulting hashes
+have a known even distribution, meaning your ids will be evenly distributed
+without worrying about keeping the id values themselves evenly distributed.</p>
+<p>Here is a simple example of this in action:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+
+<span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">10000000</span>
+
+<span class="n">node_counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">NODE_COUNT</span>
+<span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+    <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+    <span class="c1"># This just pulls part of the hash out as an integer</span>
+    <span class="n">hsh</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span> <span class="n">md5</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">node_id</span> <span class="o">=</span> <span class="n">hsh</span> <span class="o">%</span> <span class="n">NODE_COUNT</span>
+    <span class="n">node_counts</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">desired_count</span> <span class="o">=</span> <span class="n">DATA_ID_COUNT</span> <span class="o">/</span> <span class="n">NODE_COUNT</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Desired data ids per node&#39;</span> <span class="o">%</span> <span class="n">desired_count</span>
+<span class="n">max_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">node_counts</span><span class="p">)</span>
+<span class="n">over</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_count</span> <span class="o">-</span> <span class="n">desired_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Most data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> over&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">max_count</span><span class="p">,</span> <span class="n">over</span><span class="p">)</span>
+<span class="n">min_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">node_counts</span><span class="p">)</span>
+<span class="n">under</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">desired_count</span> <span class="o">-</span> <span class="n">min_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Least data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> under&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">min_count</span><span class="p">,</span> <span class="n">under</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">100000</span><span class="p">:</span> <span class="n">Desired</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">per</span> <span class="n">node</span>
+<span class="mi">100695</span><span class="p">:</span> <span class="n">Most</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">0.69</span><span class="o">%</span> <span class="n">over</span>
+<span class="mi">99073</span><span class="p">:</span> <span class="n">Least</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">0.93</span><span class="o">%</span> <span class="n">under</span>
+</pre></div>
+</div>
+<p>So that’s not bad at all; less than a percent over/under for distribution
+per node. In the next part of this series we’ll examine where modulus
+distribution causes problems and how to improve our ring to overcome them.</p>
+</section>
+<section id="part-2">
+<h3>Part 2<a class="headerlink" href="#part-2" title="Permalink to this heading">¶</a></h3>
+<p>In Part 1 of this series, we did a simple test of using the modulus of a
+hash to locate data. We saw very good distribution, but that’s only part
+of the story. Distributed systems not only need to distribute load, but
+they often also need to grow as more and more data is placed in it.</p>
+<p>So let’s imagine we have a 100 node system up and running using our
+previous algorithm, but it’s starting to get full so we want to add
+another node. When we add that 101st node to our algorithm we notice
+that many ids now map to different nodes than they previously did.
+We’re going to have to shuffle a ton of data around our system to get
+it all into place again.</p>
+<p>Let’s examine what’s happened on a much smaller scale: just 2 nodes
+again, node 0 gets even ids and node 1 gets odd ids. So data id 100
+would map to node 0, data id 101 to node 1, data id 102 to node 0, etc.
+This is simply node = id % 2. Now we add a third node (node 2) for more
+space, so we want node = id % 3. So now data id 100 maps to node id 1,
+data id 101 to node 2, and data id 102 to node 0. So we have to move
+data for 2 of our 3 ids so they can be found again.</p>
+<p>Let’s examine this at a larger scale:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+
+<span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">NEW_NODE_COUNT</span> <span class="o">=</span> <span class="mi">101</span>
+<span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">10000000</span>
+
+<span class="n">moved_ids</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+    <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+    <span class="n">hsh</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span> <span class="n">md5</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">node_id</span> <span class="o">=</span> <span class="n">hsh</span> <span class="o">%</span> <span class="n">NODE_COUNT</span>
+    <span class="n">new_node_id</span> <span class="o">=</span> <span class="n">hsh</span> <span class="o">%</span> <span class="n">NEW_NODE_COUNT</span>
+    <span class="k">if</span> <span class="n">node_id</span> <span class="o">!=</span> <span class="n">new_node_id</span><span class="p">:</span>
+        <span class="n">moved_ids</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">percent_moved</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">moved_ids</span> <span class="o">/</span> <span class="n">DATA_ID_COUNT</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> ids moved, </span><span class="si">%.02f%%</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">moved_ids</span><span class="p">,</span> <span class="n">percent_moved</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">9900989</span> <span class="n">ids</span> <span class="n">moved</span><span class="p">,</span> <span class="mf">99.01</span><span class="o">%</span>
+</pre></div>
+</div>
+<p>Wow, that’s severe. We’d have to shuffle around 99% of our data just
+to increase our capacity 1%! We need a new algorithm that combats this
+behavior.</p>
+<p>This is where the “ring” really comes in. We can assign ranges of hashes
+directly to nodes and then use an algorithm that minimizes the changes
+to those ranges. Back to our small scale, let’s say our ids range from 0
+to 999. We have two nodes and we’ll assign data ids 0–499 to node 0 and
+500–999 to node 1. Later, when we add node 2, we can take half the data
+ids from node 0 and half from node 1, minimizing the amount of data that
+needs to move.</p>
+<p>Let’s examine this at a larger scale:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bisect</span> <span class="kn">import</span> <span class="n">bisect_left</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+
+<span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">NEW_NODE_COUNT</span> <span class="o">=</span> <span class="mi">101</span>
+<span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">10000000</span>
+
+<span class="n">node_range_starts</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NODE_COUNT</span><span class="p">):</span>
+    <span class="n">node_range_starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span> <span class="o">/</span>
+                             <span class="n">NODE_COUNT</span> <span class="o">*</span> <span class="n">node_id</span><span class="p">)</span>
+<span class="n">new_node_range_starts</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">new_node_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NEW_NODE_COUNT</span><span class="p">):</span>
+    <span class="n">new_node_range_starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span> <span class="o">/</span>
+                              <span class="n">NEW_NODE_COUNT</span> <span class="o">*</span> <span class="n">new_node_id</span><span class="p">)</span>
+<span class="n">moved_ids</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+    <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+    <span class="n">hsh</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span> <span class="n">md5</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">node_id</span> <span class="o">=</span> <span class="n">bisect_left</span><span class="p">(</span><span class="n">node_range_starts</span><span class="p">,</span>
+                          <span class="n">hsh</span> <span class="o">%</span> <span class="n">DATA_ID_COUNT</span><span class="p">)</span> <span class="o">%</span> <span class="n">NODE_COUNT</span>
+    <span class="n">new_node_id</span> <span class="o">=</span> <span class="n">bisect_left</span><span class="p">(</span><span class="n">new_node_range_starts</span><span class="p">,</span>
+                          <span class="n">hsh</span> <span class="o">%</span> <span class="n">DATA_ID_COUNT</span><span class="p">)</span> <span class="o">%</span> <span class="n">NEW_NODE_COUNT</span>
+    <span class="k">if</span> <span class="n">node_id</span> <span class="o">!=</span> <span class="n">new_node_id</span><span class="p">:</span>
+        <span class="n">moved_ids</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">percent_moved</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">moved_ids</span> <span class="o">/</span> <span class="n">DATA_ID_COUNT</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> ids moved, </span><span class="si">%.02f%%</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">moved_ids</span><span class="p">,</span> <span class="n">percent_moved</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">4901707</span> <span class="n">ids</span> <span class="n">moved</span><span class="p">,</span> <span class="mf">49.02</span><span class="o">%</span>
+</pre></div>
+</div>
+<p>Okay, that is better. But still, moving 50% of our data to add 1% capacity
+is not very good. If we examine what happened more closely we’ll see what
+is an “accordion effect”. We shrunk node 0’s range a bit to give to the
+new node, but that shifted all the other node’s ranges by the same amount.</p>
+<p>We can minimize the change to a node’s assigned range by assigning several
+smaller ranges instead of the single broad range we were before. This can
+be done by creating “virtual nodes” for each node. So 100 nodes might have
+1000 virtual nodes. Let’s examine how that might work.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bisect</span> <span class="kn">import</span> <span class="n">bisect_left</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+
+<span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">10000000</span>
+<span class="n">VNODE_COUNT</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="n">vnode_range_starts</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">vnode2node</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">vnode_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">VNODE_COUNT</span><span class="p">):</span>
+    <span class="n">vnode_range_starts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span> <span class="o">/</span>
+                              <span class="n">VNODE_COUNT</span> <span class="o">*</span> <span class="n">vnode_id</span><span class="p">)</span>
+    <span class="n">vnode2node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vnode_id</span> <span class="o">%</span> <span class="n">NODE_COUNT</span><span class="p">)</span>
+<span class="n">new_vnode2node</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vnode2node</span><span class="p">)</span>
+<span class="n">new_node_id</span> <span class="o">=</span> <span class="n">NODE_COUNT</span>
+<span class="n">NEW_NODE_COUNT</span> <span class="o">=</span> <span class="n">NODE_COUNT</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">vnodes_to_reassign</span> <span class="o">=</span> <span class="n">VNODE_COUNT</span> <span class="o">/</span> <span class="n">NEW_NODE_COUNT</span>
+<span class="k">while</span> <span class="n">vnodes_to_reassign</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">node_to_take_from</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NODE_COUNT</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">vnode_id</span><span class="p">,</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">new_vnode2node</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">node_id</span> <span class="o">==</span> <span class="n">node_to_take_from</span><span class="p">:</span>
+                <span class="n">new_vnode2node</span><span class="p">[</span><span class="n">vnode_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_node_id</span>
+                <span class="n">vnodes_to_reassign</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">vnodes_to_reassign</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">break</span>
+<span class="n">moved_ids</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+    <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+    <span class="n">hsh</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span> <span class="n">md5</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">vnode_id</span> <span class="o">=</span> <span class="n">bisect_left</span><span class="p">(</span><span class="n">vnode_range_starts</span><span class="p">,</span>
+                         <span class="n">hsh</span> <span class="o">%</span> <span class="n">DATA_ID_COUNT</span><span class="p">)</span> <span class="o">%</span> <span class="n">VNODE_COUNT</span>
+    <span class="n">node_id</span> <span class="o">=</span> <span class="n">vnode2node</span><span class="p">[</span><span class="n">vnode_id</span><span class="p">]</span>
+    <span class="n">new_node_id</span> <span class="o">=</span> <span class="n">new_vnode2node</span><span class="p">[</span><span class="n">vnode_id</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">node_id</span> <span class="o">!=</span> <span class="n">new_node_id</span><span class="p">:</span>
+        <span class="n">moved_ids</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">percent_moved</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">moved_ids</span> <span class="o">/</span> <span class="n">DATA_ID_COUNT</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> ids moved, </span><span class="si">%.02f%%</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">moved_ids</span><span class="p">,</span> <span class="n">percent_moved</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">90423</span> <span class="n">ids</span> <span class="n">moved</span><span class="p">,</span> <span class="mf">0.90</span><span class="o">%</span>
+</pre></div>
+</div>
+<p>There we go, we added 1% capacity and only moved 0.9% of existing data.
+The vnode_range_starts list seems a bit out of place though. Its values
+are calculated and never change for the lifetime of the cluster, so let’s
+optimize that out.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bisect</span> <span class="kn">import</span> <span class="n">bisect_left</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+
+<span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">10000000</span>
+<span class="n">VNODE_COUNT</span> <span class="o">=</span> <span class="mi">1000</span>
+
+<span class="n">vnode2node</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">vnode_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">VNODE_COUNT</span><span class="p">):</span>
+    <span class="n">vnode2node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vnode_id</span> <span class="o">%</span> <span class="n">NODE_COUNT</span><span class="p">)</span>
+<span class="n">new_vnode2node</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">vnode2node</span><span class="p">)</span>
+<span class="n">new_node_id</span> <span class="o">=</span> <span class="n">NODE_COUNT</span>
+<span class="n">vnodes_to_reassign</span> <span class="o">=</span> <span class="n">VNODE_COUNT</span> <span class="o">/</span> <span class="p">(</span><span class="n">NODE_COUNT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="k">while</span> <span class="n">vnodes_to_reassign</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">node_to_take_from</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NODE_COUNT</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">vnode_id</span><span class="p">,</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">vnode2node</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">node_id</span> <span class="o">==</span> <span class="n">node_to_take_from</span><span class="p">:</span>
+                <span class="n">vnode2node</span><span class="p">[</span><span class="n">vnode_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_node_id</span>
+                <span class="n">vnodes_to_reassign</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="k">break</span>
+        <span class="k">if</span> <span class="n">vnodes_to_reassign</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">break</span>
+<span class="n">moved_ids</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+    <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+    <span class="n">hsh</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span> <span class="n">md5</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">vnode_id</span> <span class="o">=</span> <span class="n">hsh</span> <span class="o">%</span> <span class="n">VNODE_COUNT</span>
+    <span class="n">node_id</span> <span class="o">=</span> <span class="n">vnode2node</span><span class="p">[</span><span class="n">vnode_id</span><span class="p">]</span>
+    <span class="n">new_node_id</span> <span class="o">=</span> <span class="n">new_vnode2node</span><span class="p">[</span><span class="n">vnode_id</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">node_id</span> <span class="o">!=</span> <span class="n">new_node_id</span><span class="p">:</span>
+        <span class="n">moved_ids</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">percent_moved</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">moved_ids</span> <span class="o">/</span> <span class="n">DATA_ID_COUNT</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1"> ids moved, </span><span class="si">%.02f%%</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">moved_ids</span><span class="p">,</span> <span class="n">percent_moved</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">89841</span> <span class="n">ids</span> <span class="n">moved</span><span class="p">,</span> <span class="mf">0.90</span><span class="o">%</span>
+</pre></div>
+</div>
+<p>There we go. In the next part of this series, will further examine the
+algorithm’s limitations and how to improve on it.</p>
+</section>
+<section id="part-3">
+<h3>Part 3<a class="headerlink" href="#part-3" title="Permalink to this heading">¶</a></h3>
+<p>In Part 2 of this series, we reached an algorithm that performed well
+even when adding new nodes to the cluster. We used 1000 virtual nodes
+that could be independently assigned to nodes, allowing us to minimize
+the amount of data moved when a node was added.</p>
+<p>The number of virtual nodes puts a cap on how many real nodes you can
+have. For example, if you have 1000 virtual nodes and you try to add a
+1001st real node, you can’t assign a virtual node to it without leaving
+another real node with no assignment, leaving you with just 1000 active
+real nodes still.</p>
+<p>Unfortunately, the number of virtual nodes created at the beginning can
+never change for the life of the cluster without a lot of careful work.
+For example, you could double the virtual node count by splitting each
+existing virtual node in half and assigning both halves to the same real
+node. However, if the real node uses the virtual node’s id to optimally
+store the data (for example, all data might be stored in /[virtual node
+id]/[data id]) it would have to move data around locally to reflect the
+change. And it would have to resolve data using both the new and old
+locations while the moves were taking place, making atomic operations
+difficult or impossible.</p>
+<p>Let’s continue with this assumption that changing the virtual node
+count is more work than it’s worth, but keep in mind that some applications
+might be fine with this.</p>
+<p>The easiest way to deal with this limitation is to make the limit high
+enough that it won’t matter. For instance, if we decide our cluster will
+never exceed 60,000 real nodes, we can just make 60,000 virtual nodes.</p>
+<p>Also, we should include in our calculations the relative size of our
+nodes. For instance, a year from now we might have real nodes that can
+handle twice the capacity of our current nodes. So we’d want to assign
+twice the virtual nodes to those future nodes, so maybe we should raise
+our virtual node estimate to 120,000.</p>
+<p>A good rule to follow might be to calculate 100 virtual nodes to each
+real node at maximum capacity. This would allow you to alter the load
+on any given node by 1%, even at max capacity, which is pretty fine
+tuning. So now we’re at 6,000,000 virtual nodes for a max capacity cluster
+of 60,000 real nodes.</p>
+<p>6 million virtual nodes seems like a lot, and it might seem like we’d
+use up way too much memory. But the only structure this affects is the
+virtual node to real node mapping. The base amount of memory required
+would be 6 million times 2 bytes (to store a real node id from 0 to
+65,535). 12 megabytes of memory just isn’t that much to use these days.</p>
+<p>Even with all the overhead of flexible data types, things aren’t that
+bad. I changed the code from the previous part in this series to have
+60,000 real and 6,000,000 virtual nodes, changed the list to an array(‘H’),
+and python topped out at 27m of resident memory – and that includes two
+rings.</p>
+<p>To change terminology a bit, we’re going to start calling these virtual
+nodes “partitions”. This will make it a bit easier to discern between the
+two types of nodes we’ve been talking about so far. Also, it makes sense
+to talk about partitions as they are really just unchanging sections
+of the hash space.</p>
+<p>We’re also going to always keep the partition count a power of two. This
+makes it easy to just use bit manipulation on the hash to determine the
+partition rather than modulus. It isn’t much faster, but it is a little.
+So, here’s our updated ring code, using 8,388,608 (2 ** 23) partitions
+and 65,536 nodes. We’ve upped the sample data id set and checked the
+distribution to make sure we haven’t broken anything.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+
+<span class="n">PARTITION_POWER</span> <span class="o">=</span> <span class="mi">23</span>
+<span class="n">PARTITION_SHIFT</span> <span class="o">=</span> <span class="mi">32</span> <span class="o">-</span> <span class="n">PARTITION_POWER</span>
+<span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">65536</span>
+<span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">100000000</span>
+
+<span class="n">part2node</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">PARTITION_POWER</span><span class="p">):</span>
+    <span class="n">part2node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span> <span class="o">%</span> <span class="n">NODE_COUNT</span><span class="p">)</span>
+<span class="n">node_counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">NODE_COUNT</span>
+<span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+    <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+    <span class="n">part</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span>
+        <span class="n">md5</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">PARTITION_SHIFT</span>
+    <span class="n">node_id</span> <span class="o">=</span> <span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]</span>
+    <span class="n">node_counts</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">desired_count</span> <span class="o">=</span> <span class="n">DATA_ID_COUNT</span> <span class="o">/</span> <span class="n">NODE_COUNT</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Desired data ids per node&#39;</span> <span class="o">%</span> <span class="n">desired_count</span>
+<span class="n">max_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">node_counts</span><span class="p">)</span>
+<span class="n">over</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_count</span> <span class="o">-</span> <span class="n">desired_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Most data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> over&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">max_count</span><span class="p">,</span> <span class="n">over</span><span class="p">)</span>
+<span class="n">min_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">node_counts</span><span class="p">)</span>
+<span class="n">under</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">desired_count</span> <span class="o">-</span> <span class="n">min_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Least data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> under&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">min_count</span><span class="p">,</span> <span class="n">under</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">1525</span><span class="p">:</span> <span class="n">Desired</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">per</span> <span class="n">node</span>
+<span class="mi">1683</span><span class="p">:</span> <span class="n">Most</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">10.36</span><span class="o">%</span> <span class="n">over</span>
+<span class="mi">1360</span><span class="p">:</span> <span class="n">Least</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">10.82</span><span class="o">%</span> <span class="n">under</span>
+</pre></div>
+</div>
+<p>Hmm. +–10% seems a bit high, but I reran with 65,536 partitions and
+256 nodes and got +–0.4% so it’s just that our sample size (100m) is
+too small for our number of partitions (8m). It’ll take way too long
+to run experiments with an even larger sample size, so let’s reduce
+back down to these lesser numbers. (To be certain, I reran at the full
+version with a 10 billion data id sample set and got +–1%, but it took
+6.5 hours to run.)</p>
+<p>In the next part of this series, we’ll talk about how to increase the
+durability of our data in the cluster.</p>
+</section>
+<section id="part-4">
+<h3>Part 4<a class="headerlink" href="#part-4" title="Permalink to this heading">¶</a></h3>
+<p>In Part 3 of this series, we just further discussed partitions (virtual
+nodes) and cleaned up our code a bit based on that. Now, let’s talk
+about how to increase the durability and availability of our data in the
+cluster.</p>
+<p>For many distributed data stores, durability is quite important. Either
+RAID arrays or individually distinct copies of data are required. While
+RAID will increase the durability, it does nothing to increase the
+availability – if the RAID machine crashes, the data may be safe but
+inaccessible until repairs are done. If we keep distinct copies of the
+data on different machines and a machine crashes, the other copies will
+still be available while we repair the broken machine.</p>
+<p>An easy way to gain this multiple copy durability/availability is to
+just use multiple rings and groups of nodes. For instance, to achieve
+the industry standard of three copies, you’d split the nodes into three
+groups and each group would have its own ring and each would receive a
+copy of each data item. This can work well enough, but has the drawback
+that expanding capacity requires adding three nodes at a time and that
+losing one node essentially lowers capacity by three times that node’s
+capacity.</p>
+<p>Instead, let’s use a different, but common, approach of meeting our
+requirements with a single ring. This can be done by walking the ring
+from the starting point and looking for additional distinct nodes.
+Here’s code that supports a variable number of replicas (set to 3 for
+testing):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+
+<span class="n">REPLICAS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">PARTITION_POWER</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">PARTITION_SHIFT</span> <span class="o">=</span> <span class="mi">32</span> <span class="o">-</span> <span class="n">PARTITION_POWER</span>
+<span class="n">PARTITION_MAX</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">PARTITION_POWER</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">10000000</span>
+
+<span class="n">part2node</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">PARTITION_POWER</span><span class="p">):</span>
+    <span class="n">part2node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span> <span class="o">%</span> <span class="n">NODE_COUNT</span><span class="p">)</span>
+<span class="n">node_counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">NODE_COUNT</span>
+<span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+    <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+    <span class="n">part</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span>
+        <span class="n">md5</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">PARTITION_SHIFT</span>
+    <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]]</span>
+    <span class="n">node_counts</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">replica</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">REPLICAS</span><span class="p">):</span>
+        <span class="k">while</span> <span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="ow">in</span> <span class="n">node_ids</span><span class="p">:</span>
+            <span class="n">part</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">part</span> <span class="o">&gt;</span> <span class="n">PARTITION_MAX</span><span class="p">:</span>
+                <span class="n">part</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">node_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">])</span>
+        <span class="n">node_counts</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">desired_count</span> <span class="o">=</span> <span class="n">DATA_ID_COUNT</span> <span class="o">/</span> <span class="n">NODE_COUNT</span> <span class="o">*</span> <span class="n">REPLICAS</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Desired data ids per node&#39;</span> <span class="o">%</span> <span class="n">desired_count</span>
+<span class="n">max_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">node_counts</span><span class="p">)</span>
+<span class="n">over</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_count</span> <span class="o">-</span> <span class="n">desired_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Most data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> over&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">max_count</span><span class="p">,</span> <span class="n">over</span><span class="p">)</span>
+<span class="n">min_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">node_counts</span><span class="p">)</span>
+<span class="n">under</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">desired_count</span> <span class="o">-</span> <span class="n">min_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Least data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> under&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">min_count</span><span class="p">,</span> <span class="n">under</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">117186</span><span class="p">:</span> <span class="n">Desired</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">per</span> <span class="n">node</span>
+<span class="mi">118133</span><span class="p">:</span> <span class="n">Most</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">0.81</span><span class="o">%</span> <span class="n">over</span>
+<span class="mi">116093</span><span class="p">:</span> <span class="n">Least</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">0.93</span><span class="o">%</span> <span class="n">under</span>
+</pre></div>
+</div>
+<p>That’s pretty good; less than 1% over/under. While this works well,
+there are a couple of problems.</p>
+<p>First, because of how we’ve initially assigned the partitions to nodes,
+all the partitions for a given node have their extra copies on the same
+other two nodes. The problem here is that when a machine fails, the load
+on these other nodes will jump by that amount. It’d be better if we
+initially shuffled the partition assignment to distribute the failover
+load better.</p>
+<p>The other problem is a bit harder to explain, but deals with physical
+separation of machines. Imagine you can only put 16 machines in a rack
+in your datacenter. The 256 nodes we’ve been using would fill 16 racks.
+With our current code, if a rack goes out (power problem, network issue,
+etc.) there is a good chance some data will have all three copies in that
+rack, becoming inaccessible. We can fix this shortcoming by adding the
+concept of zones to our nodes, and then ensuring that replicas are stored
+in distinct zones.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+
+<span class="n">REPLICAS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">PARTITION_POWER</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">PARTITION_SHIFT</span> <span class="o">=</span> <span class="mi">32</span> <span class="o">-</span> <span class="n">PARTITION_POWER</span>
+<span class="n">PARTITION_MAX</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">PARTITION_POWER</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">ZONE_COUNT</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">10000000</span>
+
+<span class="n">node2zone</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">node2zone</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">NODE_COUNT</span><span class="p">:</span>
+    <span class="n">zone</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">zone</span> <span class="o">&lt;</span> <span class="n">ZONE_COUNT</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">node2zone</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">NODE_COUNT</span><span class="p">:</span>
+        <span class="n">node2zone</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span>
+        <span class="n">zone</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">part2node</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">PARTITION_POWER</span><span class="p">):</span>
+    <span class="n">part2node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span> <span class="o">%</span> <span class="n">NODE_COUNT</span><span class="p">)</span>
+<span class="n">shuffle</span><span class="p">(</span><span class="n">part2node</span><span class="p">)</span>
+<span class="n">node_counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">NODE_COUNT</span>
+<span class="n">zone_counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ZONE_COUNT</span>
+<span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+    <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+    <span class="n">part</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span>
+        <span class="n">md5</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="n">PARTITION_SHIFT</span>
+    <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]]</span>
+    <span class="n">zones</span> <span class="o">=</span> <span class="p">[</span><span class="n">node2zone</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+    <span class="n">node_counts</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">zone_counts</span><span class="p">[</span><span class="n">zones</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">replica</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">REPLICAS</span><span class="p">):</span>
+        <span class="k">while</span> <span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="ow">in</span> <span class="n">node_ids</span> <span class="ow">and</span> \
+                <span class="n">node2zone</span><span class="p">[</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]]</span> <span class="ow">in</span> <span class="n">zones</span><span class="p">:</span>
+            <span class="n">part</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">part</span> <span class="o">&gt;</span> <span class="n">PARTITION_MAX</span><span class="p">:</span>
+                <span class="n">part</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">node_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">])</span>
+        <span class="n">zones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node2zone</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">node_counts</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">zone_counts</span><span class="p">[</span><span class="n">zones</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">desired_count</span> <span class="o">=</span> <span class="n">DATA_ID_COUNT</span> <span class="o">/</span> <span class="n">NODE_COUNT</span> <span class="o">*</span> <span class="n">REPLICAS</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Desired data ids per node&#39;</span> <span class="o">%</span> <span class="n">desired_count</span>
+<span class="n">max_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">node_counts</span><span class="p">)</span>
+<span class="n">over</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_count</span> <span class="o">-</span> <span class="n">desired_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Most data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> over&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">max_count</span><span class="p">,</span> <span class="n">over</span><span class="p">)</span>
+<span class="n">min_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">node_counts</span><span class="p">)</span>
+<span class="n">under</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">desired_count</span> <span class="o">-</span> <span class="n">min_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Least data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> under&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">min_count</span><span class="p">,</span> <span class="n">under</span><span class="p">)</span>
+<span class="n">desired_count</span> <span class="o">=</span> <span class="n">DATA_ID_COUNT</span> <span class="o">/</span> <span class="n">ZONE_COUNT</span> <span class="o">*</span> <span class="n">REPLICAS</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Desired data ids per zone&#39;</span> <span class="o">%</span> <span class="n">desired_count</span>
+<span class="n">max_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">zone_counts</span><span class="p">)</span>
+<span class="n">over</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_count</span> <span class="o">-</span> <span class="n">desired_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Most data ids in one zone, </span><span class="si">%.02f%%</span><span class="s1"> over&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">max_count</span><span class="p">,</span> <span class="n">over</span><span class="p">)</span>
+<span class="n">min_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">zone_counts</span><span class="p">)</span>
+<span class="n">under</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">desired_count</span> <span class="o">-</span> <span class="n">min_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Least data ids in one zone, </span><span class="si">%.02f%%</span><span class="s1"> under&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">min_count</span><span class="p">,</span> <span class="n">under</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">117186</span><span class="p">:</span> <span class="n">Desired</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">per</span> <span class="n">node</span>
+<span class="mi">118782</span><span class="p">:</span> <span class="n">Most</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">1.36</span><span class="o">%</span> <span class="n">over</span>
+<span class="mi">115632</span><span class="p">:</span> <span class="n">Least</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">1.33</span><span class="o">%</span> <span class="n">under</span>
+<span class="mi">1875000</span><span class="p">:</span> <span class="n">Desired</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">per</span> <span class="n">zone</span>
+<span class="mi">1878533</span><span class="p">:</span> <span class="n">Most</span> <span class="n">data</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">one</span> <span class="n">zone</span><span class="p">,</span> <span class="mf">0.19</span><span class="o">%</span> <span class="n">over</span>
+<span class="mi">1869070</span><span class="p">:</span> <span class="n">Least</span> <span class="n">data</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">one</span> <span class="n">zone</span><span class="p">,</span> <span class="mf">0.32</span><span class="o">%</span> <span class="n">under</span>
+</pre></div>
+</div>
+<p>So the shuffle and zone distinctions affected our distribution some,
+but still definitely good enough. This test took about 64 seconds to
+run on my machine.</p>
+<p>There’s a completely alternate, and quite common, way of accomplishing
+these same requirements. This alternate method doesn’t use partitions
+at all, but instead just assigns anchors to the nodes within the hash
+space. Finding the first node for a given hash just involves walking
+this anchor ring for the next node, and finding additional nodes works
+similarly as before. To attain the equivalent of our virtual nodes,
+each real node is assigned multiple anchors.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bisect</span> <span class="kn">import</span> <span class="n">bisect_left</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+
+<span class="n">REPLICAS</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">ZONE_COUNT</span> <span class="o">=</span> <span class="mi">16</span>
+<span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">10000000</span>
+<span class="n">VNODE_COUNT</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="n">node2zone</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">node2zone</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">NODE_COUNT</span><span class="p">:</span>
+    <span class="n">zone</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">zone</span> <span class="o">&lt;</span> <span class="n">ZONE_COUNT</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">node2zone</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">NODE_COUNT</span><span class="p">:</span>
+        <span class="n">node2zone</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">zone</span><span class="p">)</span>
+        <span class="n">zone</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">hash2index</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">index2node</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NODE_COUNT</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">vnode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">VNODE_COUNT</span><span class="p">):</span>
+        <span class="n">hsh</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span> <span class="n">md5</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">node</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">bisect_left</span><span class="p">(</span><span class="n">hash2index</span><span class="p">,</span> <span class="n">hsh</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">hash2index</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">hash2index</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">hsh</span><span class="p">)</span>
+        <span class="n">index2node</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+<span class="n">node_counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">NODE_COUNT</span>
+<span class="n">zone_counts</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ZONE_COUNT</span>
+<span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+    <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+    <span class="n">hsh</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span> <span class="n">md5</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">))</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="n">bisect_left</span><span class="p">(</span><span class="n">hash2index</span><span class="p">,</span> <span class="n">hsh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hash2index</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">index2node</span><span class="p">[</span><span class="n">index</span><span class="p">]]</span>
+    <span class="n">zones</span> <span class="o">=</span> <span class="p">[</span><span class="n">node2zone</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+    <span class="n">node_counts</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">zone_counts</span><span class="p">[</span><span class="n">zones</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">replica</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">REPLICAS</span><span class="p">):</span>
+        <span class="k">while</span> <span class="n">index2node</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="ow">in</span> <span class="n">node_ids</span> <span class="ow">and</span> \
+                <span class="n">node2zone</span><span class="p">[</span><span class="n">index2node</span><span class="p">[</span><span class="n">index</span><span class="p">]]</span> <span class="ow">in</span> <span class="n">zones</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hash2index</span><span class="p">):</span>
+                <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">node_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index2node</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="n">zones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node2zone</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">node_counts</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">zone_counts</span><span class="p">[</span><span class="n">zones</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="n">desired_count</span> <span class="o">=</span> <span class="n">DATA_ID_COUNT</span> <span class="o">/</span> <span class="n">NODE_COUNT</span> <span class="o">*</span> <span class="n">REPLICAS</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Desired data ids per node&#39;</span> <span class="o">%</span> <span class="n">desired_count</span>
+<span class="n">max_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">node_counts</span><span class="p">)</span>
+<span class="n">over</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_count</span> <span class="o">-</span> <span class="n">desired_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Most data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> over&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">max_count</span><span class="p">,</span> <span class="n">over</span><span class="p">)</span>
+<span class="n">min_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">node_counts</span><span class="p">)</span>
+<span class="n">under</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">desired_count</span> <span class="o">-</span> <span class="n">min_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Least data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> under&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">min_count</span><span class="p">,</span> <span class="n">under</span><span class="p">)</span>
+<span class="n">desired_count</span> <span class="o">=</span> <span class="n">DATA_ID_COUNT</span> <span class="o">/</span> <span class="n">ZONE_COUNT</span> <span class="o">*</span> <span class="n">REPLICAS</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Desired data ids per zone&#39;</span> <span class="o">%</span> <span class="n">desired_count</span>
+<span class="n">max_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">zone_counts</span><span class="p">)</span>
+<span class="n">over</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_count</span> <span class="o">-</span> <span class="n">desired_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Most data ids in one zone, </span><span class="si">%.02f%%</span><span class="s1"> over&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">max_count</span><span class="p">,</span> <span class="n">over</span><span class="p">)</span>
+<span class="n">min_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">zone_counts</span><span class="p">)</span>
+<span class="n">under</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">desired_count</span> <span class="o">-</span> <span class="n">min_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+<span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Least data ids in one zone, </span><span class="si">%.02f%%</span><span class="s1"> under&#39;</span> <span class="o">%</span> \
+    <span class="p">(</span><span class="n">min_count</span><span class="p">,</span> <span class="n">under</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mi">117186</span><span class="p">:</span> <span class="n">Desired</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">per</span> <span class="n">node</span>
+<span class="mi">351282</span><span class="p">:</span> <span class="n">Most</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">199.76</span><span class="o">%</span> <span class="n">over</span>
+<span class="mi">15965</span><span class="p">:</span> <span class="n">Least</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">86.38</span><span class="o">%</span> <span class="n">under</span>
+<span class="mi">1875000</span><span class="p">:</span> <span class="n">Desired</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">per</span> <span class="n">zone</span>
+<span class="mi">2248496</span><span class="p">:</span> <span class="n">Most</span> <span class="n">data</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">one</span> <span class="n">zone</span><span class="p">,</span> <span class="mf">19.92</span><span class="o">%</span> <span class="n">over</span>
+<span class="mi">1378013</span><span class="p">:</span> <span class="n">Least</span> <span class="n">data</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">one</span> <span class="n">zone</span><span class="p">,</span> <span class="mf">26.51</span><span class="o">%</span> <span class="n">under</span>
+</pre></div>
+</div>
+<p>This test took over 15 minutes to run! Unfortunately, this method also
+gives much less control over the distribution. To get better distribution,
+you have to add more virtual nodes, which eats up more memory and takes
+even more time to build the ring and perform distinct node lookups. The
+most common operation, data id lookup, can be improved (by predetermining
+each virtual node’s failover nodes, for instance) but it starts off so
+far behind our first approach that we’ll just stick with that.</p>
+<p>In the next part of this series, we’ll start to wrap all this up into
+a useful Python module.</p>
+</section>
+<section id="part-5">
+<h3>Part 5<a class="headerlink" href="#part-5" title="Permalink to this heading">¶</a></h3>
+<p>In Part 4 of this series, we ended up with a multiple copy, distinctly
+zoned ring. Or at least the start of it. In this final part we’ll package
+the code up into a useable Python module and then add one last feature.
+First, let’s separate the ring itself from the building of the data for
+the ring and its testing.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<span class="k">class</span> <span class="nc">Ring</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">part2node</span><span class="p">,</span> <span class="n">replicas</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">part2node</span> <span class="o">=</span> <span class="n">part2node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replicas</span> <span class="o">=</span> <span class="n">replicas</span>
+        <span class="n">partition_power</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">partition_power</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">part2node</span><span class="p">):</span>
+            <span class="n">partition_power</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">part2node</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">partition_power</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;part2node&#39;s length is not an &quot;</span>
+                            <span class="s2">&quot;exact power of 2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_shift</span> <span class="o">=</span> <span class="mi">32</span> <span class="o">-</span> <span class="n">partition_power</span>
+
+    <span class="k">def</span> <span class="nf">get_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_id</span><span class="p">):</span>
+        <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+        <span class="n">part</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span>
+           <span class="n">md5</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_shift</span>
+        <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]]</span>
+        <span class="n">zones</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+        <span class="k">for</span> <span class="n">replica</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">replicas</span><span class="p">):</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="ow">in</span> <span class="n">node_ids</span> <span class="ow">and</span> \
+                   <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]]</span> <span class="ow">in</span> <span class="n">zones</span><span class="p">:</span>
+                <span class="n">part</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">part</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">part2node</span><span class="p">):</span>
+                    <span class="n">part</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">node_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">])</span>
+            <span class="n">zones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node_ids</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">build_ring</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">partition_power</span><span class="p">,</span> <span class="n">replicas</span><span class="p">):</span>
+    <span class="n">begin</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">part2node</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">partition_power</span><span class="p">):</span>
+        <span class="n">part2node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">))</span>
+    <span class="n">shuffle</span><span class="p">(</span><span class="n">part2node</span><span class="p">)</span>
+    <span class="n">ring</span> <span class="o">=</span> <span class="n">Ring</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">part2node</span><span class="p">,</span> <span class="n">replicas</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%.02f</span><span class="s1">s to build ring&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">begin</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ring</span>
+
+<span class="k">def</span> <span class="nf">test_ring</span><span class="p">(</span><span class="n">ring</span><span class="p">):</span>
+    <span class="n">begin</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">10000000</span>
+    <span class="n">node_counts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">zone_counts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ring</span><span class="o">.</span><span class="n">get_nodes</span><span class="p">(</span><span class="n">data_id</span><span class="p">):</span>
+            <span class="n">node_counts</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]]</span> <span class="o">=</span> \
+                <span class="n">node_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">zone_counts</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">]]</span> <span class="o">=</span> \
+                <span class="n">zone_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">s to test ring&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">begin</span><span class="p">)</span>
+    <span class="n">desired_count</span> <span class="o">=</span> \
+        <span class="n">DATA_ID_COUNT</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">ring</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span> <span class="o">*</span> <span class="n">REPLICAS</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Desired data ids per node&#39;</span> <span class="o">%</span> <span class="n">desired_count</span>
+    <span class="n">max_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">node_counts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">over</span> <span class="o">=</span> \
+        <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_count</span> <span class="o">-</span> <span class="n">desired_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Most data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> over&#39;</span> <span class="o">%</span> \
+        <span class="p">(</span><span class="n">max_count</span><span class="p">,</span> <span class="n">over</span><span class="p">)</span>
+    <span class="n">min_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">node_counts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">under</span> <span class="o">=</span> \
+        <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">desired_count</span> <span class="o">-</span> <span class="n">min_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Least data ids on one node, </span><span class="si">%.02f%%</span><span class="s1"> under&#39;</span> <span class="o">%</span> \
+        <span class="p">(</span><span class="n">min_count</span><span class="p">,</span> <span class="n">under</span><span class="p">)</span>
+    <span class="n">zone_count</span> <span class="o">=</span> \
+        <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">ring</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="n">desired_count</span> <span class="o">=</span> \
+        <span class="n">DATA_ID_COUNT</span> <span class="o">/</span> <span class="n">zone_count</span> <span class="o">*</span> <span class="n">ring</span><span class="o">.</span><span class="n">replicas</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Desired data ids per zone&#39;</span> <span class="o">%</span> <span class="n">desired_count</span>
+    <span class="n">max_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">zone_counts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">over</span> <span class="o">=</span> \
+        <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_count</span> <span class="o">-</span> <span class="n">desired_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Most data ids in one zone, </span><span class="si">%.02f%%</span><span class="s1"> over&#39;</span> <span class="o">%</span> \
+        <span class="p">(</span><span class="n">max_count</span><span class="p">,</span> <span class="n">over</span><span class="p">)</span>
+    <span class="n">min_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">zone_counts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">under</span> <span class="o">=</span> \
+        <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">desired_count</span> <span class="o">-</span> <span class="n">min_count</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired_count</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">: Least data ids in one zone, </span><span class="si">%.02f%%</span><span class="s1"> under&#39;</span> <span class="o">%</span> \
+        <span class="p">(</span><span class="n">min_count</span><span class="p">,</span> <span class="n">under</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">PARTITION_POWER</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">REPLICAS</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">256</span>
+    <span class="n">ZONE_COUNT</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">NODE_COUNT</span><span class="p">:</span>
+        <span class="n">zone</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">zone</span> <span class="o">&lt;</span> <span class="n">ZONE_COUNT</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">NODE_COUNT</span><span class="p">:</span>
+            <span class="n">node_id</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+            <span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">node_id</span><span class="p">,</span> <span class="s1">&#39;zone&#39;</span><span class="p">:</span> <span class="n">zone</span><span class="p">}</span>
+            <span class="n">zone</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">ring</span> <span class="o">=</span> <span class="n">build_ring</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">PARTITION_POWER</span><span class="p">,</span> <span class="n">REPLICAS</span><span class="p">)</span>
+    <span class="n">test_ring</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">0.06</span><span class="n">s</span> <span class="n">to</span> <span class="n">build</span> <span class="n">ring</span>
+<span class="mi">82</span><span class="n">s</span> <span class="n">to</span> <span class="n">test</span> <span class="n">ring</span>
+<span class="mi">117186</span><span class="p">:</span> <span class="n">Desired</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">per</span> <span class="n">node</span>
+<span class="mi">118773</span><span class="p">:</span> <span class="n">Most</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">1.35</span><span class="o">%</span> <span class="n">over</span>
+<span class="mi">115801</span><span class="p">:</span> <span class="n">Least</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">on</span> <span class="n">one</span> <span class="n">node</span><span class="p">,</span> <span class="mf">1.18</span><span class="o">%</span> <span class="n">under</span>
+<span class="mi">1875000</span><span class="p">:</span> <span class="n">Desired</span> <span class="n">data</span> <span class="n">ids</span> <span class="n">per</span> <span class="n">zone</span>
+<span class="mi">1878339</span><span class="p">:</span> <span class="n">Most</span> <span class="n">data</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">one</span> <span class="n">zone</span><span class="p">,</span> <span class="mf">0.18</span><span class="o">%</span> <span class="n">over</span>
+<span class="mi">1869914</span><span class="p">:</span> <span class="n">Least</span> <span class="n">data</span> <span class="n">ids</span> <span class="ow">in</span> <span class="n">one</span> <span class="n">zone</span><span class="p">,</span> <span class="mf">0.27</span><span class="o">%</span> <span class="n">under</span>
+</pre></div>
+</div>
+<p>It takes a bit longer to test our ring, but that’s mostly because of
+the switch to dictionaries from arrays for various items. Having node
+dictionaries is nice because you can attach any node information you
+want directly there (ip addresses, tcp ports, drive paths, etc.). But
+we’re still on track for further testing; our distribution is still good.</p>
+<p>Now, let’s add our one last feature to our ring: the concept of weights.
+Weights are useful because the nodes you add later in a ring’s life are
+likely to have more capacity than those you have at the outset. For this
+test, we’ll make half our nodes have twice the weight. We’ll have to
+change build_ring to give more partitions to the nodes with more weight
+and we’ll change test_ring to take into account these weights. Since
+we’ve changed so much I’ll just post the entire module again:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="kn">from</span> <span class="nn">hashlib</span> <span class="kn">import</span> <span class="n">md5</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">shuffle</span>
+<span class="kn">from</span> <span class="nn">struct</span> <span class="kn">import</span> <span class="n">unpack_from</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<span class="k">class</span> <span class="nc">Ring</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">,</span> <span class="n">part2node</span><span class="p">,</span> <span class="n">replicas</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">part2node</span> <span class="o">=</span> <span class="n">part2node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">replicas</span> <span class="o">=</span> <span class="n">replicas</span>
+        <span class="n">partition_power</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">partition_power</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">part2node</span><span class="p">):</span>
+            <span class="n">partition_power</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">part2node</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">partition_power</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;part2node&#39;s length is not an &quot;</span>
+                            <span class="s2">&quot;exact power of 2&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_shift</span> <span class="o">=</span> <span class="mi">32</span> <span class="o">-</span> <span class="n">partition_power</span>
+
+    <span class="k">def</span> <span class="nf">get_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_id</span><span class="p">):</span>
+        <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span>
+        <span class="n">part</span> <span class="o">=</span> <span class="n">unpack_from</span><span class="p">(</span><span class="s1">&#39;&gt;I&#39;</span><span class="p">,</span>
+           <span class="n">md5</span><span class="p">(</span><span class="n">data_id</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_shift</span>
+        <span class="n">node_ids</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]]</span>
+        <span class="n">zones</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+        <span class="k">for</span> <span class="n">replica</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">replicas</span><span class="p">):</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="ow">in</span> <span class="n">node_ids</span> <span class="ow">and</span> \
+                   <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">]]</span> <span class="ow">in</span> <span class="n">zones</span><span class="p">:</span>
+                <span class="n">part</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">part</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">part2node</span><span class="p">):</span>
+                    <span class="n">part</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">node_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">part2node</span><span class="p">[</span><span class="n">part</span><span class="p">])</span>
+            <span class="n">zones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_ids</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">node_ids</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">build_ring</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">partition_power</span><span class="p">,</span> <span class="n">replicas</span><span class="p">):</span>
+    <span class="n">begin</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">partition_power</span>
+    <span class="n">total_weight</span> <span class="o">=</span> \
+        <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">node</span><span class="p">[</span><span class="s1">&#39;desired_parts&#39;</span><span class="p">]</span> <span class="o">=</span> \
+            <span class="n">parts</span> <span class="o">/</span> <span class="n">total_weight</span> <span class="o">*</span> <span class="n">node</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span>
+    <span class="n">part2node</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="n">partition_power</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s1">&#39;desired_parts&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">node</span><span class="p">[</span><span class="s1">&#39;desired_parts&#39;</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">part2node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s1">&#39;desired_parts&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">node</span><span class="p">[</span><span class="s1">&#39;desired_parts&#39;</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="n">part2node</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+                    <span class="k">break</span>
+    <span class="n">shuffle</span><span class="p">(</span><span class="n">part2node</span><span class="p">)</span>
+    <span class="n">ring</span> <span class="o">=</span> <span class="n">Ring</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">part2node</span><span class="p">,</span> <span class="n">replicas</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%.02f</span><span class="s1">s to build ring&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">begin</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ring</span>
+
+<span class="k">def</span> <span class="nf">test_ring</span><span class="p">(</span><span class="n">ring</span><span class="p">):</span>
+    <span class="n">begin</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">DATA_ID_COUNT</span> <span class="o">=</span> <span class="mi">10000000</span>
+    <span class="n">node_counts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">zone_counts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">data_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">DATA_ID_COUNT</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ring</span><span class="o">.</span><span class="n">get_nodes</span><span class="p">(</span><span class="n">data_id</span><span class="p">):</span>
+            <span class="n">node_counts</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]]</span> <span class="o">=</span> \
+                <span class="n">node_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">zone_counts</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">]]</span> <span class="o">=</span> \
+                <span class="n">zone_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%d</span><span class="s1">s to test ring&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">begin</span><span class="p">)</span>
+    <span class="n">total_weight</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span>
+                             <span class="n">ring</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="n">max_over</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">max_under</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ring</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">desired</span> <span class="o">=</span> <span class="n">DATA_ID_COUNT</span> <span class="o">*</span> <span class="n">REPLICAS</span> <span class="o">*</span> \
+            <span class="n">node</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_weight</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">node_counts</span><span class="p">[</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]]</span> <span class="o">-</span> <span class="n">desired</span>
+        <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">over</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">diff</span> <span class="o">/</span> <span class="n">desired</span>
+            <span class="k">if</span> <span class="n">over</span> <span class="o">&gt;</span> <span class="n">max_over</span><span class="p">:</span>
+                <span class="n">max_over</span> <span class="o">=</span> <span class="n">over</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">under</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">diff</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired</span>
+            <span class="k">if</span> <span class="n">under</span> <span class="o">&gt;</span> <span class="n">max_under</span><span class="p">:</span>
+                <span class="n">max_under</span> <span class="o">=</span> <span class="n">under</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%.02f%%</span><span class="s1"> max node over&#39;</span> <span class="o">%</span> <span class="n">max_over</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%.02f%%</span><span class="s1"> max node under&#39;</span> <span class="o">%</span> <span class="n">max_under</span>
+    <span class="n">max_over</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">max_under</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">zone</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span>
+                    <span class="n">ring</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+        <span class="n">zone_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span>
+            <span class="n">ring</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span><span class="p">[</span><span class="s1">&#39;zone&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">zone</span><span class="p">)</span>
+        <span class="n">desired</span> <span class="o">=</span> <span class="n">DATA_ID_COUNT</span> <span class="o">*</span> <span class="n">REPLICAS</span> <span class="o">*</span> \
+            <span class="n">zone_weight</span> <span class="o">/</span> <span class="n">total_weight</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">zone_counts</span><span class="p">[</span><span class="n">zone</span><span class="p">]</span> <span class="o">-</span> <span class="n">desired</span>
+        <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">over</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">diff</span> <span class="o">/</span> <span class="n">desired</span>
+            <span class="k">if</span> <span class="n">over</span> <span class="o">&gt;</span> <span class="n">max_over</span><span class="p">:</span>
+                <span class="n">max_over</span> <span class="o">=</span> <span class="n">over</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">under</span> <span class="o">=</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">diff</span><span class="p">)</span> <span class="o">/</span> <span class="n">desired</span>
+            <span class="k">if</span> <span class="n">under</span> <span class="o">&gt;</span> <span class="n">max_under</span><span class="p">:</span>
+                <span class="n">max_under</span> <span class="o">=</span> <span class="n">under</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%.02f%%</span><span class="s1"> max zone over&#39;</span> <span class="o">%</span> <span class="n">max_over</span>
+    <span class="nb">print</span> <span class="s1">&#39;</span><span class="si">%.02f%%</span><span class="s1"> max zone under&#39;</span> <span class="o">%</span> <span class="n">max_under</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">PARTITION_POWER</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">REPLICAS</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">NODE_COUNT</span> <span class="o">=</span> <span class="mi">256</span>
+    <span class="n">ZONE_COUNT</span> <span class="o">=</span> <span class="mi">16</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">NODE_COUNT</span><span class="p">:</span>
+        <span class="n">zone</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">zone</span> <span class="o">&lt;</span> <span class="n">ZONE_COUNT</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">NODE_COUNT</span><span class="p">:</span>
+            <span class="n">node_id</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+            <span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="n">node_id</span><span class="p">,</span> <span class="s1">&#39;zone&#39;</span><span class="p">:</span> <span class="n">zone</span><span class="p">,</span>
+                              <span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="p">(</span><span class="n">node_id</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)}</span>
+            <span class="n">zone</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">ring</span> <span class="o">=</span> <span class="n">build_ring</span><span class="p">(</span><span class="n">nodes</span><span class="p">,</span> <span class="n">PARTITION_POWER</span><span class="p">,</span> <span class="n">REPLICAS</span><span class="p">)</span>
+    <span class="n">test_ring</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">0.88</span><span class="n">s</span> <span class="n">to</span> <span class="n">build</span> <span class="n">ring</span>
+<span class="mi">86</span><span class="n">s</span> <span class="n">to</span> <span class="n">test</span> <span class="n">ring</span>
+<span class="mf">1.66</span><span class="o">%</span> <span class="nb">max</span> <span class="n">over</span>
+<span class="mf">1.46</span><span class="o">%</span> <span class="nb">max</span> <span class="n">under</span>
+<span class="mf">0.28</span><span class="o">%</span> <span class="nb">max</span> <span class="n">zone</span> <span class="n">over</span>
+<span class="mf">0.23</span><span class="o">%</span> <span class="nb">max</span> <span class="n">zone</span> <span class="n">under</span>
+</pre></div>
+</div>
+<p>So things are still good, even though we have differently weighted nodes.
+I ran another test with this code using random weights from 1 to 100 and
+got over/under values for nodes of 7.35%/18.12% and zones of 0.24%/0.22%,
+still pretty good considering the crazy weight ranges.</p>
+</section>
+<section id="summary">
+<h3>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h3>
+<p>Hopefully this series has been a good introduction to building a ring.
+This code is essentially how the OpenStack Swift ring works, except that
+Swift’s ring has lots of additional optimizations, such as storing each
+replica assignment separately, and lots of extra features for building,
+validating, and otherwise working with rings.</p>
+</section>
+</section>
+</section>
+
+
+              </div>
+            </div>
+          </div>
+          <div class="docs-actions">
+          
+            <a href="overview_container_sharding.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Container Sharding"></i></a>
+          
+          
+            <a href="ring_partpower.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Modifying Ring Partition Power"></i></a>
+          
+          <a id="pdfLink2" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+          
+            <a id="logABugLink3" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+          
+          </div>
+          <div class="row docs-byline bottom">
+            <div class="docs-updated">this page last updated: 2018-11-02 17:21:19</div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-8 docs-license">
+<a href="https://creativecommons.org/licenses/by/3.0/">
+ <img src="_static/images/docs/license.png" alt="Creative Commons Attribution 3.0 License"/>
+</a>
+<p>
+ Except where otherwise noted, this document is licensed under
+ <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons
+ Attribution 3.0 License</a>. See all <a href="https://www.openstack.org/legal">
+ OpenStack Legal Documents</a>.
+</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 docs-actions-wrapper">
+            <!-- ID buglinkbottom added so that pre-filled doc bugs
+                 are sent to Launchpad projects related to the
+                 document -->
+              <a href="#" id="logABugLink2" class="docs-footer-actions"><i class="fa fa-bug"></i> found an error? report a bug</a>
+            </div>
+          </div>
+        </div>
+<div class="col-lg-3 col-md-4 col-sm-4 col-lg-pull-9 col-md-pull-8 col-sm-pull-8 docs-sidebar">
+  <div class="btn-group docs-sidebar-releases">
+    <button onclick="location.href='/'" class="btn docs-sidebar-home" data-toggle="tooltip" data-placement="top" title="OpenStack Docs Home"><i class="fa fa-arrow-circle-o-left"></i></button>
+<button href="#" type="button" data-toggle="dropdown" class="btn docs-sidebar-release-select">OpenStack Documentation<i class="fa fa-caret-down"></i></button>
+    <ul class="dropdown-menu docs-sidebar-dropdown" role="menu" aria-labelledby="dLabel">
+      <li role="presentation" class="dropdown-header">Guides</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#install-guides">Install Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#user-guides">User Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#configuration-guides">Configuration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#ops-and-admin-guides">Operations and Administration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#api-guides">API Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#contributor-guides">Contributor Guides</a></li>
+      <li role="presentation" class="dropdown-header">Languages</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/de/">Deutsch (German)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/fr/">Français (French)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/id/">Bahasa Indonesia (Indonesian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/it/">Italiano (Italian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ja/">日本語 (Japanese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ko_KR/">한국어 (Korean)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/pt_BR/">Português (Portuguese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/tr_TR/">Türkçe (Türkiye)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/zh_CN/">简体中文 (Simplified Chinese)</a></li>
+    </ul>
+  </div>
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="table-of-contents">
+      <a href="index.html" class="docs-sidebar-section-title"><h4>Swift 0.1.0.dev10164</h4></a>
+      <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_architecture.html">Swift Architectural Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_ring.html">The Rings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_policies.html">Storage Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_reaper.html">The Account Reaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_auth.html">The Auth System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_acl.html">Access Control Lists (ACLs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ratelimit.html">Rate Limiting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_large_objects.html">Large Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_global_cluster.html">Global Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sync.html">Container to Container Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_expiring_objects.html">Expiring Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cors.html">CORS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crossdomain.html">Cross-domain Policy File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_erasure_code.html">Erasure Code Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_encryption.html">Object Encryption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_backing_store.html">Using Swift as Backing Store for Service Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sharding.html">Container Sharding</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Building a Consistent Hashing Ring</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#authored-by-greg-holt-february-2011">Authored by Greg Holt, February 2011</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ring_partpower.html">Modifying Ring Partition Power</a></li>
+<li class="toctree-l1"><a class="reference internal" href="associated_projects.html">Associated Projects</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html">Contributing to OpenStack Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#swift-design-principles">Swift Design Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#recommended-workflow">Recommended workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#notes-on-testing">Notes on Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#ideas">Ideas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#community">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/review_guidelines.html">Review Guidelines</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development_guidelines.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_saio.html">SAIO (Swift All In One)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="first_contribution_swift.html">First Contribution to Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policies_saio.html">Adding Storage Policies to an Existing SAIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_auth.html">Auth Server and Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_middleware.html">Middleware and Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_ondisk_backends.html">Pluggable On-Disk Back-end APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_watchers.html">Auditor Watchers</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="deployment_guide.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apache_deployment_guide.html">Apache Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin_guide.html">Administrator’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication_network.html">Dedicated replication network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logs.html">Logs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ops_runbook/index.html">Swift Ops Runbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin/index.html">OpenStack Swift Administrator Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Object Storage Install Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config/index.html">Configuration Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/discoverability.html">Discoverability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/container_quotas.html">Container quotas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object_versioning.html">Object versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/large_objects.html">Large objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/temporary_url_middleware.html">Temporary URL middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/form_post_middleware.html">Form POST middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_content-encoding_metadata.html">Use Content-Encoding metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_the_content-disposition_metadata.html">Use the Content-Disposition metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pseudo-hierarchical-folders-directories.html">Pseudo-hierarchical folders and directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pagination.html">Page through large lists of containers or objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/serialized-response-formats.html">Serialized response formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/static-website.html">Create static website</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object-expiration.html">Object expiration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/bulk-delete.html">Bulk delete</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="s3_compat.html">S3/Swift REST API Comparison Matrix</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ring.html">Partitioned Consistent Hash Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxy.html">Proxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="account.html">Account</a></li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="db.html">Account DB and Container DB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object.html">Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audit_watchers.html">Object Audit Watchers</a></li>
+</ul>
+
+    </div>
+
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="local-table-of-contents">
+      <h4 class="docs-sidebar-section-title">Page Contents</h4>
+      <ul>
+<li><a class="reference internal" href="#">Building a Consistent Hashing Ring</a><ul>
+<li><a class="reference internal" href="#authored-by-greg-holt-february-2011">Authored by Greg Holt, February 2011</a><ul>
+<li><a class="reference internal" href="#part-1">Part 1</a></li>
+<li><a class="reference internal" href="#part-2">Part 2</a></li>
+<li><a class="reference internal" href="#part-3">Part 3</a></li>
+<li><a class="reference internal" href="#part-4">Part 4</a></li>
+<li><a class="reference internal" href="#part-5">Part 5</a></li>
+<li><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  </div>
+</div>
+      </div>
+    </div>
+<footer>
+  <div class="container">
+    <div class="row footer-links">
+      <div class="col-lg-2 col-sm-2">
+        <h3>OpenStack</h3>
+        <ul>
+          <li><a href="https://openstack.org/projects/">Projects</a></li>
+          <li><a href="https://www.openstack.org/software/security/">OpenStack Security</a></li>
+          <li><a href="https://openstack.org/projects/openstack-faq/">Common Questions</a></li>
+          <li><a href="https://openstack.org/blog/">Blog</a></li>g
+          <li><a href="https://openstack.org/news/">News</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Community</h3>
+        <ul>
+          <li><a href="https://openstack.org/community/">User Groups</a></li>
+          <li><a href="https://openstack.org/community/events/">Events</a></li>
+          <li><a href="https://openstack.org/community/jobs/">Jobs</a></li>
+          <li><a href="https://openstack.org/foundation/companies/">Companies</a></li>
+          <li><a href="https://docs.openstack.org/contributors">Contribute</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="https://docs.openstack.org">OpenStack Manuals</a></li>
+          <li><a href="https://openstack.org/software/start/">Getting Started</a></li>
+          <li><a href="https://developer.openstack.org">API Documentation</a></li>
+          <li><a href="https://wiki.openstack.org">Wiki</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Branding & Legal</h3>
+        <ul>
+          <li><a href="https://openstack.org/brand/">Logos & Guidelines</a></li>
+          <li><a href="https://openstack.org/brand/openstack-trademark-policy/">Trademark Policy</a></li>
+          <li><a href="https://openstack.org/privacy/">Privacy Policy</a></li>
+          <li><a href="https://wiki.openstack.org/wiki/How_To_Contribute#Contributor_License_Agreement">OpenStack CLA</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-sm-4">
+        <h3>Stay In Touch</h3>
+        <a href="https://twitter.com/OpenStack" target="_blank" class="social-icons footer-twitter"></a>
+        <a href="https://www.facebook.com/openstack" target="_blank" class="social-icons footer-facebook"></a>
+        <a href="https://www.linkedin.com/company/openstack" target="_blank" class="social-icons footer-linkedin"></a>
+        <a href="https://www.youtube.com/user/OpenStackFoundation" target="_blank" class="social-icons footer-youtube"></a>
+        <p class="fine-print">
+          The OpenStack project is provided under the
+          <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>. Openstack.org is powered by
+          <a href="https://rackspace.com" target="_blank">Rackspace Cloud Computing</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- jQuery -->
+<script type="text/javascript" src="_static/js/jquery-3.2.1.min.js"></script>
+
+<!-- Bootstrap JavaScript -->
+<script type="text/javascript" src="_static/js/bootstrap.min.js"></script>
+
+<!-- The rest of the JS -->
+<script type="text/javascript" src="_static/js/navigation.js"></script>
+
+<!-- Docs JS -->
+<script type="text/javascript" src="_static/js/docs.js"></script>
+
+<!-- standard sphinx include libraries, which allow search highlighting -->
+<script type="text/javascript" src="_static/underscore.js"></script>
+<script type="text/javascript" src="_static/doctools.js"></script>
+<script type="text/javascript" src="_static/searchtools.js"></script>
+<script type="text/javascript" src="_static/language_data.js"></script>
+
+<script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+      URL_ROOT:    './',
+      VERSION:     '0.1.0.dev10164',
+      COLLAPSE_INDEX: false,
+      FILE_SUFFIX: '.html',
+      LINK_SUFFIX: '.html',
+      SOURCELINK_SUFFIX: '.txt',
+      HAS_SOURCE:  true
+    };
+</script>
+
+<!-- Javascript for page -->
+<script language="JavaScript">
+  /* Build a description of this page including SHA, source location on git
+   * repo, build time and the project's launchpad bug tag. Set the HREF of the
+   * bug buttons
+   */
+    var lineFeed = "%0A";
+    var gitURL = "Source: Can't derive source file URL";
+
+    /* there have been cases where "pagename" wasn't set; better check for it */
+    /* "giturl" is the URL of the source file on Git and is auto-generated by
+     * openstackdocstheme.
+     *
+     * "pagename" is a standard sphinx parameter containing the name of
+     * the source file, without extension.
+     */
+
+    var sourceFile = "ring_background" + ".rst";
+    gitURL = "Source: https://opendev.org/openstack/swift/src/doc/source" + "/" + sourceFile;
+
+    /* gitsha, project and bug_tag rely on variables in conf.py */
+    var gitSha = "SHA: c7afe681fd119752e66a8e9032e8782641fec3ff";
+    var repositoryName = "openstack/swift";
+    var bugProject = "swift";
+    var bugTitle = "Building a Consistent Hashing Ring in Swift";
+    var fieldTags = "";
+    var useStoryboard = "";
+
+    /* "last_updated" is the build date and time. It relies on the
+       conf.py variable "html_last_updated_fmt", which should include
+       year/month/day as well as hours and minutes                   */
+    var buildstring = "Release: 0.1.0.dev10164 on 2018-11-02 17:21:19";
+
+    var fieldComment = encodeURI(buildstring) +
+                       lineFeed + encodeURI(gitSha) +
+                       lineFeed + encodeURI(gitURL) ;
+
+    logABug(bugTitle, bugProject, fieldComment, fieldTags, repositoryName, useStoryboard);
+    var currentSourceFile = "ring_background";
+    var pdfFileName = "doc-swift.pdf";
+    pdfLink(currentSourceFile, pdfFileName);
+</script>
+
+
+  </body>
+</html>

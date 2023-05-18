@@ -1,0 +1,1087 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Account &#8212; Swift 0.1.0.dev10164 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/basic.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="canonical" href="/openstack-swift/account.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Container" href="container.html" />
+    <link rel="prev" title="Proxy" href="proxy.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Bootstrap CSS -->
+<link href="_static/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Fonts -->
+<link href="_static/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="_static/css/combined.css" rel="stylesheet">
+
+<!-- Search CSS -->
+<link href="_static/css/search.css" rel="stylesheet">
+
+<!-- Pygments CSS -->
+<link href="_static/pygments.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-17511903-1', 'auto');
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+  </head><body>
+
+<!-- SOURCE_FILE: https://opendev.org/openstack/swift/src/doc/source/account.rst -->
+
+<script>
+    (function (window, document) {
+        var loader = function () {
+            var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+            script.src = "https://search.openstack.org/widget/embed.min.js?t="+Date.now();
+            tag.parentNode.insertBefore(script, tag);
+        };
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document);
+</script>
+
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse" type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="brand-wrapper">
+        <a class="navbar-brand" href="https://www.openstack.org/"></a>
+      </div>
+      <div class="search-icon show"><i class="fa fa-search"></i> Search</div></div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <div class="search-container tiny">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</div>
+      <ul class="nav navbar-nav navbar-main show">
+        <li class="search-container-mobile">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</li>
+        <li> <!--Software -->
+          <a href="https://www.openstack.org/software/" class="drop" id="dropdownMenuSoftware">Software <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSoftware">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/">Overview</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/openstack-components">OpenStack Components</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/sdks">SDKs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/deployment-tools">Deployment Tools</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/assets/software/projectmap/openstack-map.pdf" target="_blank">OpenStack Map</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/sample-configs/">Sample Configs</a></li>
+          </ul>
+        </li>
+        <li> <!-- Use Cases -->
+          <a href="https://www.openstack.org/use-cases/" class="drop" id="dropdownMenuUsers">Use Cases <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuUsers">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/">Users in Production</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/bare-metal/">Ironic Bare Metal</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/edge-computing/">Edge Computing</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/telecoms-and-nfv/">Telecom & NFV</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/science/">Science and HPC</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/containers/">Containers</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/enterprise/">Enterprise</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/surveys/landing">User Survey</a></li>
+          </ul>
+        </li>
+        <li> <!-- Events -->
+          <a href="https://www.openstack.org/events/" class="drop" id="dropdownMenuEvents">Events <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/summit/">Open Infrastructure Summits</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/ptg/">Project Teams Gathering</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/opendev-2020/">OpenDev</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/community-events/">Community Events</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/openstackdays">OpenStack & OpenInfra Days</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/videos/">Summit Videos</a></li>
+          </ul>
+        </li>
+        <li><!-- Community -->
+          <a href="https://www.openstack.org/community/" class="drop" id="dropdownMenuCommunity">Community <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuCommunity">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/">Welcome! Start Here</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/tech-committee">OpenStack Technical Committee</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/speakers/">Speakers Bureau</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://wiki.openstack.org">OpenStack Wiki</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/coa/">Get Certified (COA)</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/jobs/">Jobs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketing/">Marketing Resources</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/news/">Community News</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://superuser.openstack.org">Superuser Magazine</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/supporting-organizations/">OpenInfra Foundation Supporting Organizations</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">Open Infrastructure Foundation (OpenInfra Foundation)</a></li>
+          </ul>
+        </li>
+        <li><!-- Marketplace -->
+          <a href="https://www.openstack.orgmarketplace/" class="drop" id="dropdownMenuLearn">Marketplace <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/training/">Training</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/distros/">Distros & Appliances</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/public-clouds/">Public Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/hosted-private-clouds/">Hosted Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/remotely-managed-private-clouds/">Remotely Managed Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/consulting/">Consulting & Integrators</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/drivers/">Drivers</a></li>
+          </ul>
+        </li>
+        <li><!-- Blog -->
+          <a href="https://www.openstack.org/blog/">Blog</a>
+        </li>
+        <li><!-- Docs -->
+          <a href="http://docs.openstack.org/">Docs</a>
+        </li>
+        <li> <!-- Join -->
+            <li class="join-nav-section">
+              <a href="https://openinfra.dev/join/" id="dropdownMenuJoin">Join <i class="fa fa-caret-down"></i></a>
+              <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuJoin" style="display: none;">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sign up for Foundation Membership</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sponsor the Foundation</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">More about the Foundation</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="https://www.openstack.org/Security/login/?BackURL=/home/" class="sign-in-btn">Log In</a>
+            </li>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- /.container -->
+</nav>
+
+    <div class="container docs-book-wrapper">
+      <div class="row">
+        <div class="col-lg-9 col-md-8 col-sm-8 col-lg-push-3 col-md-push-4 col-sm-push-4">
+<div class="row docs-title">
+  <div class="col-lg-8">
+      <h1>Account</h1>
+    
+  </div>
+  <div class="docs-actions">
+    
+    <a href="proxy.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Proxy"></i></a>
+    
+    
+    <a href="container.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Container"></i></a>
+    
+    <a id="pdfLink1" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+    
+    <a id="logABugLink1" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+    
+  </div>
+</div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="docs-body" role="main">
+
+  <section id="account">
+<span id="id1"></span><h1>Account<a class="headerlink" href="#account" title="Permalink to this heading">¶</a></h1>
+<section id="module-swift.account.auditor">
+<span id="id2"></span><span id="account-auditor"></span><h2>Account Auditor<a class="headerlink" href="#module-swift.account.auditor" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="swift.account.auditor.AccountAuditor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">swift.account.auditor.</span></span><span class="sig-name descname"><span class="pre">AccountAuditor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.auditor.AccountAuditor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DatabaseAuditor</span></code></p>
+<p>Audit accounts.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="swift.account.auditor.AccountAuditor.broker_class">
+<span class="sig-name descname"><span class="pre">broker_class</span></span><a class="headerlink" href="#swift.account.auditor.AccountAuditor.broker_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#swift.account.backend.AccountBroker" title="swift.account.backend.AccountBroker"><code class="xref py py-class docutils literal notranslate"><span class="pre">AccountBroker</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="swift.account.auditor.AccountAuditor.server_type">
+<span class="sig-name descname"><span class="pre">server_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'account'</span></em><a class="headerlink" href="#swift.account.auditor.AccountAuditor.server_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-swift.account.backend">
+<span id="id3"></span><span id="account-backend"></span><h2>Account Backend<a class="headerlink" href="#module-swift.account.backend" title="Permalink to this heading">¶</a></h2>
+<p>Pluggable Back-end for Account Server</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">swift.account.backend.</span></span><span class="sig-name descname"><span class="pre">AccountBroker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pending_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stale_reads_ok</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_commits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="db.html#swift.common.db.DatabaseBroker" title="swift.common.db.DatabaseBroker"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatabaseBroker</span></code></a></p>
+<p>Encapsulates working with an account database.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.create_account_stat_table">
+<span class="sig-name descname"><span class="pre">create_account_stat_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">put_timestamp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.create_account_stat_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create account_stat table which is specific to the account DB.
+Not a part of Pluggable Back-ends, internal to the baseline code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>conn</strong> – DB connection object</p></li>
+<li><p><strong>put_timestamp</strong> – put timestamp</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.create_container_table">
+<span class="sig-name descname"><span class="pre">create_container_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.create_container_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create container table which is specific to the account DB.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>conn</strong> – DB connection object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.create_policy_stat_table">
+<span class="sig-name descname"><span class="pre">create_policy_stat_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.create_policy_stat_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create policy_stat table which is specific to the account DB.
+Not a part of Pluggable Back-ends, internal to the baseline code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>conn</strong> – DB connection object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.db_contains_type">
+<span class="sig-name descname"><span class="pre">db_contains_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'container'</span></em><a class="headerlink" href="#swift.account.backend.AccountBroker.db_contains_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.db_reclaim_timestamp">
+<span class="sig-name descname"><span class="pre">db_reclaim_timestamp</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'delete_timestamp'</span></em><a class="headerlink" href="#swift.account.backend.AccountBroker.db_reclaim_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.db_type">
+<span class="sig-name descname"><span class="pre">db_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'account'</span></em><a class="headerlink" href="#swift.account.backend.AccountBroker.db_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.empty">
+<span class="sig-name descname"><span class="pre">empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if the account DB is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the database has no active containers.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.get_db_version">
+<span class="sig-name descname"><span class="pre">get_db_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conn</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.get_db_version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.get_info">
+<span class="sig-name descname"><span class="pre">get_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.get_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get global data for the account.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict with keys: account, created_at, put_timestamp,
+delete_timestamp, status_changed_at, container_count,
+object_count, bytes_used, hash, id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.get_policy_stats">
+<span class="sig-name descname"><span class="pre">get_policy_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">do_migrations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.get_policy_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get global policy stats for the account.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>do_migrations</strong> – boolean, if True the policy stat dicts will
+always include the ‘container_count’ key;
+otherwise it may be omitted on legacy databases
+until they are migrated.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict of policy stats where the key is the policy index and
+the value is a dictionary like {‘object_count’: M,
+‘bytes_used’: N, ‘container_count’: L}</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.is_status_deleted">
+<span class="sig-name descname"><span class="pre">is_status_deleted</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.is_status_deleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only returns true if the status field is set to DELETED.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.list_containers_iter">
+<span class="sig-name descname"><span class="pre">list_containers_iter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end_marker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_reserved</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.list_containers_iter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a list of containers sorted by name starting at marker onward, up
+to limit entries. Entries will begin with the prefix and will not have
+the delimiter after the prefix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>limit</strong> – maximum number of entries to get</p></li>
+<li><p><strong>marker</strong> – marker query</p></li>
+<li><p><strong>end_marker</strong> – end marker query</p></li>
+<li><p><strong>prefix</strong> – prefix query</p></li>
+<li><p><strong>delimiter</strong> – delimiter for query</p></li>
+<li><p><strong>reverse</strong> – reverse the result order.</p></li>
+<li><p><strong>allow_reserved</strong> – exclude names with reserved-byte by default</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of tuples of (name, object_count, bytes_used,
+put_timestamp, 0)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.make_tuple_for_pickle">
+<span class="sig-name descname"><span class="pre">make_tuple_for_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.make_tuple_for_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn this db record dict into the format this service uses for
+pending pickles.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.merge_items">
+<span class="sig-name descname"><span class="pre">merge_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.merge_items" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge items into the container table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>item_list</strong> – list of dictionaries of {‘name’, ‘put_timestamp’,
+‘delete_timestamp’, ‘object_count’, ‘bytes_used’,
+‘deleted’, ‘storage_policy_index’}</p></li>
+<li><p><strong>source</strong> – if defined, update incoming_sync with the source</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.backend.AccountBroker.put_container">
+<span class="sig-name descname"><span class="pre">put_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">put_timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bytes_used</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_policy_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.backend.AccountBroker.put_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a container with the given attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – name of the container to create (a native string)</p></li>
+<li><p><strong>put_timestamp</strong> – put_timestamp of the container to create</p></li>
+<li><p><strong>delete_timestamp</strong> – delete_timestamp of the container to create</p></li>
+<li><p><strong>object_count</strong> – number of objects in the container</p></li>
+<li><p><strong>bytes_used</strong> – number of bytes used by the container</p></li>
+<li><p><strong>storage_policy_index</strong> – the storage policy for this container</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-swift.account.reaper">
+<span id="id4"></span><span id="account-reaper"></span><h2>Account Reaper<a class="headerlink" href="#module-swift.account.reaper" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">swift.account.reaper.</span></span><span class="sig-name descname"><span class="pre">AccountReaper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Daemon</span></code></p>
+<p>Removes data from status=DELETED accounts. These are accounts that have
+been asked to be removed by the reseller via services
+remove_storage_account XMLRPC call.</p>
+<p>The account is not deleted immediately by the services call, but instead
+the account is simply marked for deletion by setting the status column in
+the account_stat table of the account database. This account reaper scans
+for such accounts and removes the data in the background. The background
+deletion process will occur on the primary account server for the account.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>server_conf</strong> – The [account-server] dictionary of the account server
+configuration file</p></li>
+<li><p><strong>reaper_conf</strong> – The [account-reaper] dictionary of the account server
+configuration file</p></li>
+</ul>
+</dd>
+</dl>
+<p>See the etc/account-server.conf-sample for information on the possible
+configuration parameters.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper.get_account_ring">
+<span class="sig-name descname"><span class="pre">get_account_ring</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper.get_account_ring" title="Permalink to this definition">¶</a></dt>
+<dd><p>The account <code class="xref py py-class docutils literal notranslate"><span class="pre">swift.common.ring.Ring</span></code> for the cluster.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper.get_container_ring">
+<span class="sig-name descname"><span class="pre">get_container_ring</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper.get_container_ring" title="Permalink to this definition">¶</a></dt>
+<dd><p>The container <code class="xref py py-class docutils literal notranslate"><span class="pre">swift.common.ring.Ring</span></code> for the cluster.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper.get_object_ring">
+<span class="sig-name descname"><span class="pre">get_object_ring</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper.get_object_ring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the ring identified by the policy index</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>policy_idx</strong> – Storage policy index</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A ring matching the storage policy</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper.reap_account">
+<span class="sig-name descname"><span class="pre">reap_account</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">broker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container_shard</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper.reap_account" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called once per pass for each account this server is the primary for
+and attempts to delete the data for the given account. The reaper will
+only delete one account at any given time. It will call
+<a class="reference internal" href="#swift.account.reaper.AccountReaper.reap_container" title="swift.account.reaper.AccountReaper.reap_container"><code class="xref py py-func docutils literal notranslate"><span class="pre">reap_container()</span></code></a> up to sqrt(self.concurrency) times concurrently
+while reaping the account.</p>
+<p>If there is any exception while deleting a single container, the
+process will continue for any other containers and the failed
+containers will be tried again the next time this function is called
+with the same parameters.</p>
+<p>If there is any exception while listing the containers for deletion,
+the process will stop (but will obviously be tried again the next time
+this function is called with the same parameters). This isn’t likely
+since the listing comes from the local database.</p>
+<p>After the process completes (successfully or not) statistics about what
+was accomplished will be logged.</p>
+<p>This function returns nothing and should raise no exception but only
+update various self.stats_* values for what occurs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>broker</strong> – The AccountBroker for the account to delete.</p></li>
+<li><p><strong>partition</strong> – The partition in the account ring the account is on.</p></li>
+<li><p><strong>nodes</strong> – The primary node dicts for the account to delete.</p></li>
+<li><p><strong>container_shard</strong> – int used to shard containers reaped. If None,
+will reap all containers.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#swift.account.backend.AccountBroker" title="swift.account.backend.AccountBroker"><code class="xref py py-class docutils literal notranslate"><span class="pre">swift.account.backend.AccountBroker</span></code></a> for the broker class.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">swift.common.ring.Ring.get_nodes()</span></code> for a description
+of the node dicts.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper.reap_container">
+<span class="sig-name descname"><span class="pre">reap_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">account_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper.reap_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the data and the container itself for the given container. This
+will call <a class="reference internal" href="#swift.account.reaper.AccountReaper.reap_object" title="swift.account.reaper.AccountReaper.reap_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">reap_object()</span></code></a> up to sqrt(self.concurrency) times
+concurrently for the objects in the container.</p>
+<p>If there is any exception while deleting a single object, the process
+will continue for any other objects in the container and the failed
+objects will be tried again the next time this function is called with
+the same parameters.</p>
+<p>If there is any exception while listing the objects for deletion, the
+process will stop (but will obviously be tried again the next time this
+function is called with the same parameters). This is a possibility
+since the listing comes from querying just the primary remote container
+server.</p>
+<p>Once all objects have been attempted to be deleted, the container
+itself will be attempted to be deleted by sending a delete request to
+all container nodes. The format of the delete request is such that each
+container server will update a corresponding account server, removing
+the container from the account’s listing.</p>
+<p>This function returns nothing and should raise no exception but only
+update various self.stats_* values for what occurs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>account</strong> – The name of the account for the container.</p></li>
+<li><p><strong>account_partition</strong> – The partition for the account on the account
+ring.</p></li>
+<li><p><strong>account_nodes</strong> – The primary node dicts for the account.</p></li>
+<li><p><strong>container</strong> – The name of the container to delete.</p></li>
+</ul>
+</dd>
+</dl>
+<ul class="simple">
+<li><p>See also: <code class="xref py py-func docutils literal notranslate"><span class="pre">swift.common.ring.Ring.get_nodes()</span></code> for a description
+of the account node dicts.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper.reap_device">
+<span class="sig-name descname"><span class="pre">reap_device</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper.reap_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called once per pass for each device on the server. This will scan the
+accounts directory for the device, looking for partitions this device
+is the primary for, then looking for account databases that are marked
+status=DELETED and still have containers and calling
+<a class="reference internal" href="#swift.account.reaper.AccountReaper.reap_account" title="swift.account.reaper.AccountReaper.reap_account"><code class="xref py py-func docutils literal notranslate"><span class="pre">reap_account()</span></code></a>. Account databases marked status=DELETED that no
+longer have containers will eventually be permanently removed by the
+reclaim process within the account replicator (see
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">swift.db_replicator</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>device</strong> – The device to look for accounts to be deleted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper.reap_object">
+<span class="sig-name descname"><span class="pre">reap_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">container_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy_index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper.reap_object" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes the given object by issuing a delete request to each node for
+the object. The format of the delete request is such that each object
+server will update a corresponding container server, removing the
+object from the container’s listing.</p>
+<p>This function returns nothing and should raise no exception but only
+update various self.stats_* values for what occurs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>account</strong> – The name of the account for the object.</p></li>
+<li><p><strong>container</strong> – The name of the container for the object.</p></li>
+<li><p><strong>container_partition</strong> – The partition for the container on the
+container ring.</p></li>
+<li><p><strong>container_nodes</strong> – The primary node dicts for the container.</p></li>
+<li><p><strong>obj</strong> – The name of the object to delete.</p></li>
+<li><p><strong>policy_index</strong> – The storage policy index of the object’s container</p></li>
+</ul>
+</dd>
+</dl>
+<ul class="simple">
+<li><p>See also: <code class="xref py py-func docutils literal notranslate"><span class="pre">swift.common.ring.Ring.get_nodes()</span></code> for a description
+of the container node dicts.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper.reset_stats">
+<span class="sig-name descname"><span class="pre">reset_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper.reset_stats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper.run_forever">
+<span class="sig-name descname"><span class="pre">run_forever</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper.run_forever" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main entry point when running the reaper in normal daemon mode.</p>
+<p>This repeatedly calls <a class="reference internal" href="#swift.account.reaper.AccountReaper.run_once" title="swift.account.reaper.AccountReaper.run_once"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_once()</span></code></a> no quicker than the
+configuration interval.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.reaper.AccountReaper.run_once">
+<span class="sig-name descname"><span class="pre">run_once</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.reaper.AccountReaper.run_once" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main entry point when running the reaper in ‘once’ mode, where it will
+do a single pass over all accounts on the server. This is called
+repeatedly by <a class="reference internal" href="#swift.account.reaper.AccountReaper.run_forever" title="swift.account.reaper.AccountReaper.run_forever"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_forever()</span></code></a>. This will call <a class="reference internal" href="#swift.account.reaper.AccountReaper.reap_device" title="swift.account.reaper.AccountReaper.reap_device"><code class="xref py py-func docutils literal notranslate"><span class="pre">reap_device()</span></code></a>
+once for each device on the server.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-swift.account.server">
+<span id="id5"></span><span id="account-server"></span><h2>Account Server<a class="headerlink" href="#module-swift.account.server" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="swift.account.server.AccountController">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">swift.account.server.</span></span><span class="sig-name descname"><span class="pre">AccountController</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.AccountController" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseStorageServer</span></code></p>
+<p>WSGI controller for the account server.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.server.AccountController.DELETE">
+<span class="sig-name descname"><span class="pre">DELETE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">req</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.AccountController.DELETE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle HTTP DELETE request.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.server.AccountController.GET">
+<span class="sig-name descname"><span class="pre">GET</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">req</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.AccountController.GET" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle HTTP GET request.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.server.AccountController.HEAD">
+<span class="sig-name descname"><span class="pre">HEAD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">req</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.AccountController.HEAD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle HTTP HEAD request.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.server.AccountController.POST">
+<span class="sig-name descname"><span class="pre">POST</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">req</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.AccountController.POST" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle HTTP POST request.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.server.AccountController.PUT">
+<span class="sig-name descname"><span class="pre">PUT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">req</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.AccountController.PUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle HTTP PUT request.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.server.AccountController.REPLICATE">
+<span class="sig-name descname"><span class="pre">REPLICATE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">req</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.AccountController.REPLICATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle HTTP REPLICATE request.
+Handler for RPC calls for account replication.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="swift.account.server.AccountController.check_free_space">
+<span class="sig-name descname"><span class="pre">check_free_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drive</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.AccountController.check_free_space" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="swift.account.server.AccountController.server_type">
+<span class="sig-name descname"><span class="pre">server_type</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'account-server'</span></em><a class="headerlink" href="#swift.account.server.AccountController.server_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="swift.account.server.app_factory">
+<span class="sig-prename descclassname"><span class="pre">swift.account.server.</span></span><span class="sig-name descname"><span class="pre">app_factory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_conf</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">local_conf</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.app_factory" title="Permalink to this definition">¶</a></dt>
+<dd><p>paste.deploy app factory for creating WSGI account server apps</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="swift.account.server.get_account_name_and_placement">
+<span class="sig-prename descclassname"><span class="pre">swift.account.server.</span></span><span class="sig-name descname"><span class="pre">get_account_name_and_placement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">req</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.get_account_name_and_placement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split and validate path for an account.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>req</strong> – a swob request</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a tuple of path parts as strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="swift.account.server.get_container_name_and_placement">
+<span class="sig-prename descclassname"><span class="pre">swift.account.server.</span></span><span class="sig-name descname"><span class="pre">get_container_name_and_placement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">req</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#swift.account.server.get_container_name_and_placement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split and validate path for a container.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>req</strong> – a swob request</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a tuple of path parts as strings</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+              </div>
+            </div>
+          </div>
+          <div class="docs-actions">
+          
+            <a href="proxy.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: Proxy"></i></a>
+          
+          
+            <a href="container.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: Container"></i></a>
+          
+          <a id="pdfLink2" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+          
+            <a id="logABugLink3" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+          
+          </div>
+          <div class="row docs-byline bottom">
+            <div class="docs-updated">this page last updated: 2014-02-21 10:59:29</div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-8 docs-license">
+<a href="https://creativecommons.org/licenses/by/3.0/">
+ <img src="_static/images/docs/license.png" alt="Creative Commons Attribution 3.0 License"/>
+</a>
+<p>
+ Except where otherwise noted, this document is licensed under
+ <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons
+ Attribution 3.0 License</a>. See all <a href="https://www.openstack.org/legal">
+ OpenStack Legal Documents</a>.
+</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 docs-actions-wrapper">
+            <!-- ID buglinkbottom added so that pre-filled doc bugs
+                 are sent to Launchpad projects related to the
+                 document -->
+              <a href="#" id="logABugLink2" class="docs-footer-actions"><i class="fa fa-bug"></i> found an error? report a bug</a>
+            </div>
+          </div>
+        </div>
+<div class="col-lg-3 col-md-4 col-sm-4 col-lg-pull-9 col-md-pull-8 col-sm-pull-8 docs-sidebar">
+  <div class="btn-group docs-sidebar-releases">
+    <button onclick="location.href='/'" class="btn docs-sidebar-home" data-toggle="tooltip" data-placement="top" title="OpenStack Docs Home"><i class="fa fa-arrow-circle-o-left"></i></button>
+<button href="#" type="button" data-toggle="dropdown" class="btn docs-sidebar-release-select">OpenStack Documentation<i class="fa fa-caret-down"></i></button>
+    <ul class="dropdown-menu docs-sidebar-dropdown" role="menu" aria-labelledby="dLabel">
+      <li role="presentation" class="dropdown-header">Guides</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#install-guides">Install Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#user-guides">User Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#configuration-guides">Configuration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#ops-and-admin-guides">Operations and Administration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#api-guides">API Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#contributor-guides">Contributor Guides</a></li>
+      <li role="presentation" class="dropdown-header">Languages</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/de/">Deutsch (German)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/fr/">Français (French)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/id/">Bahasa Indonesia (Indonesian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/it/">Italiano (Italian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ja/">日本語 (Japanese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ko_KR/">한국어 (Korean)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/pt_BR/">Português (Portuguese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/tr_TR/">Türkçe (Türkiye)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/zh_CN/">简体中文 (Simplified Chinese)</a></li>
+    </ul>
+  </div>
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="table-of-contents">
+      <a href="index.html" class="docs-sidebar-section-title"><h4>Swift 0.1.0.dev10164</h4></a>
+      <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_architecture.html">Swift Architectural Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_ring.html">The Rings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_policies.html">Storage Policies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_reaper.html">The Account Reaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_auth.html">The Auth System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_acl.html">Access Control Lists (ACLs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ratelimit.html">Rate Limiting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_large_objects.html">Large Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_global_cluster.html">Global Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sync.html">Container to Container Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_expiring_objects.html">Expiring Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cors.html">CORS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crossdomain.html">Cross-domain Policy File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_erasure_code.html">Erasure Code Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_encryption.html">Object Encryption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_backing_store.html">Using Swift as Backing Store for Service Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sharding.html">Container Sharding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ring_background.html">Building a Consistent Hashing Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ring_partpower.html">Modifying Ring Partition Power</a></li>
+<li class="toctree-l1"><a class="reference internal" href="associated_projects.html">Associated Projects</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html">Contributing to OpenStack Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#swift-design-principles">Swift Design Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#recommended-workflow">Recommended workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#notes-on-testing">Notes on Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#ideas">Ideas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#community">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/review_guidelines.html">Review Guidelines</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development_guidelines.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_saio.html">SAIO (Swift All In One)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="first_contribution_swift.html">First Contribution to Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policies_saio.html">Adding Storage Policies to an Existing SAIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_auth.html">Auth Server and Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_middleware.html">Middleware and Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_ondisk_backends.html">Pluggable On-Disk Back-end APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_watchers.html">Auditor Watchers</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="deployment_guide.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apache_deployment_guide.html">Apache Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin_guide.html">Administrator’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication_network.html">Dedicated replication network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logs.html">Logs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ops_runbook/index.html">Swift Ops Runbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin/index.html">OpenStack Swift Administrator Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Object Storage Install Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config/index.html">Configuration Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/discoverability.html">Discoverability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/container_quotas.html">Container quotas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object_versioning.html">Object versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/large_objects.html">Large objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/temporary_url_middleware.html">Temporary URL middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/form_post_middleware.html">Form POST middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_content-encoding_metadata.html">Use Content-Encoding metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_the_content-disposition_metadata.html">Use the Content-Disposition metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pseudo-hierarchical-folders-directories.html">Pseudo-hierarchical folders and directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pagination.html">Page through large lists of containers or objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/serialized-response-formats.html">Serialized response formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/static-website.html">Create static website</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object-expiration.html">Object expiration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/bulk-delete.html">Bulk delete</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="s3_compat.html">S3/Swift REST API Comparison Matrix</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="ring.html">Partitioned Consistent Hash Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxy.html">Proxy</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Account</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-swift.account.auditor">Account Auditor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-swift.account.backend">Account Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-swift.account.reaper">Account Reaper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-swift.account.server">Account Server</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="db.html">Account DB and Container DB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object.html">Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audit_watchers.html">Object Audit Watchers</a></li>
+</ul>
+
+    </div>
+
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="local-table-of-contents">
+      <h4 class="docs-sidebar-section-title">Page Contents</h4>
+      <ul>
+<li><a class="reference internal" href="#">Account</a><ul>
+<li><a class="reference internal" href="#module-swift.account.auditor">Account Auditor</a><ul>
+<li><a class="reference internal" href="#swift.account.auditor.AccountAuditor"><code class="docutils literal notranslate"><span class="pre">AccountAuditor</span></code></a><ul>
+<li><a class="reference internal" href="#swift.account.auditor.AccountAuditor.broker_class"><code class="docutils literal notranslate"><span class="pre">AccountAuditor.broker_class</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.auditor.AccountAuditor.server_type"><code class="docutils literal notranslate"><span class="pre">AccountAuditor.server_type</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-swift.account.backend">Account Backend</a><ul>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker"><code class="docutils literal notranslate"><span class="pre">AccountBroker</span></code></a><ul>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.create_account_stat_table"><code class="docutils literal notranslate"><span class="pre">AccountBroker.create_account_stat_table()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.create_container_table"><code class="docutils literal notranslate"><span class="pre">AccountBroker.create_container_table()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.create_policy_stat_table"><code class="docutils literal notranslate"><span class="pre">AccountBroker.create_policy_stat_table()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.db_contains_type"><code class="docutils literal notranslate"><span class="pre">AccountBroker.db_contains_type</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.db_reclaim_timestamp"><code class="docutils literal notranslate"><span class="pre">AccountBroker.db_reclaim_timestamp</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.db_type"><code class="docutils literal notranslate"><span class="pre">AccountBroker.db_type</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.empty"><code class="docutils literal notranslate"><span class="pre">AccountBroker.empty()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.get_db_version"><code class="docutils literal notranslate"><span class="pre">AccountBroker.get_db_version()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.get_info"><code class="docutils literal notranslate"><span class="pre">AccountBroker.get_info()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.get_policy_stats"><code class="docutils literal notranslate"><span class="pre">AccountBroker.get_policy_stats()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.is_status_deleted"><code class="docutils literal notranslate"><span class="pre">AccountBroker.is_status_deleted()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.list_containers_iter"><code class="docutils literal notranslate"><span class="pre">AccountBroker.list_containers_iter()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.make_tuple_for_pickle"><code class="docutils literal notranslate"><span class="pre">AccountBroker.make_tuple_for_pickle()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.merge_items"><code class="docutils literal notranslate"><span class="pre">AccountBroker.merge_items()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.backend.AccountBroker.put_container"><code class="docutils literal notranslate"><span class="pre">AccountBroker.put_container()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-swift.account.reaper">Account Reaper</a><ul>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper"><code class="docutils literal notranslate"><span class="pre">AccountReaper</span></code></a><ul>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper.get_account_ring"><code class="docutils literal notranslate"><span class="pre">AccountReaper.get_account_ring()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper.get_container_ring"><code class="docutils literal notranslate"><span class="pre">AccountReaper.get_container_ring()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper.get_object_ring"><code class="docutils literal notranslate"><span class="pre">AccountReaper.get_object_ring()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper.reap_account"><code class="docutils literal notranslate"><span class="pre">AccountReaper.reap_account()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper.reap_container"><code class="docutils literal notranslate"><span class="pre">AccountReaper.reap_container()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper.reap_device"><code class="docutils literal notranslate"><span class="pre">AccountReaper.reap_device()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper.reap_object"><code class="docutils literal notranslate"><span class="pre">AccountReaper.reap_object()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper.reset_stats"><code class="docutils literal notranslate"><span class="pre">AccountReaper.reset_stats()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper.run_forever"><code class="docutils literal notranslate"><span class="pre">AccountReaper.run_forever()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.reaper.AccountReaper.run_once"><code class="docutils literal notranslate"><span class="pre">AccountReaper.run_once()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-swift.account.server">Account Server</a><ul>
+<li><a class="reference internal" href="#swift.account.server.AccountController"><code class="docutils literal notranslate"><span class="pre">AccountController</span></code></a><ul>
+<li><a class="reference internal" href="#swift.account.server.AccountController.DELETE"><code class="docutils literal notranslate"><span class="pre">AccountController.DELETE()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.server.AccountController.GET"><code class="docutils literal notranslate"><span class="pre">AccountController.GET()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.server.AccountController.HEAD"><code class="docutils literal notranslate"><span class="pre">AccountController.HEAD()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.server.AccountController.POST"><code class="docutils literal notranslate"><span class="pre">AccountController.POST()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.server.AccountController.PUT"><code class="docutils literal notranslate"><span class="pre">AccountController.PUT()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.server.AccountController.REPLICATE"><code class="docutils literal notranslate"><span class="pre">AccountController.REPLICATE()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.server.AccountController.check_free_space"><code class="docutils literal notranslate"><span class="pre">AccountController.check_free_space()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.server.AccountController.server_type"><code class="docutils literal notranslate"><span class="pre">AccountController.server_type</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#swift.account.server.app_factory"><code class="docutils literal notranslate"><span class="pre">app_factory()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.server.get_account_name_and_placement"><code class="docutils literal notranslate"><span class="pre">get_account_name_and_placement()</span></code></a></li>
+<li><a class="reference internal" href="#swift.account.server.get_container_name_and_placement"><code class="docutils literal notranslate"><span class="pre">get_container_name_and_placement()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  </div>
+</div>
+      </div>
+    </div>
+<footer>
+  <div class="container">
+    <div class="row footer-links">
+      <div class="col-lg-2 col-sm-2">
+        <h3>OpenStack</h3>
+        <ul>
+          <li><a href="https://openstack.org/projects/">Projects</a></li>
+          <li><a href="https://www.openstack.org/software/security/">OpenStack Security</a></li>
+          <li><a href="https://openstack.org/projects/openstack-faq/">Common Questions</a></li>
+          <li><a href="https://openstack.org/blog/">Blog</a></li>g
+          <li><a href="https://openstack.org/news/">News</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Community</h3>
+        <ul>
+          <li><a href="https://openstack.org/community/">User Groups</a></li>
+          <li><a href="https://openstack.org/community/events/">Events</a></li>
+          <li><a href="https://openstack.org/community/jobs/">Jobs</a></li>
+          <li><a href="https://openstack.org/foundation/companies/">Companies</a></li>
+          <li><a href="https://docs.openstack.org/contributors">Contribute</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="https://docs.openstack.org">OpenStack Manuals</a></li>
+          <li><a href="https://openstack.org/software/start/">Getting Started</a></li>
+          <li><a href="https://developer.openstack.org">API Documentation</a></li>
+          <li><a href="https://wiki.openstack.org">Wiki</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Branding & Legal</h3>
+        <ul>
+          <li><a href="https://openstack.org/brand/">Logos & Guidelines</a></li>
+          <li><a href="https://openstack.org/brand/openstack-trademark-policy/">Trademark Policy</a></li>
+          <li><a href="https://openstack.org/privacy/">Privacy Policy</a></li>
+          <li><a href="https://wiki.openstack.org/wiki/How_To_Contribute#Contributor_License_Agreement">OpenStack CLA</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-sm-4">
+        <h3>Stay In Touch</h3>
+        <a href="https://twitter.com/OpenStack" target="_blank" class="social-icons footer-twitter"></a>
+        <a href="https://www.facebook.com/openstack" target="_blank" class="social-icons footer-facebook"></a>
+        <a href="https://www.linkedin.com/company/openstack" target="_blank" class="social-icons footer-linkedin"></a>
+        <a href="https://www.youtube.com/user/OpenStackFoundation" target="_blank" class="social-icons footer-youtube"></a>
+        <p class="fine-print">
+          The OpenStack project is provided under the
+          <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>. Openstack.org is powered by
+          <a href="https://rackspace.com" target="_blank">Rackspace Cloud Computing</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- jQuery -->
+<script type="text/javascript" src="_static/js/jquery-3.2.1.min.js"></script>
+
+<!-- Bootstrap JavaScript -->
+<script type="text/javascript" src="_static/js/bootstrap.min.js"></script>
+
+<!-- The rest of the JS -->
+<script type="text/javascript" src="_static/js/navigation.js"></script>
+
+<!-- Docs JS -->
+<script type="text/javascript" src="_static/js/docs.js"></script>
+
+<!-- standard sphinx include libraries, which allow search highlighting -->
+<script type="text/javascript" src="_static/underscore.js"></script>
+<script type="text/javascript" src="_static/doctools.js"></script>
+<script type="text/javascript" src="_static/searchtools.js"></script>
+<script type="text/javascript" src="_static/language_data.js"></script>
+
+<script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+      URL_ROOT:    './',
+      VERSION:     '0.1.0.dev10164',
+      COLLAPSE_INDEX: false,
+      FILE_SUFFIX: '.html',
+      LINK_SUFFIX: '.html',
+      SOURCELINK_SUFFIX: '.txt',
+      HAS_SOURCE:  true
+    };
+</script>
+
+<!-- Javascript for page -->
+<script language="JavaScript">
+  /* Build a description of this page including SHA, source location on git
+   * repo, build time and the project's launchpad bug tag. Set the HREF of the
+   * bug buttons
+   */
+    var lineFeed = "%0A";
+    var gitURL = "Source: Can't derive source file URL";
+
+    /* there have been cases where "pagename" wasn't set; better check for it */
+    /* "giturl" is the URL of the source file on Git and is auto-generated by
+     * openstackdocstheme.
+     *
+     * "pagename" is a standard sphinx parameter containing the name of
+     * the source file, without extension.
+     */
+
+    var sourceFile = "account" + ".rst";
+    gitURL = "Source: https://opendev.org/openstack/swift/src/doc/source" + "/" + sourceFile;
+
+    /* gitsha, project and bug_tag rely on variables in conf.py */
+    var gitSha = "SHA: c7afe681fd119752e66a8e9032e8782641fec3ff";
+    var repositoryName = "openstack/swift";
+    var bugProject = "swift";
+    var bugTitle = "Account in Swift";
+    var fieldTags = "";
+    var useStoryboard = "";
+
+    /* "last_updated" is the build date and time. It relies on the
+       conf.py variable "html_last_updated_fmt", which should include
+       year/month/day as well as hours and minutes                   */
+    var buildstring = "Release: 0.1.0.dev10164 on 2014-02-21 10:59:29";
+
+    var fieldComment = encodeURI(buildstring) +
+                       lineFeed + encodeURI(gitSha) +
+                       lineFeed + encodeURI(gitURL) ;
+
+    logABug(bugTitle, bugProject, fieldComment, fieldTags, repositoryName, useStoryboard);
+    var currentSourceFile = "account";
+    var pdfFileName = "doc-swift.pdf";
+    pdfLink(currentSourceFile, pdfFileName);
+</script>
+
+
+  </body>
+</html>

@@ -1,0 +1,1191 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Storage Policies &#8212; Swift 0.1.0.dev10164 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/basic.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <link rel="canonical" href="/openstack-swift/overview_policies.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The Account Reaper" href="overview_reaper.html" />
+    <link rel="prev" title="The Rings" href="overview_ring.html" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Bootstrap CSS -->
+<link href="_static/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Fonts -->
+<link href="_static/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link href="_static/css/combined.css" rel="stylesheet">
+
+<!-- Search CSS -->
+<link href="_static/css/search.css" rel="stylesheet">
+
+<!-- Pygments CSS -->
+<link href="_static/pygments.css" rel="stylesheet">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-17511903-1', 'auto');
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+  </head><body>
+
+<!-- SOURCE_FILE: https://opendev.org/openstack/swift/src/doc/source/overview_policies.rst -->
+
+<script>
+    (function (window, document) {
+        var loader = function () {
+            var script = document.createElement("script"), tag = document.getElementsByTagName("script")[0];
+            script.src = "https://search.openstack.org/widget/embed.min.js?t="+Date.now();
+            tag.parentNode.insertBefore(script, tag);
+        };
+        window.addEventListener ? window.addEventListener("load", loader, false) : window.attachEvent("onload", loader);
+    })(window, document);
+</script>
+
+<nav class="navbar navbar-default" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button class="navbar-toggle" data-target="#bs-example-navbar-collapse-1" data-toggle="collapse" type="button">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div class="brand-wrapper">
+        <a class="navbar-brand" href="https://www.openstack.org/"></a>
+      </div>
+      <div class="search-icon show"><i class="fa fa-search"></i> Search</div></div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <div class="search-container tiny">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</div>
+      <ul class="nav navbar-nav navbar-main show">
+        <li class="search-container-mobile">
+    <div class="openstack-search-bar" data-baseUrl="search.openstack.org" data-context="docs-openstack"></div>
+</li>
+        <li> <!--Software -->
+          <a href="https://www.openstack.org/software/" class="drop" id="dropdownMenuSoftware">Software <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuSoftware">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/">Overview</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/openstack-components">OpenStack Components</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/sdks">SDKs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/project-navigator/deployment-tools">Deployment Tools</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/assets/software/projectmap/openstack-map.pdf" target="_blank">OpenStack Map</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/software/sample-configs/">Sample Configs</a></li>
+          </ul>
+        </li>
+        <li> <!-- Use Cases -->
+          <a href="https://www.openstack.org/use-cases/" class="drop" id="dropdownMenuUsers">Use Cases <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuUsers">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/">Users in Production</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/bare-metal/">Ironic Bare Metal</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/edge-computing/">Edge Computing</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/telecoms-and-nfv/">Telecom & NFV</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/science/">Science and HPC</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/containers/">Containers</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/use-cases/enterprise/">Enterprise</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/surveys/landing">User Survey</a></li>
+          </ul>
+        </li>
+        <li> <!-- Events -->
+          <a href="https://www.openstack.org/events/" class="drop" id="dropdownMenuEvents">Events <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/summit/">Open Infrastructure Summits</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/ptg/">Project Teams Gathering</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/opendev-2020/">OpenDev</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/community-events/">Community Events</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/events/openstackdays">OpenStack & OpenInfra Days</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/videos/">Summit Videos</a></li>
+          </ul>
+        </li>
+        <li><!-- Community -->
+          <a href="https://www.openstack.org/community/" class="drop" id="dropdownMenuCommunity">Community <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenuCommunity">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/">Welcome! Start Here</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/tech-committee">OpenStack Technical Committee</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/speakers/">Speakers Bureau</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://wiki.openstack.org">OpenStack Wiki</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/coa/">Get Certified (COA)</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/jobs/">Jobs</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketing/">Marketing Resources</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/news/">Community News</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="http://superuser.openstack.org">Superuser Magazine</a></li>
+            <li role="presentation" class="divider"></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/community/supporting-organizations/">OpenInfra Foundation Supporting Organizations</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">Open Infrastructure Foundation (OpenInfra Foundation)</a></li>
+          </ul>
+        </li>
+        <li><!-- Marketplace -->
+          <a href="https://www.openstack.orgmarketplace/" class="drop" id="dropdownMenuLearn">Marketplace <i class="fa fa-caret-down"></i></a>
+          <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuEvents">
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/training/">Training</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/distros/">Distros & Appliances</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/public-clouds/">Public Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/hosted-private-clouds/">Hosted Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/remotely-managed-private-clouds/">Remotely Managed Private Clouds</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/consulting/">Consulting & Integrators</a></li>
+            <li role="presentation"><a role="menuitem" tabindex="-1" href="https://www.openstack.org/marketplace/drivers/">Drivers</a></li>
+          </ul>
+        </li>
+        <li><!-- Blog -->
+          <a href="https://www.openstack.org/blog/">Blog</a>
+        </li>
+        <li><!-- Docs -->
+          <a href="http://docs.openstack.org/">Docs</a>
+        </li>
+        <li> <!-- Join -->
+            <li class="join-nav-section">
+              <a href="https://openinfra.dev/join/" id="dropdownMenuJoin">Join <i class="fa fa-caret-down"></i></a>
+              <ul class="dropdown-menu dropdown-hover" role="menu" aria-labelledby="dropdownMenuJoin" style="display: none;">
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sign up for Foundation Membership</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev/join/">Sponsor the Foundation</a></li>
+                <li role="presentation"><a role="menuitem" tabindex="-1" href="https://openinfra.dev">More about the Foundation</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="https://www.openstack.org/Security/login/?BackURL=/home/" class="sign-in-btn">Log In</a>
+            </li>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- /.container -->
+</nav>
+
+    <div class="container docs-book-wrapper">
+      <div class="row">
+        <div class="col-lg-9 col-md-8 col-sm-8 col-lg-push-3 col-md-push-4 col-sm-push-4">
+<div class="row docs-title">
+  <div class="col-lg-8">
+      <h1>Storage Policies</h1>
+    
+  </div>
+  <div class="docs-actions">
+    
+    <a href="overview_ring.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: The Rings"></i></a>
+    
+    
+    <a href="overview_reaper.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: The Account Reaper"></i></a>
+    
+    <a id="pdfLink1" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+    
+    <a id="logABugLink1" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+    
+  </div>
+</div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="docs-body" role="main">
+
+  <section id="storage-policies">
+<h1>Storage Policies<a class="headerlink" href="#storage-policies" title="Permalink to this heading">¶</a></h1>
+<p>Storage Policies allow for some level of segmenting the cluster for various
+purposes through the creation of multiple object rings. The Storage Policies
+feature is implemented throughout the entire code base so it is an important
+concept in understanding Swift architecture.</p>
+<p>As described in <a class="reference internal" href="overview_ring.html"><span class="doc">The Rings</span></a>, Swift uses modified hashing rings to
+determine where data should reside in the cluster. There is a separate ring for
+account databases, container databases, and there is also one object ring per
+storage policy.  Each object ring behaves exactly the same way and is maintained
+in the same manner, but with policies, different devices can belong to different
+rings. By supporting multiple object rings, Swift allows the application and/or
+deployer to essentially segregate the object storage within a single cluster.
+There are many reasons why this might be desirable:</p>
+<ul class="simple">
+<li><p>Different levels of durability:  If a provider wants to offer, for example,
+2x replication and 3x replication but doesn’t want to maintain 2 separate
+clusters, they would setup a 2x and a 3x replication policy and assign the
+nodes to their respective rings. Furthermore, if a provider wanted to offer a
+cold storage tier, they could create an erasure coded policy.</p></li>
+<li><p>Performance:  Just as SSDs can be used as the exclusive members of an account
+or database ring, an SSD-only object ring can be created as well and used to
+implement a low-latency/high performance policy.</p></li>
+<li><p>Collecting nodes into group:  Different object rings may have different
+physical servers so that objects in specific storage policies are always
+placed in a particular data center or geography.</p></li>
+<li><p>Different Storage implementations:  Another example would be to collect
+together a set of nodes that use a different Diskfile (e.g., Kinetic,
+GlusterFS) and use a policy to direct traffic just to those nodes.</p></li>
+<li><p>Different read and write affinity settings: proxy-servers can be configured
+to use different read and write affinity options for each policy. See
+<a class="reference internal" href="deployment_guide.html#proxy-server-per-policy-config"><span class="std std-ref">Per policy configuration</span></a> for more details.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Today, Swift supports two different policy types: Replication and Erasure
+Code. See <a class="reference internal" href="overview_erasure_code.html"><span class="doc">Erasure Code Support</span></a> for details.</p>
+<p>Also note that Diskfile refers to backend object storage plug-in
+architecture. See <a class="reference internal" href="development_ondisk_backends.html"><span class="doc">Pluggable On-Disk Back-end APIs</span></a> for details.</p>
+</div>
+<section id="containers-and-policies">
+<h2>Containers and Policies<a class="headerlink" href="#containers-and-policies" title="Permalink to this heading">¶</a></h2>
+<p>Policies are implemented at the container level.  There are many advantages to
+this approach, not the least of which is how easy it makes life on
+applications that want to take advantage of them.  It also ensures that
+Storage Policies remain a core feature of Swift independent of the auth
+implementation.  Policies were not implemented at the account/auth layer
+because it would require changes to all auth systems in use by Swift
+deployers.  Each container has a new special immutable metadata element called
+the storage policy index.  Note that internally, Swift relies on policy
+indexes and not policy names.  Policy names exist for human readability and
+translation is managed in the proxy.  When a container is created, one new
+optional header is supported to specify the policy name. If no name is
+specified, the default policy is used (and if no other policies defined,
+Policy-0 is considered the default).  We will be covering the difference
+between default and Policy-0 in the next section.</p>
+<p>Policies are assigned when a container is created.  Once a container has been
+assigned a policy, it cannot be changed (unless it is deleted/recreated).  The
+implications on data placement/movement for large datasets would make this a
+task best left for applications to perform. Therefore, if a container has an
+existing policy of, for example 3x replication, and one wanted to migrate that
+data to an Erasure Code policy, the application would create another container
+specifying the other policy parameters and then simply move the data from one
+container to the other.  Policies apply on a per container basis allowing for
+minimal application awareness; once a container has been created with a specific
+policy, all objects stored in it will be done so in accordance with that policy.
+If a container with a specific name is deleted (requires the container be empty)
+a new container may be created with the same name without any restriction on
+storage policy enforced by the deleted container which previously shared the
+same name.</p>
+<p>Containers have a many-to-one relationship with policies meaning that any number
+of containers can share one policy.  There is no limit to how many containers
+can use a specific policy.</p>
+<p>The notion of associating a ring with a container introduces an interesting
+scenario: What would happen if 2 containers of the same name were created with
+different Storage Policies on either side of a network outage at the same time?
+Furthermore, what would happen if objects were placed in those containers, a
+whole bunch of them, and then later the network outage was restored?  Well,
+without special care it would be a big problem as an application could end up
+using the wrong ring to try and find an object.  Luckily there is a solution for
+this problem, a daemon known as the Container Reconciler works tirelessly to
+identify and rectify this potential scenario.</p>
+</section>
+<section id="container-reconciler">
+<h2>Container Reconciler<a class="headerlink" href="#container-reconciler" title="Permalink to this heading">¶</a></h2>
+<p>Because atomicity of container creation cannot be enforced in a
+distributed eventually consistent system, object writes into the wrong
+storage policy must be eventually merged into the correct storage policy
+by an asynchronous daemon.  Recovery from object writes during a network
+partition which resulted in a split brain container created with
+different storage policies are handled by the
+<cite>swift-container-reconciler</cite> daemon.</p>
+<p>The container reconciler works off a queue similar to the
+object-expirer.  The queue is populated during container-replication.
+It is never considered incorrect to enqueue an object to be evaluated by
+the container-reconciler because if there is nothing wrong with the location
+of the object the reconciler will simply dequeue it.  The
+container-reconciler queue is an indexed log for the real location of an
+object for which a discrepancy in the storage policy of the container was
+discovered.</p>
+<p>To determine the correct storage policy of a container, it is necessary
+to update the status_changed_at field in the container_stat table when a
+container changes status from deleted to re-created.  This transaction
+log allows the container-replicator to update the correct storage policy
+both when replicating a container and handling REPLICATE requests.</p>
+<p>Because each object write is a separate distributed transaction it is
+not possible to determine the correctness of the storage policy for each
+object write with respect to the entire transaction log at a given
+container database.  As such, container databases will always record the
+object write regardless of the storage policy on a per object row basis.
+Object byte and count stats are tracked per storage policy in each
+container and reconciled using normal object row merge semantics.</p>
+<p>The object rows are ensured to be fully durable during replication using
+the normal container replication.  After the container
+replicator pushes its object rows to available primary nodes any
+misplaced object rows are bulk loaded into containers based off the
+object timestamp under the <code class="docutils literal notranslate"><span class="pre">.misplaced_objects</span></code> system account.  The
+rows are initially written to a handoff container on the local node, and
+at the end of the replication pass the <code class="docutils literal notranslate"><span class="pre">.misplaced_objects</span></code> containers are
+replicated to the correct primary nodes.</p>
+<p>The container-reconciler processes the <code class="docutils literal notranslate"><span class="pre">.misplaced_objects</span></code> containers in
+descending order and reaps its containers as the objects represented by
+the rows are successfully reconciled.  The container-reconciler will
+always validate the correct storage policy for enqueued objects using
+direct container HEAD requests which are accelerated via caching.</p>
+<p>Because failure of individual storage nodes in aggregate is assumed to
+be common at scale, the container-reconciler will make forward progress
+with a simple quorum majority.  During a combination of failures and
+rebalances it is possible that a quorum could provide an incomplete
+record of the correct storage policy - so an object write may have to be
+applied more than once.  Because storage nodes and container databases
+will not process writes with an <code class="docutils literal notranslate"><span class="pre">X-Timestamp</span></code> less than or equal to
+their existing record when objects writes are re-applied their timestamp
+is slightly incremented.  In order for this increment to be applied
+transparently to the client a second vector of time has been added to
+Swift for internal use.  See <a class="reference internal" href="misc.html#swift.common.utils.Timestamp" title="swift.common.utils.Timestamp"><code class="xref py py-class docutils literal notranslate"><span class="pre">Timestamp</span></code></a>.</p>
+<p>As the reconciler applies object writes to the correct storage policy it
+cleans up writes which no longer apply to the incorrect storage policy
+and removes the rows from the <code class="docutils literal notranslate"><span class="pre">.misplaced_objects</span></code> containers.  After all
+rows have been successfully processed it sleeps and will periodically
+check for newly enqueued rows to be discovered during container
+replication.</p>
+</section>
+<section id="default-versus-policy-0">
+<span id="default-policy"></span><h2>Default versus ‘Policy-0’<a class="headerlink" href="#default-versus-policy-0" title="Permalink to this heading">¶</a></h2>
+<p>Storage Policies is a versatile feature intended to support both new and
+pre-existing clusters with the same level of flexibility.  For that reason, we
+introduce the <code class="docutils literal notranslate"><span class="pre">Policy-0</span></code> concept which is not the same as the “default”
+policy.  As you will see when we begin to configure policies, each policy has
+a single name and an arbitrary number of aliases (human friendly,
+configurable) as well as an index (or simply policy number). Swift reserves
+index 0 to map to the object ring that’s present in all installations
+(e.g., <code class="docutils literal notranslate"><span class="pre">/etc/swift/object.ring.gz</span></code>). You can name this policy anything you
+like, and if no policies are defined it will report itself as <code class="docutils literal notranslate"><span class="pre">Policy-0</span></code>,
+however you cannot change the index as there must always be a policy with
+index 0.</p>
+<p>Another important concept is the default policy which can be any policy
+in the cluster.  The default policy is the policy that is automatically
+chosen when a container creation request is sent without a storage
+policy being specified. <a class="reference internal" href="#configure-policy"><span class="std std-ref">Configuring Policies</span></a> describes how to set the
+default policy.  The difference from <code class="docutils literal notranslate"><span class="pre">Policy-0</span></code> is subtle but
+extremely important.  <code class="docutils literal notranslate"><span class="pre">Policy-0</span></code> is what is used by Swift when
+accessing pre-storage-policy containers which won’t have a policy - in
+this case we would not use the default as it might not have the same
+policy as legacy containers.  When no other policies are defined, Swift
+will always choose <code class="docutils literal notranslate"><span class="pre">Policy-0</span></code> as the default.</p>
+<p>In other words, default means “create using this policy if nothing else is
+specified” and <code class="docutils literal notranslate"><span class="pre">Policy-0</span></code> means “use the legacy policy if a container doesn’t
+have one” which really means use <code class="docutils literal notranslate"><span class="pre">object.ring.gz</span></code> for lookups.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>With the Storage Policy based code, it’s not possible to create a
+container that doesn’t have a policy.  If nothing is provided, Swift will
+still select the default and assign it to the container.  For containers
+created before Storage Policies were introduced, the legacy Policy-0 will
+be used.</p>
+</div>
+</section>
+<section id="deprecating-policies">
+<span id="deprecate-policy"></span><h2>Deprecating Policies<a class="headerlink" href="#deprecating-policies" title="Permalink to this heading">¶</a></h2>
+<p>There will be times when a policy is no longer desired; however simply
+deleting the policy and associated rings would be problematic for existing
+data.  In order to ensure that resources are not orphaned in the cluster (left
+on disk but no longer accessible) and to provide proper messaging to
+applications when a policy needs to be retired, the notion of deprecation is
+used.  <a class="reference internal" href="#configure-policy"><span class="std std-ref">Configuring Policies</span></a> describes how to deprecate a policy.</p>
+<p>Swift’s behavior with deprecated policies is as follows:</p>
+<ul class="simple">
+<li><p>The deprecated policy will not appear in /info</p></li>
+<li><p>PUT/GET/DELETE/POST/HEAD are still allowed on the pre-existing containers
+created with a deprecated policy</p></li>
+<li><p>Clients will get an ‘’400 Bad Request’’ error when trying to create a new
+container using the deprecated policy</p></li>
+<li><p>Clients still have access to policy statistics via HEAD on pre-existing
+containers</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A policy cannot be both the default and deprecated.  If you deprecate the
+default policy, you must specify a new default.</p>
+</div>
+<p>You can also use the deprecated feature to rollout new policies.  If you
+want to test a new storage policy before making it generally available
+you could deprecate the policy when you initially roll it the new
+configuration and rings to all nodes.  Being deprecated will render it
+innate and unable to be used.  To test it you will need to create a
+container with that storage policy; which will require a single proxy
+instance (or a set of proxy-servers which are only internally
+accessible) that has been one-off configured with the new policy NOT
+marked deprecated.  Once the container has been created with the new
+storage policy any client authorized to use that container will be able
+to add and access data stored in that container in the new storage
+policy.  When satisfied you can roll out a new <code class="docutils literal notranslate"><span class="pre">swift.conf</span></code> which does
+not mark the policy as deprecated to all nodes.</p>
+</section>
+<section id="configuring-policies">
+<span id="configure-policy"></span><h2>Configuring Policies<a class="headerlink" href="#configuring-policies" title="Permalink to this heading">¶</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>See <a class="reference internal" href="policies_saio.html"><span class="doc">Adding Storage Policies to an Existing SAIO</span></a> for a step by step guide on adding a policy to the
+SAIO setup.</p>
+</div>
+<p>It is important that the deployer have a solid understanding of the semantics
+for configuring policies.  Configuring a policy is a three-step process:</p>
+<ol class="arabic simple">
+<li><p>Edit your <code class="docutils literal notranslate"><span class="pre">/etc/swift/swift.conf</span></code> file to define your new policy.</p></li>
+<li><p>Create the corresponding policy object ring file.</p></li>
+<li><p>(Optional) Create policy-specific proxy-server configuration settings.</p></li>
+</ol>
+<section id="defining-a-policy">
+<h3>Defining a policy<a class="headerlink" href="#defining-a-policy" title="Permalink to this heading">¶</a></h3>
+<p>Each policy is defined by a section in the <code class="docutils literal notranslate"><span class="pre">/etc/swift/swift.conf</span></code> file. The
+section name must be of the form <code class="docutils literal notranslate"><span class="pre">[storage-policy:&lt;N&gt;]</span></code> where <code class="docutils literal notranslate"><span class="pre">&lt;N&gt;</span></code> is the
+policy index. There’s no reason other than readability that policy indexes be
+sequential but the following rules are enforced:</p>
+<ul class="simple">
+<li><p>If a policy with index <code class="docutils literal notranslate"><span class="pre">0</span></code> is not declared and no other policies are
+defined, Swift will create a default policy with index <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
+<li><p>The policy index must be a non-negative integer.</p></li>
+<li><p>Policy indexes must be unique.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The index of a policy should never be changed once a policy has been
+created and used. Changing a policy index may cause loss of access to data.</p>
+</div>
+<p>Each policy section contains the following options:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">name</span> <span class="pre">=</span> <span class="pre">&lt;policy_name&gt;</span></code> (required)</dt><dd><ul>
+<li><p>The primary name of the policy.</p></li>
+<li><p>Policy names are case insensitive.</p></li>
+<li><p>Policy names must contain only letters, digits or a dash.</p></li>
+<li><p>Policy names must be unique.</p></li>
+<li><p>Policy names can be changed.</p></li>
+<li><p>The name <code class="docutils literal notranslate"><span class="pre">Policy-0</span></code> can only be used for the policy with
+index <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p></li>
+<li><p>To avoid confusion with policy indexes it is strongly recommended that
+policy names are not numbers (e.g. ‘1’). However, for backwards
+compatibility, names that are numbers are supported.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">aliases</span> <span class="pre">=</span> <span class="pre">&lt;policy_name&gt;[,</span> <span class="pre">&lt;policy_name&gt;,</span> <span class="pre">...]</span></code> (optional)</dt><dd><ul>
+<li><p>A comma-separated list of alternative names for the policy.</p></li>
+<li><p>The default value is an empty list (i.e. no aliases).</p></li>
+<li><p>All alias names must follow the rules for the <code class="docutils literal notranslate"><span class="pre">name</span></code> option.</p></li>
+<li><p>Aliases can be added to and removed from the list.</p></li>
+<li><p>Aliases can be useful to retain support for old primary names if the
+primary name is changed.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">default</span> <span class="pre">=</span> <span class="pre">[true|false]</span></code> (optional)</dt><dd><ul>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">true</span></code> then this policy will be used when the client does not
+specify a policy.</p></li>
+<li><p>The default value is <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
+<li><p>The default policy can be changed at any time, by setting
+<code class="docutils literal notranslate"><span class="pre">default</span> <span class="pre">=</span> <span class="pre">true</span></code> in the desired policy section.</p></li>
+<li><p>If no policy is declared as the default and no other policies are
+defined, the policy with index <code class="docutils literal notranslate"><span class="pre">0</span></code> is set as the default;</p></li>
+<li><p>Otherwise, exactly one policy must be declared default.</p></li>
+<li><p>Deprecated policies cannot be declared the default.</p></li>
+<li><p>See <a class="reference internal" href="#default-policy"><span class="std std-ref">Default versus ‘Policy-0’</span></a> for more information.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">deprecated</span> <span class="pre">=</span> <span class="pre">[true|false]</span></code> (optional)</dt><dd><ul>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">true</span></code> then new containers cannot be created using this policy.</p></li>
+<li><p>The default value is <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></li>
+<li><p>Any policy may be deprecated by adding the <code class="docutils literal notranslate"><span class="pre">deprecated</span></code> option to
+the desired policy section. However, a deprecated policy may not also
+be declared the default. Therefore, since there must always be a
+default policy, there must also always be at least one policy which
+is not deprecated.</p></li>
+<li><p>See <a class="reference internal" href="#deprecate-policy"><span class="std std-ref">Deprecating Policies</span></a> for more information.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">policy_type</span> <span class="pre">=</span> <span class="pre">[replication|erasure_coding]</span></code> (optional)</dt><dd><ul>
+<li><p>The option <code class="docutils literal notranslate"><span class="pre">policy_type</span></code> is used to distinguish between different
+policy types.</p></li>
+<li><p>The default value is <code class="docutils literal notranslate"><span class="pre">replication</span></code>.</p></li>
+<li><p>When defining an EC policy use the value <code class="docutils literal notranslate"><span class="pre">erasure_coding</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">diskfile_module</span> <span class="pre">=</span> <span class="pre">&lt;entry</span> <span class="pre">point&gt;</span></code> (optional)</dt><dd><ul>
+<li><p>The option <code class="docutils literal notranslate"><span class="pre">diskfile_module</span></code> is used to load an alternate backend
+object storage plug-in architecture.</p></li>
+<li><p>The default value is <code class="docutils literal notranslate"><span class="pre">egg:swift#replication.fs</span></code> or
+<code class="docutils literal notranslate"><span class="pre">egg:swift#erasure_coding.fs</span></code> depending on the policy type. The scheme
+and package name are optionals and default to <code class="docutils literal notranslate"><span class="pre">egg</span></code> and <code class="docutils literal notranslate"><span class="pre">swift</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The EC policy type has additional required options. See
+<a class="reference internal" href="overview_erasure_code.html#using-ec-policy"><span class="std std-ref">Using an Erasure Code Policy</span></a> for details.</p>
+<p>The following is an example of a properly configured <code class="docutils literal notranslate"><span class="pre">swift.conf</span></code> file. See
+<a class="reference internal" href="policies_saio.html"><span class="doc">Adding Storage Policies to an Existing SAIO</span></a> for full instructions on setting up an all-in-one with
+this example configuration.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">swift</span><span class="o">-</span><span class="nb">hash</span><span class="p">]</span>
+<span class="c1"># random unique strings that can never change (DO NOT LOSE)</span>
+<span class="c1"># Use only printable chars (python -c &quot;import string; print(string.printable)&quot;)</span>
+<span class="n">swift_hash_path_prefix</span> <span class="o">=</span> <span class="n">changeme</span>
+<span class="n">swift_hash_path_suffix</span> <span class="o">=</span> <span class="n">changeme</span>
+
+<span class="p">[</span><span class="n">storage</span><span class="o">-</span><span class="n">policy</span><span class="p">:</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="n">gold</span>
+<span class="n">aliases</span> <span class="o">=</span> <span class="n">yellow</span><span class="p">,</span> <span class="n">orange</span>
+<span class="n">policy_type</span> <span class="o">=</span> <span class="n">replication</span>
+<span class="n">default</span> <span class="o">=</span> <span class="n">yes</span>
+
+<span class="p">[</span><span class="n">storage</span><span class="o">-</span><span class="n">policy</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">name</span> <span class="o">=</span> <span class="n">silver</span>
+<span class="n">policy_type</span> <span class="o">=</span> <span class="n">replication</span>
+<span class="n">diskfile_module</span> <span class="o">=</span> <span class="n">replication</span><span class="o">.</span><span class="n">fs</span>
+<span class="n">deprecated</span> <span class="o">=</span> <span class="n">yes</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-a-ring">
+<h3>Creating a ring<a class="headerlink" href="#creating-a-ring" title="Permalink to this heading">¶</a></h3>
+<p>Once <code class="docutils literal notranslate"><span class="pre">swift.conf</span></code> is configured for a new policy, a new ring must be created.
+The ring tools are not policy name aware so it’s critical that the correct
+policy index be used when creating the new policy’s ring file. Additional
+object rings are created using <code class="docutils literal notranslate"><span class="pre">swift-ring-builder</span></code> in the same manner as the
+legacy ring except that <code class="docutils literal notranslate"><span class="pre">-N</span></code> is appended after the word <code class="docutils literal notranslate"><span class="pre">object</span></code> in the
+builder file name, where <code class="docutils literal notranslate"><span class="pre">N</span></code> matches the policy index used in <code class="docutils literal notranslate"><span class="pre">swift.conf</span></code>.
+So, to create the ring for policy index <code class="docutils literal notranslate"><span class="pre">1</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">swift</span><span class="o">-</span><span class="n">ring</span><span class="o">-</span><span class="n">builder</span> <span class="nb">object</span><span class="o">-</span><span class="mf">1.</span><span class="n">builder</span> <span class="n">create</span> <span class="mi">10</span> <span class="mi">3</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>Continue to use the same naming convention when using <code class="docutils literal notranslate"><span class="pre">swift-ring-builder</span></code> to
+add devices, rebalance etc. This naming convention is also used in the pattern
+for per-policy storage node data directories.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The same drives can indeed be used for multiple policies and the details
+of how that’s managed on disk will be covered in a later section, it’s
+important to understand the implications of such a configuration before
+setting one up.  Make sure it’s really what you want to do, in many cases
+it will be, but in others maybe not.</p>
+</div>
+</section>
+<section id="proxy-server-configuration-optional">
+<h3>Proxy server configuration (optional)<a class="headerlink" href="#proxy-server-configuration-optional" title="Permalink to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="proxy.html#proxy-server"><span class="std std-ref">Proxy Server</span></a> configuration options related to read and write
+affinity may optionally be overridden for individual storage policies. See
+<a class="reference internal" href="deployment_guide.html#proxy-server-per-policy-config"><span class="std std-ref">Per policy configuration</span></a> for more details.</p>
+</section>
+</section>
+<section id="using-policies">
+<h2>Using Policies<a class="headerlink" href="#using-policies" title="Permalink to this heading">¶</a></h2>
+<p>Using policies is very simple - a policy is only specified when a container is
+initially created.  There are no other API changes.  Creating a container can
+be done without any special policy information:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">v</span> <span class="o">-</span><span class="n">X</span> <span class="n">PUT</span> <span class="o">-</span><span class="n">H</span> <span class="s1">&#39;X-Auth-Token: &lt;your auth token&gt;&#39;</span> \
+    <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">8080</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">AUTH_test</span><span class="o">/</span><span class="n">myCont0</span>
+</pre></div>
+</div>
+<p>Which will result in a container created that is associated with the
+policy name ‘gold’ assuming we’re using the swift.conf example from
+above.  It would use ‘gold’ because it was specified as the default.
+Now, when we put an object into this container, it will get placed on
+nodes that are part of the ring we created for policy ‘gold’.</p>
+<p>If we wanted to explicitly state that we wanted policy ‘gold’ the command
+would simply need to include a new header as shown below:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">v</span> <span class="o">-</span><span class="n">X</span> <span class="n">PUT</span> <span class="o">-</span><span class="n">H</span> <span class="s1">&#39;X-Auth-Token: &lt;your auth token&gt;&#39;</span> \
+    <span class="o">-</span><span class="n">H</span> <span class="s1">&#39;X-Storage-Policy: gold&#39;</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">8080</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">AUTH_test</span><span class="o">/</span><span class="n">myCont0</span>
+</pre></div>
+</div>
+<p>And that’s it!  The application does not need to specify the policy name ever
+again.  There are some illegal operations however:</p>
+<ul class="simple">
+<li><p>If an invalid (typo, non-existent) policy is specified: 400 Bad Request</p></li>
+<li><p>if you try to change the policy either via PUT or POST: 409 Conflict</p></li>
+</ul>
+<p>If you’d like to see how the storage in the cluster is being used, simply HEAD
+the account and you’ll see not only the cumulative numbers, as before, but
+per policy statistics as well.  In the example below there’s 3 objects total
+with two of them in policy ‘gold’ and one in policy ‘silver’:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">X</span> <span class="n">HEAD</span> <span class="o">-</span><span class="n">H</span> <span class="s1">&#39;X-Auth-Token: &lt;your auth token&gt;&#39;</span> \
+    <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="mf">127.0.0.1</span><span class="p">:</span><span class="mi">8080</span><span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">AUTH_test</span>
+</pre></div>
+</div>
+<p>and your results will include (some output removed for readability):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">X</span><span class="o">-</span><span class="n">Account</span><span class="o">-</span><span class="n">Container</span><span class="o">-</span><span class="n">Count</span><span class="p">:</span> <span class="mi">3</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Account</span><span class="o">-</span><span class="n">Object</span><span class="o">-</span><span class="n">Count</span><span class="p">:</span> <span class="mi">3</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Account</span><span class="o">-</span><span class="n">Bytes</span><span class="o">-</span><span class="n">Used</span><span class="p">:</span> <span class="mi">21</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Storage</span><span class="o">-</span><span class="n">Policy</span><span class="o">-</span><span class="n">Gold</span><span class="o">-</span><span class="n">Object</span><span class="o">-</span><span class="n">Count</span><span class="p">:</span> <span class="mi">2</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Storage</span><span class="o">-</span><span class="n">Policy</span><span class="o">-</span><span class="n">Gold</span><span class="o">-</span><span class="n">Bytes</span><span class="o">-</span><span class="n">Used</span><span class="p">:</span> <span class="mi">14</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Storage</span><span class="o">-</span><span class="n">Policy</span><span class="o">-</span><span class="n">Silver</span><span class="o">-</span><span class="n">Object</span><span class="o">-</span><span class="n">Count</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Storage</span><span class="o">-</span><span class="n">Policy</span><span class="o">-</span><span class="n">Silver</span><span class="o">-</span><span class="n">Bytes</span><span class="o">-</span><span class="n">Used</span><span class="p">:</span> <span class="mi">7</span>
+</pre></div>
+</div>
+</section>
+<section id="under-the-hood">
+<h2>Under the Hood<a class="headerlink" href="#under-the-hood" title="Permalink to this heading">¶</a></h2>
+<p>Now that we’ve explained a little about what Policies are and how to
+configure/use them, let’s explore how Storage Policies fit in at the
+nuts-n-bolts level.</p>
+<section id="parsing-and-configuring">
+<h3>Parsing and Configuring<a class="headerlink" href="#parsing-and-configuring" title="Permalink to this heading">¶</a></h3>
+<p>The module, <a class="reference internal" href="misc.html#storage-policy"><span class="std std-ref">Storage Policy</span></a>, is responsible for parsing the
+<code class="docutils literal notranslate"><span class="pre">swift.conf</span></code> file, validating the input, and creating a global collection of
+configured policies via class <a class="reference internal" href="misc.html#swift.common.storage_policy.StoragePolicyCollection" title="swift.common.storage_policy.StoragePolicyCollection"><code class="xref py py-class docutils literal notranslate"><span class="pre">StoragePolicyCollection</span></code></a>.  This
+collection is made up of policies of class <a class="reference internal" href="misc.html#swift.common.storage_policy.StoragePolicy" title="swift.common.storage_policy.StoragePolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">StoragePolicy</span></code></a>. The
+collection class includes handy functions for getting to a policy either by
+name or by index , getting info about the policies, etc. There’s also one
+very important function, <a class="reference internal" href="misc.html#swift.common.storage_policy.StoragePolicyCollection.get_object_ring" title="swift.common.storage_policy.StoragePolicyCollection.get_object_ring"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_object_ring()</span></code></a>.
+Object rings are members of the <a class="reference internal" href="misc.html#swift.common.storage_policy.StoragePolicy" title="swift.common.storage_policy.StoragePolicy"><code class="xref py py-class docutils literal notranslate"><span class="pre">StoragePolicy</span></code></a> class and are
+actually not instantiated until the <code class="xref py py-meth docutils literal notranslate"><span class="pre">load_ring()</span></code>
+method is called.  Any caller anywhere in the code base that needs to access
+an object ring must use the <code class="xref py py-data docutils literal notranslate"><span class="pre">POLICIES</span></code> global singleton to access the
+<a class="reference internal" href="misc.html#swift.common.storage_policy.StoragePolicyCollection.get_object_ring" title="swift.common.storage_policy.StoragePolicyCollection.get_object_ring"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_object_ring()</span></code></a> function and provide the
+policy index which will call <code class="xref py py-meth docutils literal notranslate"><span class="pre">load_ring()</span></code> if
+needed; however, when starting request handling services such as the
+<a class="reference internal" href="proxy.html#proxy-server"><span class="std std-ref">Proxy Server</span></a> rings are proactively loaded to provide moderate
+protection against a mis-configuration resulting in a run time error.  The
+global is instantiated when Swift starts and provides a mechanism to patch
+policies for the test code.</p>
+</section>
+<section id="middleware">
+<h3>Middleware<a class="headerlink" href="#middleware" title="Permalink to this heading">¶</a></h3>
+<p>Middleware can take advantage of policies through the <code class="xref py py-data docutils literal notranslate"><span class="pre">POLICIES</span></code> global
+and by importing <a class="reference internal" href="proxy.html#swift.proxy.controllers.base.get_container_info" title="swift.proxy.controllers.base.get_container_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_container_info()</span></code></a> to gain access to the policy index
+associated with the container in question.  From the index it can then use the
+<code class="xref py py-data docutils literal notranslate"><span class="pre">POLICIES</span></code> singleton to grab the right ring.  For example,
+<a class="reference internal" href="middleware.html#list-endpoints"><span class="std std-ref">List Endpoints</span></a> is policy aware using the means just described. Another
+example is <a class="reference internal" href="middleware.html#recon"><span class="std std-ref">Recon</span></a> which will report the md5 sums for all of the rings.</p>
+</section>
+<section id="proxy-server">
+<h3>Proxy Server<a class="headerlink" href="#proxy-server" title="Permalink to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="proxy.html#proxy-server"><span class="std std-ref">Proxy Server</span></a> module’s role in Storage Policies is essentially to make
+sure the correct ring is used as its member element.  Before policies, the one
+object ring would be instantiated when the <a class="reference internal" href="proxy.html#swift.proxy.server.Application" title="swift.proxy.server.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">Application</span></code></a> class was
+instantiated and could be overridden by test code via init parameter.  With
+policies, however, there is no init parameter and the <a class="reference internal" href="proxy.html#swift.proxy.server.Application" title="swift.proxy.server.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">Application</span></code></a>
+class instead depends on the <code class="xref py py-data docutils literal notranslate"><span class="pre">POLICIES</span></code> global singleton to retrieve the
+ring which is instantiated the first time it’s needed.  So, instead of an object
+ring member of the <a class="reference internal" href="proxy.html#swift.proxy.server.Application" title="swift.proxy.server.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">Application</span></code></a> class, there is an accessor function,
+<a class="reference internal" href="proxy.html#swift.proxy.server.Application.get_object_ring" title="swift.proxy.server.Application.get_object_ring"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_object_ring()</span></code></a>, that gets the ring from
+<code class="xref py py-data docutils literal notranslate"><span class="pre">POLICIES</span></code>.</p>
+<p>In general, when any module running on the proxy requires an object ring, it
+does so via first getting the policy index from the cached container info.  The
+exception is during container creation where it uses the policy name from the
+request header to look up policy index from the <code class="xref py py-data docutils literal notranslate"><span class="pre">POLICIES</span></code> global.  Once
+the proxy has determined the policy index, it can use the
+<a class="reference internal" href="proxy.html#swift.proxy.server.Application.get_object_ring" title="swift.proxy.server.Application.get_object_ring"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_object_ring()</span></code></a> method described earlier to gain access to
+the correct ring.  It then has the responsibility of passing the index
+information, not the policy name, on to the back-end servers via the header <code class="docutils literal notranslate"><span class="pre">X</span>
+<span class="pre">-Backend-Storage-Policy-Index</span></code>. Going the other way, the proxy also strips the
+index out of headers that go back to clients, and makes sure they only see the
+friendly policy names.</p>
+</section>
+<section id="on-disk-storage">
+<h3>On Disk Storage<a class="headerlink" href="#on-disk-storage" title="Permalink to this heading">¶</a></h3>
+<p>Policies each have their own directories on the back-end servers and are
+identified by their storage policy indexes.  Organizing the back-end directory
+structures by policy index helps keep track of things and also allows for
+sharing of disks between policies which may or may not make sense depending on
+the needs of the provider.  More on this later, but for now be aware of the
+following directory naming convention:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">/objects</span></code> maps to objects associated with Policy-0</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/objects-N</span></code> maps to storage policy index #N</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/async_pending</span></code> maps to async pending update for Policy-0</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/async_pending-N</span></code> maps to async pending update for storage policy index #N</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/tmp</span></code> maps to the DiskFile temporary directory for Policy-0</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/tmp-N</span></code> maps to the DiskFile temporary directory for policy index #N</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/quarantined/objects</span></code> maps to the quarantine directory for Policy-0</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">/quarantined/objects-N</span></code> maps to the quarantine directory for policy index #N</p></li>
+</ul>
+<p>Note that these directory names are actually owned by the specific Diskfile
+implementation, the names shown above are used by the default Diskfile.</p>
+</section>
+<section id="object-server">
+<h3>Object Server<a class="headerlink" href="#object-server" title="Permalink to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="object.html#object-server"><span class="std std-ref">Object Server</span></a> is not involved with selecting the storage policy
+placement directly.  However, because of how back-end directory structures are
+setup for policies, as described earlier, the object server modules do play a
+role.  When the object server gets a <code class="xref py py-class docutils literal notranslate"><span class="pre">Diskfile</span></code>, it passes in the
+policy index and leaves the actual directory naming/structure mechanisms to
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Diskfile</span></code>.  By passing in the index, the instance of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Diskfile</span></code> being used will assure that data is properly located in the
+tree based on its policy.</p>
+<p>For the same reason, the <a class="reference internal" href="object.html#object-updater"><span class="std std-ref">Object Updater</span></a> also is policy aware.  As
+previously described, different policies use different async pending directories
+so the updater needs to know how to scan them appropriately.</p>
+<p>The <a class="reference internal" href="object.html#object-replicator"><span class="std std-ref">Object Replicator</span></a> is policy aware in that, depending on the policy,
+it may have to do drastically different things, or maybe not.  For example, the
+difference in handling a replication job for 2x versus 3x is trivial; however,
+the difference in handling replication between 3x and erasure code is most
+definitely not.  In fact, the term ‘replication’ really isn’t appropriate for
+some policies like erasure code; however, the majority of the framework for
+collecting and processing jobs is common.  Thus, those functions in the
+replicator are leveraged for all policies and then there is policy specific code
+required for each policy, added when the policy is defined if needed.</p>
+<p>The ssync functionality is policy aware for the same reason. Some of the
+other modules may not obviously be affected, but the back-end directory
+structure owned by <code class="xref py py-class docutils literal notranslate"><span class="pre">Diskfile</span></code> requires the policy index
+parameter.  Therefore ssync being policy aware really means passing the
+policy index along.  See <a class="reference internal" href="object.html#module-swift.obj.ssync_sender" title="swift.obj.ssync_sender"><code class="xref py py-class docutils literal notranslate"><span class="pre">ssync_sender</span></code></a> and
+<a class="reference internal" href="object.html#module-swift.obj.ssync_receiver" title="swift.obj.ssync_receiver"><code class="xref py py-class docutils literal notranslate"><span class="pre">ssync_receiver</span></code></a> for more information on ssync.</p>
+<p>For <code class="xref py py-class docutils literal notranslate"><span class="pre">Diskfile</span></code> itself, being policy aware is all about managing the
+back-end structure using the provided policy index.  In other words, callers who
+get a <code class="xref py py-class docutils literal notranslate"><span class="pre">Diskfile</span></code> instance provide a policy index and
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Diskfile</span></code>’s job is to keep data separated via this index (however it
+chooses) such that policies can share the same media/nodes if desired.  The
+included implementation of <code class="xref py py-class docutils literal notranslate"><span class="pre">Diskfile</span></code> lays out the directory structure
+described earlier but that’s owned within <code class="xref py py-class docutils literal notranslate"><span class="pre">Diskfile</span></code>; external modules
+have no visibility into that detail.  A common function is provided to map
+various directory names and/or strings based on their policy index. For example
+<code class="xref py py-class docutils literal notranslate"><span class="pre">Diskfile</span></code> defines <a class="reference internal" href="object.html#swift.obj.diskfile.get_data_dir" title="swift.obj.diskfile.get_data_dir"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_data_dir()</span></code></a> which builds
+off of a generic <a class="reference internal" href="misc.html#swift.common.storage_policy.get_policy_string" title="swift.common.storage_policy.get_policy_string"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_policy_string()</span></code></a> to consistently build policy aware
+strings for various usage.</p>
+</section>
+<section id="container-server">
+<h3>Container Server<a class="headerlink" href="#container-server" title="Permalink to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="container.html#container-server"><span class="std std-ref">Container Server</span></a> plays a very important role in Storage Policies, it
+is responsible for handling the assignment of a policy to a container and the
+prevention of bad things like changing policies or picking the wrong policy to
+use when nothing is specified (recall earlier discussion on Policy-0 versus
+default).</p>
+<p>The <a class="reference internal" href="container.html#container-updater"><span class="std std-ref">Container Updater</span></a> is policy aware, however its job is very simple, to
+pass the policy index along to the <a class="reference internal" href="account.html#account-server"><span class="std std-ref">Account Server</span></a> via a request header.</p>
+<p>The <a class="reference internal" href="container.html#container-backend"><span class="std std-ref">Container Backend</span></a> is responsible for both altering existing DB
+schema as well as assuring new DBs are created with a schema that supports
+storage policies.  The “on-demand” migration of container schemas allows Swift
+to upgrade without downtime (sqlite’s alter statements are fast regardless of
+row count).  To support rolling upgrades (and downgrades) the incompatible
+schema changes to the <code class="docutils literal notranslate"><span class="pre">container_stat</span></code> table are made to a
+<code class="docutils literal notranslate"><span class="pre">container_info</span></code> table, and the <code class="docutils literal notranslate"><span class="pre">container_stat</span></code> table is replaced with a
+view that includes an <code class="docutils literal notranslate"><span class="pre">INSTEAD</span> <span class="pre">OF</span> <span class="pre">UPDATE</span></code> trigger which makes it behave like
+the old table.</p>
+<p>The policy index is stored here for use in reporting information
+about the container as well as managing split-brain scenario induced
+discrepancies between containers and their storage policies.  Furthermore,
+during split-brain, containers must be prepared to track object updates from
+multiple policies so the object table also includes a
+<code class="docutils literal notranslate"><span class="pre">storage_policy_index</span></code> column.  Per-policy object counts and bytes are
+updated in the <code class="docutils literal notranslate"><span class="pre">policy_stat</span></code> table using <code class="docutils literal notranslate"><span class="pre">INSERT</span></code> and <code class="docutils literal notranslate"><span class="pre">DELETE</span></code> triggers
+similar to the pre-policy triggers that updated <code class="docutils literal notranslate"><span class="pre">container_stat</span></code> directly.</p>
+<p>The <a class="reference internal" href="container.html#container-replicator"><span class="std std-ref">Container Replicator</span></a> daemon will pro-actively migrate legacy
+schemas as part of its normal consistency checking process when it updates the
+<code class="docutils literal notranslate"><span class="pre">reconciler_sync_point</span></code> entry in the <code class="docutils literal notranslate"><span class="pre">container_info</span></code> table.  This ensures
+that read heavy containers which do not encounter any writes will still get
+migrated to be fully compatible with the post-storage-policy queries without
+having to fall back and retry queries with the legacy schema to service
+container read requests.</p>
+<p>The <a class="reference internal" href="container.html#container-sync-daemon"><span class="std std-ref">Container Sync</span></a> functionality only needs to be policy aware in
+that it accesses the object rings.  Therefore, it needs to pull the policy index
+out of the container information and use it to select the appropriate object
+ring from the <code class="xref py py-data docutils literal notranslate"><span class="pre">POLICIES</span></code> global.</p>
+</section>
+<section id="account-server">
+<h3>Account Server<a class="headerlink" href="#account-server" title="Permalink to this heading">¶</a></h3>
+<p>The <a class="reference internal" href="account.html#account-server"><span class="std std-ref">Account Server</span></a>’s role in Storage Policies is really limited to
+reporting. When a HEAD request is made on an account (see example provided
+earlier), the account server is provided with the storage policy index and
+builds the <code class="docutils literal notranslate"><span class="pre">object_count</span></code> and <code class="docutils literal notranslate"><span class="pre">byte_count</span></code> information for the client on a
+per policy basis.</p>
+<p>The account servers are able to report per-storage-policy object and byte
+counts because of some policy specific DB schema changes.  A policy specific
+table, <code class="docutils literal notranslate"><span class="pre">policy_stat</span></code>, maintains information on a per policy basis (one row
+per policy) in the same manner in which the <code class="docutils literal notranslate"><span class="pre">account_stat</span></code> table does.  The
+<code class="docutils literal notranslate"><span class="pre">account_stat</span></code> table still serves the same purpose and is not replaced by
+<code class="docutils literal notranslate"><span class="pre">policy_stat</span></code>, it holds the total account stats whereas <code class="docutils literal notranslate"><span class="pre">policy_stat</span></code> just
+has the break downs.  The backend is also responsible for migrating
+pre-storage-policy accounts by altering the DB schema and populating the
+<code class="docutils literal notranslate"><span class="pre">policy_stat</span></code> table for Policy-0 with current <code class="docutils literal notranslate"><span class="pre">account_stat</span></code> data at that
+point in time.</p>
+<p>The per-storage-policy object and byte counts are not updated with each object
+PUT and DELETE request, instead container updates to the account server are
+performed asynchronously by the <code class="docutils literal notranslate"><span class="pre">swift-container-updater</span></code>.</p>
+</section>
+<section id="upgrading-and-confirming-functionality">
+<span id="upgrade-policy"></span><h3>Upgrading and Confirming Functionality<a class="headerlink" href="#upgrading-and-confirming-functionality" title="Permalink to this heading">¶</a></h3>
+<p>Upgrading to a version of Swift that has Storage Policy support is not
+difficult, in fact, the cluster administrator isn’t required to make any special
+configuration changes to get going.  Swift will automatically begin using the
+existing object ring as both the default ring and the Policy-0 ring.  Adding the
+declaration of policy 0 is totally optional and in its absence, the name given
+to the implicit policy 0 will be ‘Policy-0’.  Let’s say for testing purposes
+that you wanted to take an existing cluster that already has lots of data on it
+and upgrade to Swift with Storage Policies. From there you want to go ahead and
+create a policy and test a few things out.  All you need to do is:</p>
+<ol class="arabic simple">
+<li><p>Upgrade all of your Swift nodes to a policy-aware version of Swift</p></li>
+<li><p>Define your policies in <code class="docutils literal notranslate"><span class="pre">/etc/swift/swift.conf</span></code></p></li>
+<li><p>Create the corresponding object rings</p></li>
+<li><p>Create containers and objects and confirm their placement is as expected</p></li>
+</ol>
+<p>For a specific example that takes you through these steps, please see
+<a class="reference internal" href="policies_saio.html"><span class="doc">Adding Storage Policies to an Existing SAIO</span></a></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you downgrade from a Storage Policy enabled version of Swift to an
+older version that doesn’t support policies, you will not be able to
+access any data stored in policies other than the policy with index 0 but
+those objects WILL appear in container listings (possibly as duplicates if
+there was a network partition and un-reconciled objects).  It is EXTREMELY
+important that you perform any necessary integration testing on the
+upgraded deployment before enabling an additional storage policy to ensure
+a consistent API experience for your clients.  DO NOT downgrade to a
+version of Swift that does not support storage policies once you expose
+multiple storage policies.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+              </div>
+            </div>
+          </div>
+          <div class="docs-actions">
+          
+            <a href="overview_ring.html"><i class="fa fa-angle-double-left" data-toggle="tooltip" data-placement="top" title="Previous: The Rings"></i></a>
+          
+          
+            <a href="overview_reaper.html"><i class="fa fa-angle-double-right" data-toggle="tooltip" data-placement="top" title="Next: The Account Reaper"></i></a>
+          
+          <a id="pdfLink2" href="" target="_blank" title="Download the manuals as PDF"><i class="fa fa-file-pdf-o" data-toggle="tooltip" data-placement="top" title="Download PDF"></i></a>
+          
+            <a id="logABugLink3" href="" target="_blank" title="Found an error? Report a bug against this page"><i class="fa fa-bug" data-toggle="tooltip" data-placement="top" title="Report a Bug"></i></a>
+          
+          </div>
+          <div class="row docs-byline bottom">
+            <div class="docs-updated">this page last updated: 2021-03-25 10:20:27</div>
+          </div>
+          <div class="row">
+            <div class="col-lg-8 col-md-8 col-sm-8 docs-license">
+<a href="https://creativecommons.org/licenses/by/3.0/">
+ <img src="_static/images/docs/license.png" alt="Creative Commons Attribution 3.0 License"/>
+</a>
+<p>
+ Except where otherwise noted, this document is licensed under
+ <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons
+ Attribution 3.0 License</a>. See all <a href="https://www.openstack.org/legal">
+ OpenStack Legal Documents</a>.
+</p>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 docs-actions-wrapper">
+            <!-- ID buglinkbottom added so that pre-filled doc bugs
+                 are sent to Launchpad projects related to the
+                 document -->
+              <a href="#" id="logABugLink2" class="docs-footer-actions"><i class="fa fa-bug"></i> found an error? report a bug</a>
+            </div>
+          </div>
+        </div>
+<div class="col-lg-3 col-md-4 col-sm-4 col-lg-pull-9 col-md-pull-8 col-sm-pull-8 docs-sidebar">
+  <div class="btn-group docs-sidebar-releases">
+    <button onclick="location.href='/'" class="btn docs-sidebar-home" data-toggle="tooltip" data-placement="top" title="OpenStack Docs Home"><i class="fa fa-arrow-circle-o-left"></i></button>
+<button href="#" type="button" data-toggle="dropdown" class="btn docs-sidebar-release-select">OpenStack Documentation<i class="fa fa-caret-down"></i></button>
+    <ul class="dropdown-menu docs-sidebar-dropdown" role="menu" aria-labelledby="dLabel">
+      <li role="presentation" class="dropdown-header">Guides</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#install-guides">Install Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#user-guides">User Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#configuration-guides">Configuration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#ops-and-admin-guides">Operations and Administration Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#api-guides">API Guides</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/index.html#contributor-guides">Contributor Guides</a></li>
+      <li role="presentation" class="dropdown-header">Languages</li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/de/">Deutsch (German)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/fr/">Français (French)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/id/">Bahasa Indonesia (Indonesian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/it/">Italiano (Italian)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ja/">日本語 (Japanese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/ko_KR/">한국어 (Korean)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/pt_BR/">Português (Portuguese)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/tr_TR/">Türkçe (Türkiye)</a></li>
+      <li role="presentation"><a role="menuitem" tabindex="-1" href="https://docs.openstack.org/zh_CN/">简体中文 (Simplified Chinese)</a></li>
+    </ul>
+  </div>
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="table-of-contents">
+      <a href="index.html" class="docs-sidebar-section-title"><h4>Swift 0.1.0.dev10164</h4></a>
+      <ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_architecture.html">Swift Architectural Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_ring.html">The Rings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Storage Policies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#containers-and-policies">Containers and Policies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#container-reconciler">Container Reconciler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#default-versus-policy-0">Default versus ‘Policy-0’</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deprecating-policies">Deprecating Policies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuring-policies">Configuring Policies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-policies">Using Policies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#under-the-hood">Under the Hood</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="overview_reaper.html">The Account Reaper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_auth.html">The Auth System</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_acl.html">Access Control Lists (ACLs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ratelimit.html">Rate Limiting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_large_objects.html">Large Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_global_cluster.html">Global Clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sync.html">Container to Container Synchronization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_expiring_objects.html">Expiring Object Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cors.html">CORS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crossdomain.html">Cross-domain Policy File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_erasure_code.html">Erasure Code Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_encryption.html">Object Encryption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_backing_store.html">Using Swift as Backing Store for Service Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview_container_sharding.html">Container Sharding</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ring_background.html">Building a Consistent Hashing Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ring_partpower.html">Modifying Ring Partition Power</a></li>
+<li class="toctree-l1"><a class="reference internal" href="associated_projects.html">Associated Projects</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html">Contributing to OpenStack Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#swift-design-principles">Swift Design Principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#recommended-workflow">Recommended workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#notes-on-testing">Notes on Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#ideas">Ideas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/contributing.html#community">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributor/review_guidelines.html">Review Guidelines</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development_guidelines.html">Development Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_saio.html">SAIO (Swift All In One)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="first_contribution_swift.html">First Contribution to Swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policies_saio.html">Adding Storage Policies to an Existing SAIO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_auth.html">Auth Server and Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_middleware.html">Middleware and Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_ondisk_backends.html">Pluggable On-Disk Back-end APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development_watchers.html">Auditor Watchers</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="deployment_guide.html">Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apache_deployment_guide.html">Apache Deployment Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin_guide.html">Administrator’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication_network.html">Dedicated replication network</a></li>
+<li class="toctree-l1"><a class="reference internal" href="logs.html">Logs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ops_runbook/index.html">Swift Ops Runbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="admin/index.html">OpenStack Swift Administrator Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install/index.html">Object Storage Install Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="config/index.html">Configuration Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/object_api_v1_overview.html">Object Storage API overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/discoverability.html">Discoverability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/authentication.html">Authentication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/container_quotas.html">Container quotas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object_versioning.html">Object versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/large_objects.html">Large objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/temporary_url_middleware.html">Temporary URL middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/form_post_middleware.html">Form POST middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_content-encoding_metadata.html">Use Content-Encoding metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/use_the_content-disposition_metadata.html">Use the Content-Disposition metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pseudo-hierarchical-folders-directories.html">Pseudo-hierarchical folders and directories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/pagination.html">Page through large lists of containers or objects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/serialized-response-formats.html">Serialized response formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/static-website.html">Create static website</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/object-expiration.html">Object expiration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/bulk-delete.html">Bulk delete</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="s3_compat.html">S3/Swift REST API Comparison Matrix</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ring.html">Partitioned Consistent Hash Ring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxy.html">Proxy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="account.html">Account</a></li>
+<li class="toctree-l1"><a class="reference internal" href="container.html">Container</a></li>
+<li class="toctree-l1"><a class="reference internal" href="db.html">Account DB and Container DB</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object.html">Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Misc</a></li>
+<li class="toctree-l1"><a class="reference internal" href="middleware.html">Middleware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="audit_watchers.html">Object Audit Watchers</a></li>
+</ul>
+
+    </div>
+
+  <div class="docs-sidebar-toc">
+    <div class="docs-sidebar-section" id="local-table-of-contents">
+      <h4 class="docs-sidebar-section-title">Page Contents</h4>
+      <ul>
+<li><a class="reference internal" href="#">Storage Policies</a><ul>
+<li><a class="reference internal" href="#containers-and-policies">Containers and Policies</a></li>
+<li><a class="reference internal" href="#container-reconciler">Container Reconciler</a></li>
+<li><a class="reference internal" href="#default-versus-policy-0">Default versus ‘Policy-0’</a></li>
+<li><a class="reference internal" href="#deprecating-policies">Deprecating Policies</a></li>
+<li><a class="reference internal" href="#configuring-policies">Configuring Policies</a><ul>
+<li><a class="reference internal" href="#defining-a-policy">Defining a policy</a></li>
+<li><a class="reference internal" href="#creating-a-ring">Creating a ring</a></li>
+<li><a class="reference internal" href="#proxy-server-configuration-optional">Proxy server configuration (optional)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#using-policies">Using Policies</a></li>
+<li><a class="reference internal" href="#under-the-hood">Under the Hood</a><ul>
+<li><a class="reference internal" href="#parsing-and-configuring">Parsing and Configuring</a></li>
+<li><a class="reference internal" href="#middleware">Middleware</a></li>
+<li><a class="reference internal" href="#proxy-server">Proxy Server</a></li>
+<li><a class="reference internal" href="#on-disk-storage">On Disk Storage</a></li>
+<li><a class="reference internal" href="#object-server">Object Server</a></li>
+<li><a class="reference internal" href="#container-server">Container Server</a></li>
+<li><a class="reference internal" href="#account-server">Account Server</a></li>
+<li><a class="reference internal" href="#upgrading-and-confirming-functionality">Upgrading and Confirming Functionality</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  </div>
+</div>
+      </div>
+    </div>
+<footer>
+  <div class="container">
+    <div class="row footer-links">
+      <div class="col-lg-2 col-sm-2">
+        <h3>OpenStack</h3>
+        <ul>
+          <li><a href="https://openstack.org/projects/">Projects</a></li>
+          <li><a href="https://www.openstack.org/software/security/">OpenStack Security</a></li>
+          <li><a href="https://openstack.org/projects/openstack-faq/">Common Questions</a></li>
+          <li><a href="https://openstack.org/blog/">Blog</a></li>g
+          <li><a href="https://openstack.org/news/">News</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Community</h3>
+        <ul>
+          <li><a href="https://openstack.org/community/">User Groups</a></li>
+          <li><a href="https://openstack.org/community/events/">Events</a></li>
+          <li><a href="https://openstack.org/community/jobs/">Jobs</a></li>
+          <li><a href="https://openstack.org/foundation/companies/">Companies</a></li>
+          <li><a href="https://docs.openstack.org/contributors">Contribute</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="https://docs.openstack.org">OpenStack Manuals</a></li>
+          <li><a href="https://openstack.org/software/start/">Getting Started</a></li>
+          <li><a href="https://developer.openstack.org">API Documentation</a></li>
+          <li><a href="https://wiki.openstack.org">Wiki</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-2 col-sm-2">
+        <h3>Branding & Legal</h3>
+        <ul>
+          <li><a href="https://openstack.org/brand/">Logos & Guidelines</a></li>
+          <li><a href="https://openstack.org/brand/openstack-trademark-policy/">Trademark Policy</a></li>
+          <li><a href="https://openstack.org/privacy/">Privacy Policy</a></li>
+          <li><a href="https://wiki.openstack.org/wiki/How_To_Contribute#Contributor_License_Agreement">OpenStack CLA</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-sm-4">
+        <h3>Stay In Touch</h3>
+        <a href="https://twitter.com/OpenStack" target="_blank" class="social-icons footer-twitter"></a>
+        <a href="https://www.facebook.com/openstack" target="_blank" class="social-icons footer-facebook"></a>
+        <a href="https://www.linkedin.com/company/openstack" target="_blank" class="social-icons footer-linkedin"></a>
+        <a href="https://www.youtube.com/user/OpenStackFoundation" target="_blank" class="social-icons footer-youtube"></a>
+        <p class="fine-print">
+          The OpenStack project is provided under the
+          <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>. Openstack.org is powered by
+          <a href="https://rackspace.com" target="_blank">Rackspace Cloud Computing</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- jQuery -->
+<script type="text/javascript" src="_static/js/jquery-3.2.1.min.js"></script>
+
+<!-- Bootstrap JavaScript -->
+<script type="text/javascript" src="_static/js/bootstrap.min.js"></script>
+
+<!-- The rest of the JS -->
+<script type="text/javascript" src="_static/js/navigation.js"></script>
+
+<!-- Docs JS -->
+<script type="text/javascript" src="_static/js/docs.js"></script>
+
+<!-- standard sphinx include libraries, which allow search highlighting -->
+<script type="text/javascript" src="_static/underscore.js"></script>
+<script type="text/javascript" src="_static/doctools.js"></script>
+<script type="text/javascript" src="_static/searchtools.js"></script>
+<script type="text/javascript" src="_static/language_data.js"></script>
+
+<script type="text/javascript">
+    var DOCUMENTATION_OPTIONS = {
+      URL_ROOT:    './',
+      VERSION:     '0.1.0.dev10164',
+      COLLAPSE_INDEX: false,
+      FILE_SUFFIX: '.html',
+      LINK_SUFFIX: '.html',
+      SOURCELINK_SUFFIX: '.txt',
+      HAS_SOURCE:  true
+    };
+</script>
+
+<!-- Javascript for page -->
+<script language="JavaScript">
+  /* Build a description of this page including SHA, source location on git
+   * repo, build time and the project's launchpad bug tag. Set the HREF of the
+   * bug buttons
+   */
+    var lineFeed = "%0A";
+    var gitURL = "Source: Can't derive source file URL";
+
+    /* there have been cases where "pagename" wasn't set; better check for it */
+    /* "giturl" is the URL of the source file on Git and is auto-generated by
+     * openstackdocstheme.
+     *
+     * "pagename" is a standard sphinx parameter containing the name of
+     * the source file, without extension.
+     */
+
+    var sourceFile = "overview_policies" + ".rst";
+    gitURL = "Source: https://opendev.org/openstack/swift/src/doc/source" + "/" + sourceFile;
+
+    /* gitsha, project and bug_tag rely on variables in conf.py */
+    var gitSha = "SHA: c7afe681fd119752e66a8e9032e8782641fec3ff";
+    var repositoryName = "openstack/swift";
+    var bugProject = "swift";
+    var bugTitle = "Storage Policies in Swift";
+    var fieldTags = "";
+    var useStoryboard = "";
+
+    /* "last_updated" is the build date and time. It relies on the
+       conf.py variable "html_last_updated_fmt", which should include
+       year/month/day as well as hours and minutes                   */
+    var buildstring = "Release: 0.1.0.dev10164 on 2021-03-25 10:20:27";
+
+    var fieldComment = encodeURI(buildstring) +
+                       lineFeed + encodeURI(gitSha) +
+                       lineFeed + encodeURI(gitURL) ;
+
+    logABug(bugTitle, bugProject, fieldComment, fieldTags, repositoryName, useStoryboard);
+    var currentSourceFile = "overview_policies";
+    var pdfFileName = "doc-swift.pdf";
+    pdfLink(currentSourceFile, pdfFileName);
+</script>
+
+
+  </body>
+</html>
