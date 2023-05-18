@@ -26,7 +26,7 @@ env:
 
 jobs:
   release:
-    name: Deploy to GitHub Pages
+    name: Test & Release Documentation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -39,20 +39,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install liberasurecode-dev
-          git clone https://github.com/openstack/liberasurecode.git
-          cd liberasurecode
-          ./autogen.sh
-          ./configure
-          make
-          make test
-          sudo make install
-          cd ../
           pip install swift
           pip install -r requirements.txt -r doc/requirements.txt
-      - name: Build doc
+      - name: Build documentation
         run: sphinx-build -b html doc/source doc/build/html
       - name: Deploy documentation to GitHub Pages
-        #if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
