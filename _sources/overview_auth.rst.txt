@@ -55,6 +55,146 @@ Non-admin users can only perform read operations. However, some
 privileged metadata such as X-Container-Sync-Key is not accessible to
 non-admin users.
 
+.. tip::
+
+   As a good starting point,
+   `a single-node docker image <https://github.com/QubitPi/docker-swift-onlyone>`__
+   will make it easy for developers to get used to using object storage instead
+   of a file system, and when they need the eventual consistency and multiple
+   replicas provided by a larger OpenStack Swift cluster they can work on
+   implementing that by following this section. One replica is not an issue in
+   small systems or for a proof-of-concept because it can just be backed up.
+
+   Its Dockerfile uses `supervisord <http://supervisord.org/>`__ to manage the
+   processes. The most idiomatic way to use docker is one container one service,
+   but in this particular Dockerfile we will be starting several services in the
+   container, such as rsyslog, memcached, and all the required OpenStack Swift
+   daemons (of which there are quite a few). So in this case we're using Docker
+   more as a role-based system, and the roles are both a Swift proxy and Swift
+   storage, ie. a Swift "onlyone."" All of the required Swift services are
+   running in this one container.
+
+   To use this container::
+
+       docker volume create swift-data
+       docker run -d --name swift -p 12345:8080 -v swift-data:/srv -t fnndsc/docker-swift-onlyone
+
+Swift API through TempAuth
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In this process two components are involved
+
+1. the Swift proxy server, and
+2. the Swift client
+
+The client should contain the following information:
+
+* storage URL, and
+* authentication information, including the HTTP methods and other metadata
+  information
+
+To begin with the client will send its auth details in the HTTP header using
+**X-AUTH-USER** and **X-AUTH-KEY**. The Swift server then responds with the
+**X-AUTH-TOKEN** and **X-Storage-Url** to the client. The client will, then, use
+X-AUTH-TOKEN and X-Storage-Url to perform the HTTP operations such as uploading
+and downloading files from Swift.
+
+This auth system is default and known as the **TempAuth**.
+
+To put it into action, let's say we have a **username of "system:jack"**, and
+**password of "testpass"**. Our Swift instance is running locally at port
+`6000 <https://docs.openstack.org/install-guide/firewalls-default-ports.html>`__.
+Execute the following command and make a note of *X-Auth-Token*. We will need
+this token to use in all subsequent request.
+
+.. code-block:: bash
+   curl -v -H 'X-Storage-User: system:jack' -H 'X-Storage-Pass: testpass' http://localhost:6000/auth/v1.0
+The response looks like the following:
+
+.. code-block:: console
+   :emphasize-lines: 9
+   $ curl -v -H 'X-Storage-User: system:jack' -H 'X-Storage-Pass: testpass' http://localhost:6000/auth/v1.0
+   ...
+   > X-Storage-User: chris:chris1234
+   > X-Storage-Pass: testing
+   >
+   < HTTP/1.1 200 OK
+   < X-Storage-Url: http://localhost:6000/v1/AUTH_system
+   < X-Auth-Token-Expires: ...
+   < X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899
+   < Content-Type: ...
+   < X-Storage-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899
+   ...
+In this case, *X-Auth-Token* is **AUTH_tk65840af9f6f74d1aaefac978cb8f0899** and
+storage URL which we will be using from now one is
+"http://localhost:6000/v1/AUTH_system"
+
+.. important::
+
+   Note that the storage URL does vary based on the username. For example, if
+   username is not "system:jack", but others like "**foo**:bar", the storage URL
+   becomes "http://localhost:6000/v1/AUTH_foo" instead
+
+* To get metadata associated with a Swift account "system":
+
+  .. code-block:: bash
+     curl -v -X HEAD -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/
+  .. tip::
+
+     We can request the data from Swift in XML or JSON format by specifying the
+     "**format**" paramater. For example
+
+     .. code-block:: bash
+        curl -v -X HEAD -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/?format=json
+        curl -v -X HEAD -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/?format=xml
+     This parameter can be applied to any of the requests below as well:
+
+     .. code-block:: bash
+        curl -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://10.80.83.68:8077/v1/AUTH_system/?format=json
+        curl -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://10.80.83.68:8077/v1/AUTH_system/?format=xml
+* To create a container called "my-container"
+
+  .. code-block:: bash
+     curl -X PUT -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/my-container
+* To get metadata associated with a container called "my-container":
+
+  .. code-block:: bash
+     curl -v -X HEAD -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/my-container
+* To list all containers in current account:
+
+  .. code-block:: bash
+     curl -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/
+* To upload a file called "my-file.pdf" to container "my-container"
+
+  .. code-block:: bash
+     curl -X PUT -T my-file.pdf -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/my-container/
+* To list all objects in a container:
+
+  .. code-block:: bash
+     curl -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/my-container
+* To list all objects in a container that starts with a particular prefix "my-":
+
+  .. code-block:: bash
+     curl -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/my-container/?prefix=my-
+* To download a particular file named "my-file.pdf" from the container "my-container":
+
+  .. code-block:: bash
+     curl -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/my-container/my-file.pdf
+* To download named "my-file.pdf" and save it locally as "local-file.pdf":
+
+  .. code-block:: bash
+     curl -o local-file.pdf -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/my-container/my-file.pdf
+* To delete a specific file called "my-file.pdf" from "my-container"
+
+  .. code-block:: bash
+     curl -X DELETE -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/my-container/my-file.pdf
+* To delete the container "my-container"
+
+  .. code-block:: bash
+     curl -X DELETE -H 'X-Auth-Token: AUTH_tk65840af9f6f74d1aaefac978cb8f0899' http://localhost:6000/v1/AUTH_system/my-container
+More information is at
+`Swift Object Storage API <https://docs.openstack.org/api-ref/object-store/index.html>`__
+
 Users with the special group ``.reseller_admin`` can operate on any account.
 For an example usage please see :mod:`swift.common.middleware.tempauth`.
 If a request is coming from a reseller the auth system sets the request environ
